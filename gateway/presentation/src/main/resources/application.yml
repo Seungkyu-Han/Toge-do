@@ -1,0 +1,11 @@
+server:
+  port: 12040
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: jenkins
+          uri: ${JENKINS_URI}
+          predicates:
+            - Path=/jenkins/**
