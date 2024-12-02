@@ -5,11 +5,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
-import vp.togedo.data.dto.kakao.OauthLogout
-import vp.togedo.data.dto.kakao.OauthTokenReq
-import vp.togedo.data.dto.kakao.OauthTokenRes
-import vp.togedo.data.dto.kakao.V2UserMe
+import vp.togedo.data.dto.kakao.*
 import vp.togedo.service.KakaoService
 
 @Service
@@ -58,5 +56,14 @@ class KakaoServiceImpl(
             }
             .retrieve()
             .bodyToMono(OauthLogout::class.java)
+
+    override fun v1UserUnlink(accessToken: String): Mono<V1UserUnlink> =
+        WebClient.create()
+            .post().uri("https://kapi.kakao.com/v1/user/unlink")
+            .headers{
+                it.set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
+            }
+            .retrieve()
+            .bodyToMono(V1UserUnlink::class.java)
 
 }
