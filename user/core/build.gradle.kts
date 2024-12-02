@@ -34,6 +34,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3")
 
+    //REFLECT
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
 }
 
 tasks.test {
