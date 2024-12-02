@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import vp.togedo.data.dto.kakao.OauthLogout
 import vp.togedo.data.dto.kakao.OauthTokenReq
 import vp.togedo.data.dto.kakao.OauthTokenRes
 import vp.togedo.data.dto.kakao.V2UserMe
@@ -48,5 +49,14 @@ class KakaoServiceImpl(
             }
             .retrieve()
             .bodyToMono(V2UserMe::class.java)
+
+    override fun oauthLogout(accessToken: String): Mono<OauthLogout> =
+        WebClient.create()
+            .post().uri("https://kapi.kakao.com/v1/user/logout")
+            .headers {
+                it.set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
+            }
+            .retrieve()
+            .bodyToMono(OauthLogout::class.java)
 
 }
