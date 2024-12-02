@@ -32,3 +32,5 @@ services:
 networks:
   vp:
     driver: bridge
+    name: vp
+    external: true

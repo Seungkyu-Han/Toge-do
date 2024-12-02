@@ -4,8 +4,18 @@ services:
   jenkins:
     image: jenkins/jenkins:jdk17
     container_name: jenkins
+    environment:
+      - JENKINS_OPTS=--prefix=/jenkins
     volumes:
       - ../../jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "10000:8080"
+    networks:
+      - vp
+
+networks:
+  vp:
+    driver: bridge
+    name: vp
+    external: true
