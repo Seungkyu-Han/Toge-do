@@ -5,7 +5,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import vp.togedo.data.dto.kakao.*
 import vp.togedo.service.KakaoService
@@ -16,6 +15,13 @@ class KakaoServiceImpl(
     val kakaoApiKey: String
 ): KakaoService {
 
+    /**
+     * 카카오 인증서버로부터 Oauth 토큰을 요청
+     * @author Seungkyu-Han
+     * @param code 카카오 로그인 코드
+     * @param redirectUri 카카오 redirect 주소
+     * @return 카카오 Oauth 토큰
+     */
     override fun oauthToken(code: String, redirectUri: String): Mono<OauthTokenRes> =
         WebClient.builder()
             .baseUrl("https://kauth.kakao.com/oauth/token")
@@ -38,6 +44,12 @@ class KakaoServiceImpl(
                 OauthTokenRes::class.java
             )
 
+    /**
+     * 카카오 인증서버로부터 사용자 정보를 요청
+     * @author Seungkyu-Han
+     * @param accessToken 카카오 인증서버로부터 응답받은 access token
+     * @return 카카오 유저 정보
+     */
     override fun v2UserMe(accessToken: String): Mono<V2UserMe> =
          WebClient.create()
             .post().uri("https://kapi.kakao.com/v2/user/me")
@@ -48,6 +60,11 @@ class KakaoServiceImpl(
             .retrieve()
             .bodyToMono(V2UserMe::class.java)
 
+    /**
+     * 카카오 인증서버로부터 받은 토큰들을 삭제
+     * @param accessToken 카카오 인증서버로부터 응답받은 access token
+     * @return 카카오 유저 아이디
+     */
     override fun oauthLogout(accessToken: String): Mono<OauthLogout> =
         WebClient.create()
             .post().uri("https://kapi.kakao.com/v1/user/logout")
@@ -57,6 +74,11 @@ class KakaoServiceImpl(
             .retrieve()
             .bodyToMono(OauthLogout::class.java)
 
+    /**
+     * 카카오 회원 탈퇴
+     * @param accessToken 카카오 인증서버로부터 응답받은 access token
+     * @return 카카오 유저 아이디
+     */
     override fun v1UserUnlink(accessToken: String): Mono<V1UserUnlink> =
         WebClient.create()
             .post().uri("https://kapi.kakao.com/v1/user/unlink")
