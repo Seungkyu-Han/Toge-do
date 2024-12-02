@@ -11,3 +11,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "10000:8080"
+    networks:
+      - vp
+
+networks:
+  vp:
+    driver: bridge
+    name: vp
+    external: true
