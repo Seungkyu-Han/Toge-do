@@ -15,6 +15,8 @@ repositories {
 dependencies {
     //USER PERSISTENCE
     implementation(project(":user:persistence"))
+    //SECURITY
+    implementation(project(":security:core"))
 
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
