@@ -30,7 +30,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     //SWAGGER
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.2")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
 
     //MAC NETTY RESOLVER
     if(System.getProperty("os.name") == "Mac OS X" && System.getProperty("os.arch") == "aarch64"){
