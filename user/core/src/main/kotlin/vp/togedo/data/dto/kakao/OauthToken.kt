@@ -2,17 +2,6 @@ package vp.togedo.data.dto.kakao
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class OauthTokenReq(
-    @JsonProperty("grant_type")
-    val grantType: String = "authorization_code",
-    @JsonProperty("client_id")
-    val clientId: String,
-    @JsonProperty("redirect_uri")
-    val redirectUri: String,
-    @JsonProperty("code")
-    val code: String
-)
-
 data class OauthTokenRes(
     @JsonProperty("token_type")
     val tokenType: String,
