@@ -1,0 +1,15 @@
+KAKAO:
+  REST_API_KEY: ${KAKAO_REST_API_KEY}
+
+
+JWT:
+  SECRET: ${JWT_SECRET}
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      auto-index-creation: true
+
+server:
+  port: 12041

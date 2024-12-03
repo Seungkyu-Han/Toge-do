@@ -9,7 +9,7 @@ import java.util.*
 
 @Component
 class JwtTokenProvider(
-    @Value("\${jwt.secret}")
+    @Value("\${JWT.SECRET}")
     private val secret: String
 ) {
 
