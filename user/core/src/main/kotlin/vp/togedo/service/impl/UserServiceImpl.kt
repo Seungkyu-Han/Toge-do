@@ -17,16 +17,33 @@ class UserServiceImpl(
     private val userRepository: UserRepository,
 ): UserService {
 
+    /**
+     * 유저의 objectId를 사용하여 access token 생성
+     * @param id 유저의 objectId
+     * @return 2시간 유효의 access token
+     */
     override fun createJwtAccessToken(id: ObjectId): String {
         val userId = id.toHexString()
         return jwtTokenProvider.getAccessToken(userId)
     }
 
+    /**
+     * 유저의 objectId를 사용하여 refresh token 생성
+     * @param id 유저의 objectId
+     * @return 7일 유효의 refresh token
+     */
     override fun createJwtRefreshToken(id: ObjectId): String {
         val userId = id.toHexString()
         return jwtTokenProvider.getAccessToken(userId)
     }
 
+    /**
+     * Oauth로부터 받은 정보로 사용자를 조회
+     * @param oauthEnum kakao, google
+     * @param kakaoId kakao oauth라면 kakao의 유저아이디
+     * @param googleId google oauth라면 google의 유저아이디
+     * @return 유저 정보
+     */
     @Transactional(readOnly = true)
     override fun getUserInfoByOauth(
         oauthEnum: OauthEnum,
@@ -42,6 +59,13 @@ class UserServiceImpl(
         return userRepository.findByOauth(oauth)
     }
 
+    /**
+     * Oauth를 사용하여 사용자를 생성
+     * @param oauthEnum kakao, google
+     * @param kakaoId kakao oauth라면 kakao의 유저아이디
+     * @param googleId google oauth라면 google의 유저아이디
+     * @return 유저 정보
+     */
     @Transactional
     override fun createUser(
         oauthEnum: OauthEnum,
