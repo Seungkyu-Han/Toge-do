@@ -13,10 +13,13 @@ repositories {
 dependencies {
     //PROJECT
     implementation(project(":user:core"))
+    implementation(project(":user:persistence"))
 
 
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
     //COROUTINE
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
