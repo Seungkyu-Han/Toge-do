@@ -10,6 +10,8 @@ import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument
 import vp.togedo.enums.OauthEnum
 import vp.togedo.service.UserService
+import vp.togedo.util.error.errorCode.ErrorCode
+import vp.togedo.util.error.exception.UserException
 
 @Service
 class UserServiceImpl(
@@ -57,6 +59,11 @@ class UserServiceImpl(
         )
 
         return userRepository.findByOauth(oauth)
+            .switchIfEmpty(
+                Mono.error(
+                    UserException(ErrorCode.USER_NOT_FOUND_BY_OAUTH)
+                )
+            )
     }
 
     /**
