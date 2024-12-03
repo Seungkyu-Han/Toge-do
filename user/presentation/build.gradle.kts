@@ -29,6 +29,9 @@ dependencies {
     //REFLECT
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    //SWAGGER
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.2")
+
     //MAC NETTY RESOLVER
     if(System.getProperty("os.name") == "Mac OS X" && System.getProperty("os.arch") == "aarch64"){
         runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64")

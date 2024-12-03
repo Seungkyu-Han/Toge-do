@@ -14,3 +14,13 @@ spring:
 
 server:
   port: 12041
+
+springdoc:
+  api-docs:
+    path: /user/v3/api-docs
+  swagger-ui:
+    url: /user/v3/api-docs
+    path: /user/swagger
+
+SWAGGER:
+  URL: ${SWAGGER_URL}
