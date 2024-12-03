@@ -17,7 +17,7 @@ data class V2UserMe(
     val synchedAt: LocalDateTime?,
 
     @JsonProperty("properties")
-    val properties: String?,
+    val properties: Any?,
 
     @JsonProperty("kakao_account")
     val kakaoAccount: KakaoAccount?,
