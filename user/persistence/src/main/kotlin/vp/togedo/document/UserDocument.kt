@@ -14,7 +14,11 @@ data class UserDocument(
     var id: ObjectId?,
 
     @Indexed(unique = true)
-    val oauth: Oauth
+    val oauth: Oauth,
+
+    val name: String? = null,
+
+    val email: String? = null
 )
 
 data class Oauth(

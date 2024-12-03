@@ -19,6 +19,8 @@ interface UserService {
     fun createUser(
         oauthEnum: OauthEnum,
         kakaoId: Long? = null,
-        googleId: String? = null): Mono<UserDocument>
+        googleId: String? = null,
+        name: String? = null,
+        email: String? = null): Mono<UserDocument>
 
 }

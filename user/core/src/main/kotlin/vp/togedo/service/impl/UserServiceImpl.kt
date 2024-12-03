@@ -77,9 +77,11 @@ class UserServiceImpl(
     override fun createUser(
         oauthEnum: OauthEnum,
         kakaoId: Long?,
-        googleId: String?): Mono<UserDocument> {
+        googleId: String?,
+        name: String?,
+        email: String?): Mono<UserDocument>{
 
-        val oauth = Oauth(
+    val oauth = Oauth(
             oauthType = oauthEnum,
             kakaoId = kakaoId,
             googleId = googleId
@@ -87,7 +89,9 @@ class UserServiceImpl(
 
         val user = UserDocument(
             id = null,
-            oauth = oauth
+            oauth = oauth,
+            name = name,
+            email = email
         )
 
         return userRepository.save(user)
