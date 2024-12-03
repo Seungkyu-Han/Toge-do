@@ -5,14 +5,15 @@ plugins {
     id("io.spring.dependency-management") version "1.1.6"
 }
 
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
     //PROJECT
-    implementation(project(":user:core"))
+    implementation(project(":user:core")){
+        isTransitive = false
+    }
     implementation(project(":user:persistence"))
 
 
@@ -45,3 +46,7 @@ tasks.test {
 kotlin {
     jvmToolchain(17)
 }
+
+//tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//}
