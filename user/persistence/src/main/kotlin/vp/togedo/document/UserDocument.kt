@@ -20,6 +20,6 @@ data class UserDocument(
 data class Oauth(
     @Field(targetType = FieldType.STRING)
     val oauthType: OauthEnum,
-    val kakaoId: Long?,
-    val googleId: String?
+    val kakaoId: Long? = null,
+    val googleId: String? = null
 )
