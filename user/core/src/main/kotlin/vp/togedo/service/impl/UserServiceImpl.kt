@@ -41,4 +41,24 @@ class UserServiceImpl(
 
         return userRepository.findByOauth(oauth)
     }
+
+    @Transactional
+    override fun createUser(
+        oauthEnum: OauthEnum,
+        kakaoId: Long?,
+        googleId: String?): Mono<UserDocument> {
+
+        val oauth = Oauth(
+            oauthType = oauthEnum,
+            kakaoId = kakaoId,
+            googleId = googleId
+        )
+
+        val user = UserDocument(
+            id = null,
+            oauth = oauth
+        )
+
+        return userRepository.save(user)
+    }
 }
