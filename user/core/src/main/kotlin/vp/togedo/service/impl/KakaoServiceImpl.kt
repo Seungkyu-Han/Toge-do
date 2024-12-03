@@ -12,32 +12,28 @@ import vp.togedo.service.KakaoService
 @Service
 class KakaoServiceImpl(
     @Value("\${KAKAO.REST_API_KEY}")
-    val kakaoApiKey: String
+    val kakaoApiKey: String,
+    @Value("\${KAKAO.REDIRECT_URI}")
+    val kakaoRedirectUri: String
 ): KakaoService {
 
     /**
      * 카카오 인증서버로부터 Oauth 토큰을 요청
      * @author Seungkyu-Han
      * @param code 카카오 로그인 코드
-     * @param redirectUri 카카오 redirect 주소
      * @return 카카오 Oauth 토큰
      */
-    override fun oauthToken(code: String, redirectUri: String): Mono<OauthTokenRes> =
-        WebClient.builder()
-            .baseUrl("https://kauth.kakao.com/oauth/token")
-            .defaultHeaders {
+    override fun oauthToken(code: String): Mono<OauthTokenRes> =
+        WebClient.create()
+            .post().uri("https://kauth.kakao.com/oauth/token")
+            .headers {
                 it.set(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8")
             }
-            .build()
-            .post()
             .body(
-                BodyInserters.fromValue(
-                    OauthTokenReq(
-                        code = code,
-                        redirectUri = redirectUri,
-                        clientId = kakaoApiKey
-                    )
-                )
+                BodyInserters.fromFormData("grant_type", "authorization_code")
+                    .with("client_id", kakaoApiKey)
+                    .with("redirect_uri", kakaoRedirectUri)
+                    .with("code", code)
             )
             .retrieve()
             .bodyToMono(
@@ -52,7 +48,7 @@ class KakaoServiceImpl(
      */
     override fun v2UserMe(accessToken: String): Mono<V2UserMe> =
          WebClient.create()
-            .post().uri("https://kapi.kakao.com/v2/user/me")
+            .get().uri("https://kapi.kakao.com/v2/user/me")
             .headers {
                 it.set(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
                 it.set(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8")

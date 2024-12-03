@@ -8,7 +8,7 @@ import vp.togedo.data.dto.kakao.V2UserMe
 
 interface KakaoService {
 
-    fun oauthToken(code: String, redirectUri: String): Mono<OauthTokenRes>
+    fun oauthToken(code: String): Mono<OauthTokenRes>
 
     fun v2UserMe(accessToken: String): Mono<V2UserMe>
 
