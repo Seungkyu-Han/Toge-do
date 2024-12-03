@@ -1,0 +1,26 @@
+KAKAO:
+  REST_API_KEY: ${KAKAO_REST_API_KEY}
+  REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+
+
+JWT:
+  SECRET: ${JWT_SECRET}
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      auto-index-creation: true
+
+server:
+  port: 12041
+
+springdoc:
+  api-docs:
+    path: /user/v3/api-docs
+  swagger-ui:
+    url: /user/v3/api-docs
+    path: /user/swagger
+
+SWAGGER:
+  URL: ${SWAGGER_URL}

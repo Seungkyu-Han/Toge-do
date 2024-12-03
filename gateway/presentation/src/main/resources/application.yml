@@ -9,3 +9,8 @@ spring:
           uri: ${JENKINS_URI}
           predicates:
             - Path=/jenkins/**
+
+        - id: user
+          uri: ${USER_URI}
+          predicates:
+            - Path=/user/**, /api/v1/user/**
