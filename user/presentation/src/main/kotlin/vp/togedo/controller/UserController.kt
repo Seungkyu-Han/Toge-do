@@ -33,7 +33,10 @@ class UserController(
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "회원가입 혹은 로그인 성공",
             content = [Content(schema = Schema(implementation = KakaoLoginRes::class),
-                mediaType = MediaType.APPLICATION_JSON_VALUE)])
+                mediaType = MediaType.APPLICATION_JSON_VALUE)]),
+        ApiResponse(responseCode = "503", description = "로그인 중 알 수 없는 에러 발생",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+
     )
     suspend fun kakaoLogin(@RequestParam code: String): ResponseEntity<KakaoLoginRes>{
         return userConnector.login(code)
