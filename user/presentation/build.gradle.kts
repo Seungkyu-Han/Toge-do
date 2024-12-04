@@ -9,11 +9,11 @@ repositories {
     mavenCentral()
 }
 
+
+
 dependencies {
     //PROJECT
-    implementation(project(":user:core")){
-        isTransitive = false
-    }
+    implementation(project(":user:core"))
     implementation(project(":user:persistence"))
 
 
@@ -29,6 +29,10 @@ dependencies {
 
     //REFLECT
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 
     //SWAGGER
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
@@ -47,6 +51,6 @@ kotlin {
     jvmToolchain(17)
 }
 
-//tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//}
+tasks.bootJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
