@@ -39,7 +39,7 @@ class UserController(
 
     )
     suspend fun kakaoLogin(@RequestParam code: String): ResponseEntity<KakaoLoginRes>{
-        return userConnector.login(code)
+        return userConnector.kakaoLogin(code)
             .map { ResponseEntity.ok().body(it) }.awaitSingle()
     }
 }

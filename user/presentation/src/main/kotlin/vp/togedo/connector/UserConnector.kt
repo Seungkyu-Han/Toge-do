@@ -5,7 +5,7 @@ import vp.togedo.dto.KakaoLoginRes
 
 interface UserConnector {
 
-    fun login(
+    fun kakaoLogin(
         code: String
     ): Mono<KakaoLoginRes>
 }

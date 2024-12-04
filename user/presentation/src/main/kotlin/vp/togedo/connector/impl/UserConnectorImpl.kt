@@ -16,7 +16,7 @@ class UserConnectorImpl(
     private val kakaoService: KakaoService
 ): UserConnector {
 
-    override fun login(
+    override fun kakaoLogin(
         code: String): Mono<KakaoLoginRes> =
         kakaoService.oauthToken(code)
             .flatMap{
