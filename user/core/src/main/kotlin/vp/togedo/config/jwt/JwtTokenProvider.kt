@@ -20,7 +20,7 @@ class JwtTokenProvider(
         return Jwts.parser()
             .setSigningKey(secret)
             .parseClaimsJws(token)
-            .body.get("student_id", String::class.java)
+            .body.get("id", String::class.java)
     }
 
     fun isAccessToken(token: String): Boolean{
