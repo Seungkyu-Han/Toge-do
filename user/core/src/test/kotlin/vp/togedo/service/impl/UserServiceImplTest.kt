@@ -1,10 +1,8 @@
 package vp.togedo.service.impl
 
+import io.jsonwebtoken.MalformedJwtException
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
 import org.mockito.Mockito.times
@@ -24,6 +22,7 @@ import vp.togedo.document.UserDocument
 import vp.togedo.enums.OauthEnum
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.UserException
+import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [UserServiceImpl::class])
@@ -93,6 +92,11 @@ class UserServiceImplTest{
                 .findByOauth(any<Oauth>())
         }
 
+    }
+
+    @Nested
+    inner class CreateUser{
+
         @Test
         @DisplayName("카카오 Oauth를 사용하여 사용자를 생성")
         fun createUserByOauthByKakao(){
@@ -120,6 +124,49 @@ class UserServiceImplTest{
                 .save(any<UserDocument>())
 
         }
+    }
 
+    @Nested
+    inner class GetUserIdByToken{
+
+        @Test
+        @DisplayName("Token을 사용하여 사용자 ID를 추출")
+        fun getUserIdByTokenReturnUserId(){
+            //given
+            val userId = ObjectId.get()
+            val refreshToken = jwtTokenProvider.getRefreshToken(userId.toHexString())
+
+            //when
+            val extractedUserId = userServiceImpl.getUserIdByToken(refreshToken)
+
+            //then
+            Assertions.assertEquals(userId, extractedUserId)
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 토큰으로 에러가 발생")
+        fun getUserIdByInvalidTokenReturnException(){
+            //given
+            val invalidToken = UUID.randomUUID().toString()
+
+            //when & then
+            Assertions.assertThrows(MalformedJwtException::class.java) {
+                userServiceImpl.getUserIdByToken(invalidToken)
+            }
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 아이디로 에러가 발생")
+        fun getUserInvalidIdByTokenReturnException(){
+            //given
+            val invalidToken = UUID.randomUUID().toString()
+            val refreshToken = jwtTokenProvider.getRefreshToken(invalidToken)
+
+            //when & then
+            Assertions.assertThrows(IllegalArgumentException::class.java) {
+                userServiceImpl.getUserIdByToken(refreshToken)
+            }
+
+        }
     }
 }
