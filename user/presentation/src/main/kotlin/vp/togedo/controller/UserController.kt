@@ -25,7 +25,7 @@ class UserController(
     private val userConnector: UserConnector
 ) {
 
-    @GetMapping("/kakao-login", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/kakao-login")
     @Operation(summary = "카카오 oauth를 사용한 로그인")
     @Parameters(
         Parameter(name = "code", description = "카카오 Oauth에서 발급받은 코드")
