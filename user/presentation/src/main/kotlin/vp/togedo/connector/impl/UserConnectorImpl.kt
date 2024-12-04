@@ -49,7 +49,9 @@ class UserConnectorImpl(
     override fun reissueAccessToken(refreshToken: String): LoginRes {
         return try{
             LoginRes(
-                userService.createJwtAccessToken(userService.getUserIdByToken(refreshToken)),
+                userService.createJwtAccessToken(
+                    userService.getUserIdByToken(refreshToken.removePrefix("Bearer "))
+                ),
                 refreshToken = refreshToken
             )
         }catch (malformedJwtException: MalformedJwtException){
