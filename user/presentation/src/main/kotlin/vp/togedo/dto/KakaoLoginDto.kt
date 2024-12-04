@@ -1,6 +1,6 @@
 package vp.togedo.dto
 
-data class KakaoLoginRes(
+data class LoginRes(
     val accessToken: String,
     val refreshToken: String,
 )

@@ -3,7 +3,7 @@ package vp.togedo.util.error.exception
 import vp.togedo.util.error.errorCode.ErrorCode
 
 class UserException(
-    private val errorCode: ErrorCode,
+    val errorCode: ErrorCode,
 ): RuntimeException() {
 
     override val message: String
