@@ -11,6 +11,8 @@ interface UserService {
 
     fun createJwtRefreshToken(id: ObjectId): String
 
+    fun getUserIdByToken(token: String): ObjectId
+
     fun getUserInfoByOauth(
         oauthEnum: OauthEnum,
         kakaoId: Long? = null,
