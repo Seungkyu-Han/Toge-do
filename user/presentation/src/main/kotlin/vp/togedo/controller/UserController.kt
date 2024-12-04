@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import vp.togedo.connector.UserConnector
 import vp.togedo.dto.LoginRes
 
@@ -41,5 +38,19 @@ class UserController(
     suspend fun kakaoLogin(@RequestParam code: String): ResponseEntity<LoginRes>{
         return userConnector.kakaoLogin(code)
             .map { ResponseEntity.ok().body(it) }.awaitSingle()
+    }
+
+    @GetMapping("/reissue")
+    @Operation(summary = "refresh token을 사용하여 access token을 재발급")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "토큰 재발급 성공",
+            content = [Content(schema = Schema(implementation = LoginRes::class),
+                mediaType = MediaType.APPLICATION_JSON_VALUE)]),
+        ApiResponse(responseCode = "403", description = "유효하지 않은 토큰",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+
+    )
+    fun reissue(@RequestHeader("Authorization") refreshToken: String): ResponseEntity<LoginRes> {
+        return ResponseEntity.ok().body(userConnector.reissueAccessToken(refreshToken))
     }
 }
