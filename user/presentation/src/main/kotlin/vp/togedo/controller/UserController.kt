@@ -50,7 +50,7 @@ class UserController(
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
 
     )
-    fun reissue(@RequestHeader("Authorization") refreshToken: String): ResponseEntity<LoginRes> {
+    fun reissue(@Parameter(hidden = true) @RequestHeader("Authorization") refreshToken: String): ResponseEntity<LoginRes> {
         return ResponseEntity.ok().body(userConnector.reissueAccessToken(refreshToken))
     }
 }
