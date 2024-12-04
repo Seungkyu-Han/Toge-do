@@ -7,6 +7,8 @@ import vp.togedo.dto.KakaoLoginRes
 import vp.togedo.enums.OauthEnum
 import vp.togedo.service.KakaoService
 import vp.togedo.service.UserService
+import vp.togedo.util.error.errorCode.ErrorCode
+import vp.togedo.util.error.exception.UserException
 
 @Service
 class UserConnectorImpl(
@@ -26,10 +28,14 @@ class UserConnectorImpl(
                     oauthEnum = OauthEnum.KAKAO,
                     kakaoId = v2UserMe.id
                 ).onErrorResume {
-                    userService.createUser(
-                        oauthEnum = OauthEnum.KAKAO,
-                        kakaoId = v2UserMe.id
-                    )
+                    if(it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND_BY_OAUTH) {
+                        userService.createUser(
+                            oauthEnum = OauthEnum.KAKAO,
+                            kakaoId = v2UserMe.id
+                        )
+                    }else{
+                        throw UserException(ErrorCode.LOGIN_UNEXPECTED_ERROR)
+                    }
                 }
             }
             .map {
