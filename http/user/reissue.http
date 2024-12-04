@@ -1,0 +1,22 @@
+# INVALID TOKEN
+GET http://localhost:12041/api/v1/user/reissue
+Authorization: INVALID_TOKEN
+
+> {%
+client.test("invalid_token", function () {
+    client.assert(response.status === 403)
+})
+ %}
+
+###
+#VALID TOKEN
+GET http://localhost:12041/api/v1/user/reissue
+Authorization: Bearer {{REFRESH_TOKEN}}
+
+> {%
+
+ client.test("valid_token", function (){
+     client.assert(response.status === 200)
+     client.assert(response.refreshToken === client.global.get("REFRESH_TOKEN"))
+ })
+ %}
