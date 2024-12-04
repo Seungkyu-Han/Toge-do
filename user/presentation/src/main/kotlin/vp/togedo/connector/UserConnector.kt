@@ -1,11 +1,15 @@
 package vp.togedo.connector
 
 import reactor.core.publisher.Mono
-import vp.togedo.dto.KakaoLoginRes
+import vp.togedo.dto.LoginRes
 
 interface UserConnector {
 
     fun kakaoLogin(
         code: String
-    ): Mono<KakaoLoginRes>
+    ): Mono<LoginRes>
+
+    fun reissueAccessToken(
+        refreshToken: String
+    ): LoginRes
 }

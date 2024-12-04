@@ -1,9 +1,10 @@
 package vp.togedo.connector.impl
 
+import io.jsonwebtoken.MalformedJwtException
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import vp.togedo.connector.UserConnector
-import vp.togedo.dto.KakaoLoginRes
+import vp.togedo.dto.LoginRes
 import vp.togedo.enums.OauthEnum
 import vp.togedo.service.KakaoService
 import vp.togedo.service.UserService
@@ -17,7 +18,7 @@ class UserConnectorImpl(
 ): UserConnector {
 
     override fun kakaoLogin(
-        code: String): Mono<KakaoLoginRes> =
+        code: String): Mono<LoginRes> =
         kakaoService.oauthToken(code)
             .flatMap{
                 kakaoService.v2UserMe(it.accessToken)
@@ -39,10 +40,22 @@ class UserConnectorImpl(
                 }
             }
             .map {
-                KakaoLoginRes(
+                LoginRes(
                     accessToken = userService.createJwtAccessToken(it.id!!),
                     refreshToken = userService.createJwtAccessToken(it.id!!)
                 )
             }
 
+    override fun reissueAccessToken(refreshToken: String): LoginRes {
+        return try{
+            LoginRes(
+                userService.createJwtAccessToken(userService.getUserIdByToken(refreshToken)),
+                refreshToken = refreshToken
+            )
+        }catch (malformedJwtException: MalformedJwtException){
+            throw UserException(ErrorCode.INVALID_TOKEN)
+        }catch (illegalArgumentException: IllegalArgumentException){
+            throw UserException(ErrorCode.LOGIN_UNEXPECTED_ERROR)
+        }
+    }
 }

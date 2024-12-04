@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import vp.togedo.connector.UserConnector
-import vp.togedo.dto.KakaoLoginRes
+import vp.togedo.dto.LoginRes
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -32,13 +32,13 @@ class UserController(
     )
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "회원가입 혹은 로그인 성공",
-            content = [Content(schema = Schema(implementation = KakaoLoginRes::class),
+            content = [Content(schema = Schema(implementation = LoginRes::class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE)]),
         ApiResponse(responseCode = "503", description = "로그인 중 알 수 없는 에러 발생",
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
 
     )
-    suspend fun kakaoLogin(@RequestParam code: String): ResponseEntity<KakaoLoginRes>{
+    suspend fun kakaoLogin(@RequestParam code: String): ResponseEntity<LoginRes>{
         return userConnector.kakaoLogin(code)
             .map { ResponseEntity.ok().body(it) }.awaitSingle()
     }
