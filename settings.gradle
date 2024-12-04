@@ -12,7 +12,4 @@ include 'user:presentation'
 findProject(':user:presentation')?.name = 'presentation'
 include 'user:persistence'
 findProject(':user:persistence')?.name = 'persistence'
-include 'security'
-include 'security:core'
-findProject(':security:core')?.name = 'core'
 

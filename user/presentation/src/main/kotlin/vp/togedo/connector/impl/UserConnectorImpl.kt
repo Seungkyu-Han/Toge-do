@@ -10,8 +10,8 @@ import vp.togedo.service.UserService
 
 @Service
 class UserConnectorImpl(
-    private val kakaoService: KakaoService,
-    private val userService: UserService
+    private val userService: UserService,
+    private val kakaoService: KakaoService
 ): UserConnector {
 
     override fun login(
