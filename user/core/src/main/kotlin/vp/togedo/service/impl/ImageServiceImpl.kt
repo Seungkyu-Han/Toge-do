@@ -12,20 +12,23 @@ import java.util.*
 
 @Service
 class ImageServiceImpl(
+    @Value("\${SERVER.NAME}")
+    private val serverAddress: String,
     @Value("\${IMAGE.PATH}")
-    private val imagePath: String,
+    private val imagePath: String
 ): ImageService {
 
     override fun saveImage(filePart: FilePart): Mono<String> {
-        println(filePart.filename())
-        val path = Path.of("$imagePath/${UUID.randomUUID()}.${filePart.filename().split(".").last()}")
+        val fileName =
+            "${UUID.randomUUID()}.${filePart.filename().split(".").last()}"
 
         return filePart
-            .transferTo(path)
-            .then(Mono.fromCallable { path.toString() })
+            .transferTo(Path.of("$imagePath/$fileName"))
+            .then(Mono.fromCallable { "$serverAddress/image/$fileName" })
+
     }
 
-    override fun deleteImage(filePath: String) {
-        Files.deleteIfExists(Path.of("$imagePath/${UUID.randomUUID()}"))
+    override fun deleteImage(fileName: String) {
+        Files.deleteIfExists(Path.of("$imagePath/$fileName"))
     }
 }

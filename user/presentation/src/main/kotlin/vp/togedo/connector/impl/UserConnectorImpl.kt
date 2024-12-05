@@ -6,6 +6,7 @@ import reactor.core.publisher.Mono
 import vp.togedo.connector.UserConnector
 import vp.togedo.dto.LoginRes
 import vp.togedo.enums.OauthEnum
+import vp.togedo.service.ImageService
 import vp.togedo.service.KakaoService
 import vp.togedo.service.UserService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -14,7 +15,8 @@ import vp.togedo.util.error.exception.UserException
 @Service
 class UserConnectorImpl(
     private val userService: UserService,
-    private val kakaoService: KakaoService
+    private val kakaoService: KakaoService,
+    private val imageService: ImageService
 ): UserConnector {
 
     override fun kakaoLogin(

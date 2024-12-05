@@ -7,5 +7,5 @@ interface ImageService {
 
     fun saveImage(filePart: FilePart): Mono<String>
 
-    fun deleteImage(filePath: String)
+    fun deleteImage(fileName: String)
 }
