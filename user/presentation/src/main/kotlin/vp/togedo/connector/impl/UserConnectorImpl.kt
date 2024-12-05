@@ -1,11 +1,17 @@
 package vp.togedo.connector.impl
 
 import io.jsonwebtoken.MalformedJwtException
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import vp.togedo.connector.UserConnector
 import vp.togedo.dto.LoginRes
+import vp.togedo.dto.UserInfoReqDto
+import vp.togedo.dto.UserInfoResDto
 import vp.togedo.enums.OauthEnum
+import vp.togedo.service.ImageService
 import vp.togedo.service.KakaoService
 import vp.togedo.service.UserService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -14,8 +20,13 @@ import vp.togedo.util.error.exception.UserException
 @Service
 class UserConnectorImpl(
     private val userService: UserService,
-    private val kakaoService: KakaoService
+    private val kakaoService: KakaoService,
+    private val imageService: ImageService
 ): UserConnector {
+
+    override fun extractUserIdByToken(token: String): ObjectId{
+        return userService.getUserIdByToken(token.removePrefix("Bearer "))
+    }
 
     override fun kakaoLogin(
         code: String): Mono<LoginRes> =
@@ -32,7 +43,10 @@ class UserConnectorImpl(
                     if(it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND_BY_OAUTH) {
                         userService.createUser(
                             oauthEnum = OauthEnum.KAKAO,
-                            kakaoId = v2UserMe.id
+                            kakaoId = v2UserMe.id,
+                            name = v2UserMe.kakaoAccount?.name,
+                            email = v2UserMe.kakaoAccount?.email,
+                            profileImageUrl = v2UserMe.kakaoAccount?.profile?.profileImageUrl
                         )
                     }else{
                         throw UserException(ErrorCode.LOGIN_UNEXPECTED_ERROR)
@@ -50,7 +64,7 @@ class UserConnectorImpl(
         return try{
             LoginRes(
                 userService.createJwtAccessToken(
-                    userService.getUserIdByToken(refreshToken.removePrefix("Bearer "))
+                    this.extractUserIdByToken(refreshToken)
                 ),
                 refreshToken = refreshToken
             )
@@ -59,5 +73,32 @@ class UserConnectorImpl(
         }catch (illegalArgumentException: IllegalArgumentException){
             throw UserException(ErrorCode.LOGIN_UNEXPECTED_ERROR)
         }
+    }
+
+    override suspend fun updateUserInfo(userInfoReqDto: UserInfoReqDto, id: ObjectId): UserInfoResDto {
+        val userDocument = userService.findUser(id).awaitSingle()
+
+        if (userDocument.profileImageUrl != null){
+            val fileName = userDocument.profileImageUrl!!.split("/").last()
+            imageService.publishDeleteEvent(fileName).awaitSingleOrNull()
+        }
+
+        if (userInfoReqDto.image != null){
+            val image = imageService.saveImage(userInfoReqDto.image).awaitSingle()
+            userDocument.profileImageUrl = image
+        }
+
+        userDocument.name = userInfoReqDto.name
+        userDocument.email = userInfoReqDto.email
+
+        return userService.saveUser(userDocument)
+            .map{
+                UserInfoResDto(
+                    name = it.name,
+                    email = it.email,
+                    profileImageUrl = it.profileImageUrl
+                )
+            }
+            .awaitSingle()
     }
 }

@@ -72,6 +72,9 @@ class UserServiceImpl(
      * @param oauthEnum kakao, google
      * @param kakaoId kakao oauth라면 kakao의 유저아이디
      * @param googleId google oauth라면 google의 유저아이디
+     * @param name 사용자 이름
+     * @param email 사용자 이메일
+     * @param profileImageUrl 사용자 프로필 이미지 url
      * @return 유저 정보
      */
     @Transactional
@@ -80,7 +83,8 @@ class UserServiceImpl(
         kakaoId: Long?,
         googleId: String?,
         name: String?,
-        email: String?): Mono<UserDocument>{
+        email: String?,
+        profileImageUrl: String?): Mono<UserDocument>{
 
     val oauth = Oauth(
             oauthType = oauthEnum,
@@ -92,7 +96,8 @@ class UserServiceImpl(
             id = null,
             oauth = oauth,
             name = name,
-            email = email
+            email = email,
+            profileImageUrl = profileImageUrl
         )
 
         return userRepository.save(user)
@@ -107,5 +112,26 @@ class UserServiceImpl(
      */
     override fun getUserIdByToken(token: String): ObjectId {
         return ObjectId(jwtTokenProvider.getUserId(token))
+    }
+
+    /**
+     * 사용자의 정보를 데이터베이스로부터 조회
+     * @param id 사용자의 objectId
+     * @return 사용자의 document
+     */
+    override fun findUser(id: ObjectId): Mono<UserDocument> {
+        return userRepository.findById(id)
+            .switchIfEmpty(
+                Mono.error(UserException(ErrorCode.USER_NOT_FOUND))
+            )
+    }
+
+    /**
+     * 조회한 사용자의 정보를 데이터베이스에 저장
+     * @param userDocument 저장할 UserDocument
+     * @return 저장된 UserDocument
+     */
+    override fun saveUser(userDocument: UserDocument): Mono<UserDocument> {
+        return userRepository.save(userDocument)
     }
 }

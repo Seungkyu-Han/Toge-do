@@ -16,9 +16,11 @@ data class UserDocument(
     @Indexed(unique = true)
     val oauth: Oauth,
 
-    val name: String? = null,
+    var name: String? = null,
 
-    val email: String? = null
+    var email: String? = null,
+
+    var profileImageUrl: String? = null,
 )
 
 data class Oauth(

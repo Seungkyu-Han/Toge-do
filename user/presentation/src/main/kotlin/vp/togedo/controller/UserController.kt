@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import vp.togedo.connector.UserConnector
 import vp.togedo.dto.LoginRes
+import vp.togedo.dto.UserInfoReqDto
+import vp.togedo.dto.UserInfoResDto
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -50,7 +52,19 @@ class UserController(
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
 
     )
-    fun reissue(@RequestHeader("Authorization") refreshToken: String): ResponseEntity<LoginRes> {
+    fun reissue(@Parameter(hidden = true) @RequestHeader("Authorization") refreshToken: String): ResponseEntity<LoginRes> {
         return ResponseEntity.ok().body(userConnector.reissueAccessToken(refreshToken))
+    }
+
+    @PutMapping("/info", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @Operation(summary = "사용자 정보 수정")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "사용자 정보 변경 성공",
+            content = [Content(schema = Schema(implementation = UserInfoResDto::class))]))
+    suspend fun updateInfo(
+        @ModelAttribute userInfoReqDto: UserInfoReqDto,
+        @Parameter(hidden = true) @RequestHeader("Authorization") accessToken: String): ResponseEntity<UserInfoResDto> {
+        return ResponseEntity.ok()
+            .body(userConnector.updateUserInfo(userInfoReqDto, userConnector.extractUserIdByToken(accessToken)))
     }
 }

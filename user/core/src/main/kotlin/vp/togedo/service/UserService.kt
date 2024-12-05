@@ -23,6 +23,11 @@ interface UserService {
         kakaoId: Long? = null,
         googleId: String? = null,
         name: String? = null,
-        email: String? = null): Mono<UserDocument>
+        email: String? = null,
+        profileImageUrl: String? = null): Mono<UserDocument>
+
+    fun findUser(id: ObjectId): Mono<UserDocument>
+
+    fun saveUser(userDocument: UserDocument): Mono<UserDocument>
 
 }
