@@ -27,4 +27,6 @@ interface UserService {
 
     fun findUser(id: ObjectId): Mono<UserDocument>
 
+    fun saveUser(userDocument: UserDocument): Mono<UserDocument>
+
 }

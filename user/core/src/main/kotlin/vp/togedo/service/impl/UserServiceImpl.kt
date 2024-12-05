@@ -120,4 +120,8 @@ class UserServiceImpl(
                 Mono.error(UserException(ErrorCode.USER_NOT_FOUND))
             )
     }
+
+    override fun saveUser(userDocument: UserDocument): Mono<UserDocument> {
+        return userRepository.save(userDocument)
+    }
 }
