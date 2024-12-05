@@ -21,7 +21,7 @@ class ImageServiceImpl(
     private val reactiveKafkaProducerTemplate: ReactiveKafkaProducerTemplate<String, String>
 ): ImageService {
 
-    private val deleteImageEventTopic = "IMAGE:DELETE:IMAGE:TOPIC"
+    private val deleteImageEventTopic = "IMAGE_DELETE_IMAGE_TOPIC"
 
     override fun saveImage(filePart: FilePart): Mono<String> {
         val fileName =

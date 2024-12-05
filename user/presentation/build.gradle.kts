@@ -38,8 +38,8 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
 
     //KAFKA
-    implementation("io.projectreactor.kafka:reactor-kafka:1.3.19")
-    implementation("org.springframework.kafka:spring-kafka:3.0.9")
+    implementation("io.projectreactor.kafka:reactor-kafka")
+    implementation("org.springframework.kafka:spring-kafka")
 
     //MAC NETTY RESOLVER
     if(System.getProperty("os.name") == "Mac OS X" && System.getProperty("os.arch") == "aarch64"){
