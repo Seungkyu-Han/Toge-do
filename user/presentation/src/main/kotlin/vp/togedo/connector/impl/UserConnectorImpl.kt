@@ -34,7 +34,10 @@ class UserConnectorImpl(
                     if(it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND_BY_OAUTH) {
                         userService.createUser(
                             oauthEnum = OauthEnum.KAKAO,
-                            kakaoId = v2UserMe.id
+                            kakaoId = v2UserMe.id,
+                            name = v2UserMe.kakaoAccount?.name,
+                            email = v2UserMe.kakaoAccount?.email,
+                            profileImageUrl = v2UserMe.kakaoAccount?.profile?.profileImageUrl
                         )
                     }else{
                         throw UserException(ErrorCode.LOGIN_UNEXPECTED_ERROR)
