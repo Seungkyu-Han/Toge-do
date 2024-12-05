@@ -11,6 +11,12 @@ spring:
     mongodb:
       uri: ${MONGODB_URI}
       auto-index-creation: true
+  kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+    producer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+
 
 server:
   port: 12041
@@ -30,3 +36,4 @@ SERVER:
 
 IMAGE:
   PATH: ${IMAGE_PATH}
+

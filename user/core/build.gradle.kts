@@ -43,6 +43,9 @@ dependencies {
     //REFLECT
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    //KAFKA
+    implementation("io.projectreactor.kafka:reactor-kafka:1.3.19")
+    implementation("org.springframework.kafka:spring-kafka:3.0.9")
 }
 
 tasks.test {
