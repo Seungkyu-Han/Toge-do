@@ -1,0 +1,20 @@
+PUT http://localhost:12041/api/v1/user/info
+Authorization: Bearer {{ACCESS_TOKEN}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+seungkyu
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+trust1204@gmail.com
+--WebAppBoundary
+Content-Disposition: form-data; name="image"; filename="Toge-do.png"
+
+< /Users/hanseung-gyu/Downloads/Toge-do.png
+--WebAppBoundary--
+
+###
+
