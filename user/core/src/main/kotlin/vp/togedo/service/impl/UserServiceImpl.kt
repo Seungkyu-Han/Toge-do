@@ -121,6 +121,11 @@ class UserServiceImpl(
             )
     }
 
+    /**
+     * 조회한 사용자의 정보를 데이터베이스에 저장
+     * @param userDocument 저장할 UserDocument
+     * @return 저장된 UserDocument
+     */
     override fun saveUser(userDocument: UserDocument): Mono<UserDocument> {
         return userRepository.save(userDocument)
     }

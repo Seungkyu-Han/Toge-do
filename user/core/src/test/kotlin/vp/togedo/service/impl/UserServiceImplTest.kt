@@ -169,4 +169,42 @@ class UserServiceImplTest{
 
         }
     }
+
+    @Nested
+    inner class FindUser{
+        @Test
+        @DisplayName("유요한 Id로 유저를 검색")
+        fun findUserByValidIdReturnSuccess(){
+            //given
+            val id = ObjectId.get()
+            val userDocument = UserDocument(id = id, Oauth(OauthEnum.KAKAO, kakaoId = 0L))
+            `when`(userRepository.findById(any<ObjectId>()))
+                .thenReturn(Mono.just(userDocument))
+
+            //when & then
+            StepVerifier.create(userServiceImpl.findUser(id))
+                .expectNext(userDocument)
+                .verifyComplete()
+
+            Mockito.verify(userRepository, times(1)).findById(id)
+        }
+
+        @Test
+        @DisplayName("유요하지 않은 Id로 유저를 검색")
+        fun findUserByInvalidIdReturnException(){
+            //given
+            val id = ObjectId.get()
+            `when`(userRepository.findById(any<ObjectId>()))
+                .thenReturn(Mono.empty())
+
+            //when & then
+            StepVerifier.create(userServiceImpl.findUser(id))
+                .expectErrorMatches {
+                    it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND
+                }
+                .verify()
+
+            Mockito.verify(userRepository, times(1)).findById(id)
+        }
+    }
 }
