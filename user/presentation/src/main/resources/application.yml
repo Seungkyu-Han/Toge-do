@@ -24,3 +24,6 @@ springdoc:
 
 SWAGGER:
   URL: ${SWAGGER_URL}
+
+IMAGE:
+  PATH: ${IMAGE_PATH}
