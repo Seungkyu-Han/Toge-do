@@ -108,4 +108,16 @@ class UserServiceImpl(
     override fun getUserIdByToken(token: String): ObjectId {
         return ObjectId(jwtTokenProvider.getUserId(token))
     }
+
+    /**
+     * 사용자의 정보를 데이터베이스로부터 조회
+     * @param id 사용자의 objectId
+     * @return 사용자의 document
+     */
+    override fun findUser(id: ObjectId): Mono<UserDocument> {
+        return userRepository.findById(id)
+            .switchIfEmpty(
+                Mono.error(UserException(ErrorCode.USER_NOT_FOUND))
+            )
+    }
 }

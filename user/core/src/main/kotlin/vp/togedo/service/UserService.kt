@@ -25,4 +25,6 @@ interface UserService {
         name: String? = null,
         email: String? = null): Mono<UserDocument>
 
+    fun findUser(id: ObjectId): Mono<UserDocument>
+
 }
