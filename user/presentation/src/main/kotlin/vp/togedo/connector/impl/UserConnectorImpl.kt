@@ -11,6 +11,7 @@ import vp.togedo.dto.LoginRes
 import vp.togedo.dto.UserInfoReqDto
 import vp.togedo.dto.UserInfoResDto
 import vp.togedo.enums.OauthEnum
+import vp.togedo.service.GoogleService
 import vp.togedo.service.ImageService
 import vp.togedo.service.KakaoService
 import vp.togedo.service.UserService
@@ -21,6 +22,7 @@ import vp.togedo.util.error.exception.UserException
 class UserConnectorImpl(
     private val userService: UserService,
     private val kakaoService: KakaoService,
+    private val googleService: GoogleService,
     private val imageService: ImageService
 ): UserConnector {
 
@@ -59,6 +61,38 @@ class UserConnectorImpl(
                     refreshToken = userService.createJwtAccessToken(it.id!!)
                 )
             }
+
+    override fun googleLogin(code: String): Mono<LoginRes> =
+        googleService.getGoogleAccessToken(code)
+            .flatMap {
+                googleService.getGoogleUserInfo(it.accessToken)
+            }
+            .flatMap {
+                googleUserInfo ->
+                userService.getUserInfoByOauth(
+                    oauthEnum = OauthEnum.GOOGLE,
+                    googleId = googleUserInfo.id
+                ).onErrorResume {
+                        if(it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND_BY_OAUTH) {
+                            userService.createUser(
+                                oauthEnum = OauthEnum.GOOGLE,
+                                googleId = googleUserInfo.id,
+                                name = googleUserInfo.name,
+                                email = googleUserInfo.email,
+                                profileImageUrl = googleUserInfo.picture
+                            )
+                        }else{
+                            throw UserException(ErrorCode.LOGIN_UNEXPECTED_ERROR)
+                        }
+                    }
+            }
+            .map {
+                LoginRes(
+                    accessToken = userService.createJwtAccessToken(it.id!!),
+                    refreshToken = userService.createJwtAccessToken(it.id!!)
+                )
+            }
+
 
     override fun reissueAccessToken(refreshToken: String): LoginRes {
         return try{

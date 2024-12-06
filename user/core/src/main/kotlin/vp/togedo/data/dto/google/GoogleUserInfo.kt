@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class GoogleUserInfo(
     @JsonProperty("id")
-    val id: String?,
+    val id: Long?,
     @JsonProperty("email")
     val email: String?,
     @JsonProperty("verified_email")
