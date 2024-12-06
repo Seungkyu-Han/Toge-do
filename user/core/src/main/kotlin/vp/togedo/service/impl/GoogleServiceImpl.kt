@@ -37,6 +37,7 @@ class GoogleServiceImpl(
                     .with("code", code)
                     .with("client_secret", clientSecret)
                     .with("redirect_uri", redirectUri)
+                    .with("grant_type", "authorization_code")
             ).retrieve()
             .bodyToMono(GoogleAccessToken::class.java)
 

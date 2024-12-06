@@ -27,5 +27,5 @@ data class Oauth(
     @Field(targetType = FieldType.STRING)
     val oauthType: OauthEnum,
     val kakaoId: Long? = null,
-    val googleId: Long? = null
+    val googleId: String? = null
 )

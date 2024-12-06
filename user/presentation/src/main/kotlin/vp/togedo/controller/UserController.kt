@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.withContext
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -16,6 +18,8 @@ import vp.togedo.connector.UserConnector
 import vp.togedo.dto.LoginRes
 import vp.togedo.dto.UserInfoReqDto
 import vp.togedo.dto.UserInfoResDto
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -56,8 +60,9 @@ class UserController(
 
     )
     suspend fun googleLogin(@RequestParam code: String): ResponseEntity<LoginRes>{
-        return userConnector.googleLogin(code)
-            .map { ResponseEntity.ok().body(it) }.awaitSingle()
+        return userConnector.googleLogin(withContext(Dispatchers.IO) {
+            URLDecoder.decode(code, StandardCharsets.UTF_8.toString())
+        }).map { ResponseEntity.ok().body(it) }.awaitSingle()
     }
 
     @GetMapping("/reissue")

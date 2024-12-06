@@ -51,7 +51,7 @@ class UserServiceImpl(
     override fun getUserInfoByOauth(
         oauthEnum: OauthEnum,
         kakaoId: Long?,
-        googleId: Long?): Mono<UserDocument> {
+        googleId: String?): Mono<UserDocument> {
 
         val oauth = Oauth(
             oauthType = oauthEnum,
@@ -81,7 +81,7 @@ class UserServiceImpl(
     override fun createUser(
         oauthEnum: OauthEnum,
         kakaoId: Long?,
-        googleId: Long?,
+        googleId: String?,
         name: String?,
         email: String?,
         profileImageUrl: String?): Mono<UserDocument>{
