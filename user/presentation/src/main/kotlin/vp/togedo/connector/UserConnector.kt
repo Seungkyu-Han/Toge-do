@@ -12,6 +12,10 @@ interface UserConnector {
         code: String
     ): Mono<LoginRes>
 
+    fun googleLogin(
+        code: String
+    ): Mono<LoginRes>
+
     fun reissueAccessToken(
         refreshToken: String
     ): LoginRes

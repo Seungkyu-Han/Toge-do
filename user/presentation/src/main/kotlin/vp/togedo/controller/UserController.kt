@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.withContext
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -16,6 +18,8 @@ import vp.togedo.connector.UserConnector
 import vp.togedo.dto.LoginRes
 import vp.togedo.dto.UserInfoReqDto
 import vp.togedo.dto.UserInfoResDto
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -40,6 +44,25 @@ class UserController(
     suspend fun kakaoLogin(@RequestParam code: String): ResponseEntity<LoginRes>{
         return userConnector.kakaoLogin(code)
             .map { ResponseEntity.ok().body(it) }.awaitSingle()
+    }
+
+    @GetMapping("/google-login")
+    @Operation(summary = "구글 oauth를 사용한 로그인")
+    @Parameters(
+        Parameter(name = "code", description = "구글 Oauth에서 발급받은 코드")
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "회원가입 혹은 로그인 성공",
+            content = [Content(schema = Schema(implementation = LoginRes::class),
+                mediaType = MediaType.APPLICATION_JSON_VALUE)]),
+        ApiResponse(responseCode = "503", description = "로그인 중 알 수 없는 에러 발생",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+
+    )
+    suspend fun googleLogin(@RequestParam code: String): ResponseEntity<LoginRes>{
+        return userConnector.googleLogin(withContext(Dispatchers.IO) {
+            URLDecoder.decode(code, StandardCharsets.UTF_8.toString())
+        }).map { ResponseEntity.ok().body(it) }.awaitSingle()
     }
 
     @GetMapping("/reissue")
@@ -68,13 +91,13 @@ class UserController(
             .body(userConnector.updateUserInfo(userInfoReqDto, userConnector.extractUserIdByToken(accessToken)))
     }
 
-    @GetMapping("/info", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/info")
     @Operation(summary = "사용자 정보 조회")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공",
             content = [Content(schema = Schema(implementation = UserInfoResDto::class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE)]),
-        ApiResponse(responseCode = "200", description = "사용자 정보 변경 성공",
+        ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공",
             content = [Content(schema = Schema(implementation = UserInfoResDto::class),
                 mediaType = MediaType.TEXT_PLAIN_VALUE)]))
     suspend fun findInfo(
