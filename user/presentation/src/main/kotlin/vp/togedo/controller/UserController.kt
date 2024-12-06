@@ -68,13 +68,13 @@ class UserController(
             .body(userConnector.updateUserInfo(userInfoReqDto, userConnector.extractUserIdByToken(accessToken)))
     }
 
-    @GetMapping("/info", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/info")
     @Operation(summary = "사용자 정보 조회")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공",
             content = [Content(schema = Schema(implementation = UserInfoResDto::class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE)]),
-        ApiResponse(responseCode = "200", description = "사용자 정보 변경 성공",
+        ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공",
             content = [Content(schema = Schema(implementation = UserInfoResDto::class),
                 mediaType = MediaType.TEXT_PLAIN_VALUE)]))
     suspend fun findInfo(
