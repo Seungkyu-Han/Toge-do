@@ -14,8 +14,8 @@ import java.util.*
 
 @Service
 class ImageServiceImpl(
-    @Value("\${SERVER.NAME}")
-    private val serverAddress: String,
+    @Value("\${IMAGE.SERVER_NAME}")
+    private val imageServerName: String,
     @Value("\${IMAGE.PATH}")
     private val imagePath: String,
     private val reactiveKafkaProducerTemplate: ReactiveKafkaProducerTemplate<String, String>
@@ -29,7 +29,7 @@ class ImageServiceImpl(
 
         return filePart
             .transferTo(Path.of("$imagePath/$fileName"))
-            .then(Mono.fromCallable { "$serverAddress/image/$fileName" })
+            .then(Mono.fromCallable { "$imageServerName/image/$fileName" })
 
     }
 

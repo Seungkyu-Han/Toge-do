@@ -12,11 +12,14 @@ spring:
       uri: ${MONGODB_URI}
       auto-index-creation: true
   kafka:
-    consumer:
-      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
     producer:
       bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
-
+    consumer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+      group-id: seungkyu
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 server:
   port: 12041
@@ -31,9 +34,7 @@ springdoc:
 SWAGGER:
   URL: ${SWAGGER_URL}
 
-SERVER:
-  NAME: ${SERVER_ADDRESS}
-
 IMAGE:
   PATH: ${IMAGE_PATH}
+  SERVER_NAME: ${IMAGE_SERVER_NAME}
 
