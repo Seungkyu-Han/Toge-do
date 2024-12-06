@@ -40,6 +40,12 @@ class GoogleServiceImpl(
             ).retrieve()
             .bodyToMono(GoogleAccessToken::class.java)
 
+    /**
+     * 구글 인증서버로부터 사용자 정보를 요청
+     * @author Seungkyu-Han
+     * @param accessToken 구글 access token
+     * @return 구글 사용자 정보
+     */
     override fun getGoogleUserInfo(accessToken: String): Mono<GoogleUserInfo> =
         WebClient.create()
             .get().uri("https://www.googleapis.com/oauth2/v2/userinfo")
