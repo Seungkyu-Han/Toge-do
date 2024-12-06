@@ -93,11 +93,15 @@ class UserConnectorImpl(
 
         return userService.saveUser(userDocument)
             .map{
-                UserInfoResDto(
-                    name = it.name,
-                    email = it.email,
-                    profileImageUrl = it.profileImageUrl
-                )
+                UserInfoResDto(it)
+            }
+            .awaitSingle()
+    }
+
+    override suspend fun findUserInfo(id: ObjectId): UserInfoResDto {
+        return userService.findUser(id)
+            .map{
+                UserInfoResDto(it)
             }
             .awaitSingle()
     }

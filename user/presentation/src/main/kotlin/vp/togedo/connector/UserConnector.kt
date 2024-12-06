@@ -21,5 +21,9 @@ interface UserConnector {
         id: ObjectId
     ): UserInfoResDto
 
+    suspend fun findUserInfo(
+        id: ObjectId
+    ): UserInfoResDto
+
     fun extractUserIdByToken(token: String): ObjectId
 }
