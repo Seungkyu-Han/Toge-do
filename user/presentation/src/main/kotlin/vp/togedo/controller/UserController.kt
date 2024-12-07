@@ -11,13 +11,16 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.withContext
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import vp.togedo.connector.EmailConnector
 import vp.togedo.connector.UserConnector
 import vp.togedo.dto.LoginRes
 import vp.togedo.dto.UserInfoReqDto
 import vp.togedo.dto.UserInfoResDto
+import vp.togedo.dto.ValidCodeReqDto
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -25,7 +28,8 @@ import java.nio.charset.StandardCharsets
 @RequestMapping("/api/v1/user")
 @Tag(name = "유저 API", description = "회원가입 및 로그인과 관련된 API입니다.")
 class UserController(
-    private val userConnector: UserConnector
+    private val userConnector: UserConnector,
+    private val emailConnector: EmailConnector,
 ) {
 
     @GetMapping("/kakao-login")
@@ -104,6 +108,39 @@ class UserController(
         @Parameter(hidden = true) @RequestHeader("Authorization") accessToken: String): ResponseEntity<UserInfoResDto> {
         return ResponseEntity.ok()
             .body(userConnector.findUserInfo(userConnector.extractUserIdByToken(accessToken)))
+    }
+
+    @PostMapping("/valid-code")
+    @Operation(summary = "유효성 검사를 위해 이메일에 인증코드를 전송")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "이메일 전송 성공",
+            content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)])
+    )
+    suspend fun requestValidCode(
+        @RequestBody validCodeReqDto: ValidCodeReqDto): ResponseEntity<HttpStatus>{
+        emailConnector.requestValidCode(validCodeReqDto.email)
+        return ResponseEntity.ok().build()
+    }
+
+    @GetMapping("/check-valid")
+    @Operation(summary = "인증번호를 사용하여 이메일 검사")
+    @Parameters(
+        Parameter(name = "code", description = "인증번호"),
+        Parameter(name = "email", description = "유효성 검사 할 이메일"),
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "유효성 검사 성공",
+            content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)]),
+        ApiResponse(responseCode = "401", description = "유효성 검사 실패",
+            content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)])
+    )
+    suspend fun checkValidCode(
+        @RequestParam code: String,
+        @RequestParam email: String): ResponseEntity<HttpStatus>{
+        return if (emailConnector.checkValidCode(code = code, email = email))
+            ResponseEntity.status(200).build()
+        else
+            ResponseEntity.status(403).build()
     }
 
 }
