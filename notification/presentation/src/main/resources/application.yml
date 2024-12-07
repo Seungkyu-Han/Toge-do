@@ -1,0 +1,23 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+    producer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+    consumer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER}
+      group-id: seungkyu
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+server:
+  port: 12042
+
+SWAGGER:
+  URL: ${SWAGGER_URL}
+
+springdoc:
+  api-docs:
+    path: /notification/v3/api-docs
+  swagger-ui:
+    url: /notification/v3/api-docs
+    path: /notification/swagger
