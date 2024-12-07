@@ -43,20 +43,36 @@
 
 ---
 ### 기록
-##### INTRO
-![](https://private-user-images.githubusercontent.com/98071131/391516107-74c91565-9c2d-404b-b771-c69a0192d738.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzM1NTk3ODMsIm5iZiI6MTczMzU1OTQ4MywicGF0aCI6Ii85ODA3MTEzMS8zOTE1MTYxMDctNzRjOTE1NjUtOWMyZC00MDRiLWI3NzEtYzY5YTAxOTJkNzM4LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEyMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMjA3VDA4MTgwM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU0NmQ5Mjc5N2Q5OTYwZmMxNzAxNmZkMGNlYWU0YjVkZDBkMmQzYmVjZmE1ZTEwYTMxZmNjMTgyNTE3NTFiOGYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.PH1FFY5SyIQujztouBdqyFUBgijjtudLiA--CpvR9gM)
+##### INTRO (초기 세팅)
+![](image/intro.png)
 
 - 개발 환경 구성
 - Spring Cloud Gateway 설정
 - Jenkins를 사용한 CI/CD 구성
 
-##### WEEK1(유저 기능 개발)
-![](https://private-user-images.githubusercontent.com/98071131/391542627-0366dd47-168a-4199-8d86-d5f79051c85d.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzM1NTMxMDcsIm5iZiI6MTczMzU1MjgwNywicGF0aCI6Ii85ODA3MTEzMS8zOTE1NDI2MjctMDM2NmRkNDctMTY4YS00MTk5LThkODYtZDVmNzkwNTFjODVkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDEyMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMjA3VDA2MjY0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWQ3YmYxNzE3OGJlNDkxMDQ1NTFmNzRjMzUwZmEyNjgxZjY4MmQ5NzE4MTg4OWQyODlmYzc0OGJjMWU4YjhiODYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.21lUuprr_bMh3ZqYlH1zOgmVUv2Q3V98MAYsJpJ4crA)
+<br>
+
+##### 스프린트1 (유저 기능 개발)
+기간: 2024.12.01 - 2024.12.07 
+
+![](image/스프린트1.png)
 
 - 카카오 로그인
 - 카카오 회원가입
 - ~~네이버 로그인~~ 구글 로그인으로 변경
 - ~~네이버 회원가입~~ 구글 회원가입으로 변경
-- 로그아웃
-- 이름 수정
-- 프로필 사진 수정
+- 사용자 정보 수정
+- 인증 메일 발송
+- 이메일 유효성 검사
+- 사용자 정보 수정
+
+<br>
+
+##### 스프린트2 (친구 기능 개발)
+기간: 2024.12.08 - 2024.12.10
+
+![](image/스프린트2.png)
+
+- 친구 조회
+- 친구 신청(이메일 and QR코드)
+- 친구 삭제
