@@ -9,6 +9,7 @@ import reactor.kafka.sender.SenderResult
 import vp.togedo.data.email.ValidCodeEventDto
 import vp.togedo.service.EmailService
 import vp.togedo.util.ValidationUtil
+import java.time.Duration
 
 @Service
 class EmailServiceImpl(
@@ -25,7 +26,7 @@ class EmailServiceImpl(
         val eventMessage = ValidCodeEventDto(email = email, code = code)
 
         return reactiveRedisTemplate.opsForValue()
-            .set(email, code)
+            .set(email, code, Duration.ofMinutes(5))
             .flatMap {
                 reactiveKafkaProducerTemplate.send(
                     sendEmailValidationCodeTopic,
