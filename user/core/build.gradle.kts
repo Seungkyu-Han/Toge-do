@@ -46,6 +46,9 @@ dependencies {
     //KAFKA
     implementation("io.projectreactor.kafka:reactor-kafka")
     implementation("org.springframework.kafka:spring-kafka")
+
+    //REDIS
+    implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.2")
 }
 
 tasks.test {

@@ -27,6 +27,8 @@ class UserConnectorImpl(
 ): UserConnector {
 
     override fun extractUserIdByToken(token: String): ObjectId{
+        if(!token.startsWith("Bearer"))
+            throw UserException(ErrorCode.INVALID_TOKEN)
         return userService.getUserIdByToken(token.removePrefix("Bearer "))
     }
 
