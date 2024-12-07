@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.*
 
-
 @Configuration
 class SwaggerConfig(
     @Value("\${SWAGGER.URL}")
@@ -31,8 +30,8 @@ class SwaggerConfig(
             .components(Components())
             .info(
                 Info().apply {
-                    title = "Toge-do 유저 서버"
-                    description = "인증 및 유저, 친구 웹 애플리케이션 서버입니다."
+                    title = "Toge-do 알림 서버"
+                    description = "이메일, SSE 알림 웹 애플리케이션 서버입니다."
                 }
             )
             .addServersItem(Server().url(swaggerUrl).description("Swagger API"))
@@ -43,4 +42,5 @@ class SwaggerConfig(
                 Collections.singletonList(securityRequirement)
             )
     }
+
 }

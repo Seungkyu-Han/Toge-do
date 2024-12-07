@@ -14,3 +14,8 @@ spring:
           uri: ${USER_URI}
           predicates:
             - Path=/user/**, /api/v1/user/**
+
+        - id: notification
+          uri: ${NOTIFICATION_URI}
+          predicates:
+            - Path=/notification/**, /api/v1/notification/**
