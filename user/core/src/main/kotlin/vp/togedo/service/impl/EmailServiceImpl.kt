@@ -26,7 +26,7 @@ class EmailServiceImpl(
         val eventMessage = ValidCodeEventDto(email = email, code = code)
 
         return reactiveRedisTemplate.opsForValue()
-            .set(email, code, Duration.ofMinutes(5))
+            .set("email:validation:$email", code, Duration.ofMinutes(5))
             .flatMap {
                 reactiveKafkaProducerTemplate.send(
                     sendEmailValidationCodeTopic,
