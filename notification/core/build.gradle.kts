@@ -16,6 +16,9 @@ dependencies {
     //REFLECT
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    //MAIL
+    implementation("org.springframework.boot:spring-boot-starter-mail:3.4.0")
+
     //KAFKA
     implementation("io.projectreactor.kafka:reactor-kafka")
     implementation("org.springframework.kafka:spring-kafka")
