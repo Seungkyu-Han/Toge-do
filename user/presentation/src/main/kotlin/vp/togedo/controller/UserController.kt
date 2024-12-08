@@ -101,8 +101,8 @@ class UserController(
         ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공",
             content = [Content(schema = Schema(implementation = UserInfoResDto::class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE)]),
-        ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공",
-            content = [Content(schema = Schema(implementation = UserInfoResDto::class),
+        ApiResponse(responseCode = "403", description = "사용자 정보 조회 실패",
+            content = [Content(schema = Schema(implementation = String::class),
                 mediaType = MediaType.TEXT_PLAIN_VALUE)]))
     suspend fun findInfo(
         @Parameter(hidden = true) @RequestHeader("Authorization") accessToken: String): ResponseEntity<UserInfoResDto> {
