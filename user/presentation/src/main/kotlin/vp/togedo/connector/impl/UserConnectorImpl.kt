@@ -27,8 +27,8 @@ class UserConnectorImpl(
     private val imageService: ImageService
 ): UserConnector {
 
-    override fun extractUserIdByToken(token: String): ObjectId{
-        if(!token.startsWith("Bearer"))
+    override fun extractUserIdByToken(token: String?): ObjectId{
+        if(token == null || token.startsWith("Bearer"))
             throw UserException(ErrorCode.INVALID_TOKEN)
         return try{
             userService.getUserIdByToken(token.removePrefix("Bearer "))

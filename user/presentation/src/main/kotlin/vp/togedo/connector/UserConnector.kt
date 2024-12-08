@@ -29,5 +29,5 @@ interface UserConnector {
         id: ObjectId
     ): UserInfoResDto
 
-    fun extractUserIdByToken(token: String): ObjectId
+    fun extractUserIdByToken(token: String?): ObjectId
 }

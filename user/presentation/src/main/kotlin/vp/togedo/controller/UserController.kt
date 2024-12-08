@@ -90,7 +90,7 @@ class UserController(
             content = [Content(schema = Schema(implementation = UserInfoResDto::class))]))
     suspend fun updateInfo(
         @ModelAttribute userInfoReqDto: UserInfoReqDto,
-        @Parameter(hidden = true) @RequestHeader("Authorization") accessToken: String): ResponseEntity<UserInfoResDto> {
+        @Parameter(hidden = true, required = false) @RequestHeader("Authorization") accessToken: String?): ResponseEntity<UserInfoResDto> {
         return ResponseEntity.ok()
             .body(userConnector.updateUserInfo(userInfoReqDto, userConnector.extractUserIdByToken(accessToken)))
     }
@@ -105,7 +105,7 @@ class UserController(
             content = [Content(schema = Schema(implementation = String::class),
                 mediaType = MediaType.TEXT_PLAIN_VALUE)]))
     suspend fun findInfo(
-        @Parameter(hidden = true) @RequestHeader("Authorization") accessToken: String): ResponseEntity<UserInfoResDto> {
+        @Parameter(hidden = true, required = false) @RequestHeader("Authorization") accessToken: String?): ResponseEntity<UserInfoResDto> {
         return ResponseEntity.ok()
             .body(userConnector.findUserInfo(userConnector.extractUserIdByToken(accessToken)))
     }
