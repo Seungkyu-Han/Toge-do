@@ -5,32 +5,23 @@ plugins {
     id("io.spring.dependency-management") version "1.1.6"
 }
 
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-
-    implementation(project(":security:core"))
-
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    if (System.getProperty("os.name") == "Mac OS X" && System.getProperty("os.arch") == "aarch64") {
-        runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64")
-    }
+
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
-
 kotlin {
     jvmToolchain(17)
-}
-
-dependencyManagement{
-    imports{
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.3")
-    }
 }

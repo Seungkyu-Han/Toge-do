@@ -17,4 +17,7 @@ include 'notification:presentation'
 findProject(':notification:presentation')?.name = 'presentation'
 include 'notification:core'
 findProject(':notification:core')?.name = 'core'
+include 'security'
+include 'security:core'
+findProject(':security:core')?.name = 'core'
 
