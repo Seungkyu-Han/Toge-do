@@ -25,3 +25,6 @@ spring:
           uri: ${NOTIFICATION_URI}
           predicates:
             - Path=/notification/**, /api/v1/notification/**
+
+JWT:
+  SECRET: ${JWT_SECRET}
