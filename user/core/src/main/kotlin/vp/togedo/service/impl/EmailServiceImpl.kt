@@ -6,7 +6,7 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.kafka.sender.SenderResult
-import vp.togedo.data.email.ValidCodeEventDto
+import vp.togedo.data.dto.email.ValidCodeEventDto
 import vp.togedo.service.EmailService
 import vp.togedo.util.ValidationUtil
 import java.time.Duration
