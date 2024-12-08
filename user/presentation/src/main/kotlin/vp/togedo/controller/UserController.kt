@@ -17,10 +17,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import vp.togedo.connector.EmailConnector
 import vp.togedo.connector.UserConnector
-import vp.togedo.dto.LoginRes
-import vp.togedo.dto.UserInfoReqDto
-import vp.togedo.dto.UserInfoResDto
-import vp.togedo.dto.ValidCodeReqDto
+import vp.togedo.dto.*
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -130,17 +127,14 @@ class UserController(
     )
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "유효성 검사 성공",
-            content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)]),
-        ApiResponse(responseCode = "401", description = "유효성 검사 실패",
-            content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)])
+            content = [Content(schema = Schema(implementation = CheckValidResDto::class),
+                mediaType = MediaType.APPLICATION_JSON_VALUE)])
     )
     suspend fun checkValidCode(
         @RequestParam code: String,
-        @RequestParam email: String): ResponseEntity<HttpStatus>{
-        return if (emailConnector.checkValidCode(code = code, email = email))
-            ResponseEntity.status(200).build()
-        else
-            ResponseEntity.status(403).build()
+        @RequestParam email: String): ResponseEntity<CheckValidResDto>{
+        return ResponseEntity.ok()
+            .body(CheckValidResDto(result = emailConnector.checkValidCode(code = code, email = email)))
     }
 
 }
