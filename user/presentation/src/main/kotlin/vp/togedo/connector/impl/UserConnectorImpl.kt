@@ -1,6 +1,7 @@
 package vp.togedo.connector.impl
 
 import io.jsonwebtoken.MalformedJwtException
+import io.jsonwebtoken.SignatureException
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
@@ -26,10 +27,18 @@ class UserConnectorImpl(
     private val imageService: ImageService
 ): UserConnector {
 
-    override fun extractUserIdByToken(token: String): ObjectId{
-        if(!token.startsWith("Bearer"))
+    override fun extractUserIdByToken(token: String?): ObjectId{
+        if(token == null || token.startsWith("Bearer"))
             throw UserException(ErrorCode.INVALID_TOKEN)
-        return userService.getUserIdByToken(token.removePrefix("Bearer "))
+        return try{
+            userService.getUserIdByToken(token.removePrefix("Bearer "))
+        } catch ( signatureException: SignatureException){
+            throw UserException(ErrorCode.INVALID_TOKEN)
+        } catch (malformedJwtException: MalformedJwtException){
+            throw UserException(ErrorCode.INVALID_TOKEN)
+        } catch (illegalArgumentException: IllegalArgumentException){
+            throw UserException(ErrorCode.INVALID_TOKEN)
+        }
     }
 
     override fun kakaoLogin(
