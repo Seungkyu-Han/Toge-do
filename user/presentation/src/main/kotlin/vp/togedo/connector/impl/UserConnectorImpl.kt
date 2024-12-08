@@ -28,16 +28,16 @@ class UserConnectorImpl(
 ): UserConnector {
 
     override fun extractUserIdByToken(token: String?): ObjectId{
-        if(token == null || token.startsWith("Bearer"))
-            throw UserException(ErrorCode.INVALID_TOKEN)
+        if(token == null || !token.startsWith("Bearer "))
+            throw UserException(ErrorCode.EMPTY_TOKEN)
         return try{
             userService.getUserIdByToken(token.removePrefix("Bearer "))
-        } catch ( signatureException: SignatureException){
+        } catch (signatureException: SignatureException){
             throw UserException(ErrorCode.INVALID_TOKEN)
         } catch (malformedJwtException: MalformedJwtException){
             throw UserException(ErrorCode.INVALID_TOKEN)
         } catch (illegalArgumentException: IllegalArgumentException){
-            throw UserException(ErrorCode.INVALID_TOKEN)
+            throw UserException(ErrorCode.INVALID_OBJECT_USERID)
         }
     }
 
