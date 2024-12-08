@@ -1,5 +1,7 @@
 FROM openjdk:17-jdk
 
+RUN mkdir /image
+
 WORKDIR /user
 
 VOLUME /user
