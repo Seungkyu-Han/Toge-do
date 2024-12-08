@@ -19,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.kafka.sender.SenderResult
 import reactor.test.StepVerifier
-import vp.togedo.data.dto.email.ValidCodeEventDto
 import vp.togedo.util.ValidationUtil
 import java.time.Duration
 import java.util.*
