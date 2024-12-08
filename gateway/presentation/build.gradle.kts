@@ -19,6 +19,13 @@ dependencies {
     if (System.getProperty("os.name") == "Mac OS X" && System.getProperty("os.arch") == "aarch64") {
         runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64")
     }
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    testImplementation("io.projectreactor:reactor-test")
+    testImplementation ("org.mockito:mockito-core")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
 }
 
 tasks.test {

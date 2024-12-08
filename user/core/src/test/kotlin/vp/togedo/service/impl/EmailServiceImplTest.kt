@@ -1,5 +1,6 @@
 package vp.togedo.service.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.data.redis.core.ReactiveValueOperations
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate
@@ -17,6 +19,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.kafka.sender.SenderResult
 import reactor.test.StepVerifier
+import vp.togedo.util.ValidationUtil
+import java.time.Duration
 import java.util.*
 
 @ExtendWith(SpringExtension::class)
@@ -32,13 +36,21 @@ class EmailServiceImplTest {
     @Mock
     private lateinit var reactiveValueOperations: ReactiveValueOperations<String, String>
 
+    @SpyBean
+    private lateinit var objectMapper: ObjectMapper
+
+    @SpyBean
+    private lateinit var validationUtil: ValidationUtil
+
     private lateinit var emailService: EmailServiceImpl
 
     @BeforeEach
     fun setUp() {
         emailService = EmailServiceImpl(
             reactiveKafkaProducerTemplate = reactiveKafkaProducerTemplate,
-            reactiveRedisTemplate = reactiveRedisTemplate
+            reactiveRedisTemplate = reactiveRedisTemplate,
+            objectMapper = objectMapper,
+            validationUtil = validationUtil
         )
     }
 
@@ -62,15 +74,21 @@ class EmailServiceImplTest {
                 override fun correlationMetadata(): Void? = null
             }
 
-            `when`(reactiveKafkaProducerTemplate.send(sendEmailValidationCodeTopic, email))
+            `when`(reactiveKafkaProducerTemplate.send(eq(sendEmailValidationCodeTopic), anyString()))
                 .thenReturn(Mono.just(senderResult))
+
+            `when`(reactiveRedisTemplate.opsForValue())
+                .thenReturn(reactiveValueOperations)
+
+            `when`(reactiveValueOperations.set(anyString(), anyString(), any<Duration>()))
+                .thenReturn(Mono.just(true))
 
             //when & then
             StepVerifier.create(emailService.sendValidationCode(email))
                 .expectNextCount(1)
                 .verifyComplete()
 
-            verify(reactiveKafkaProducerTemplate, times(1)).send(sendEmailValidationCodeTopic, email)
+            verify(reactiveKafkaProducerTemplate, times(1)).send(eq(sendEmailValidationCodeTopic), anyString())
         }
     }
 
