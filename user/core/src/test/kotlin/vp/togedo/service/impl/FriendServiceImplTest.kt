@@ -1,5 +1,7 @@
 package vp.togedo.service.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.kafka.clients.producer.RecordMetadata
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -8,12 +10,15 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.*
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
+import reactor.kafka.sender.SenderResult
 import reactor.test.StepVerifier
 import vp.togedo.UserRepository
+import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -29,11 +34,17 @@ class FriendServiceImplTest{
     @MockBean
     lateinit var reactiveKafkaProducerTemplate: ReactiveKafkaProducerTemplate<String, String>
 
+    @SpyBean
+    lateinit var objectMapper: ObjectMapper
+
     private lateinit var friendService: FriendServiceImpl
 
     @BeforeEach
     fun setUp() {
-        friendService = FriendServiceImpl(userRepository, reactiveKafkaProducerTemplate)
+        friendService = FriendServiceImpl(
+            userRepository = userRepository,
+            objectMapper = objectMapper,
+            reactiveKafkaProducerTemplate = reactiveKafkaProducerTemplate)
     }
 
     @Nested
@@ -87,6 +98,43 @@ class FriendServiceImplTest{
 
             //then
             verify(userRepository, times(1)).findById(friendId)
+        }
+    }
+
+    @Nested
+    inner class PublishRequestFriendEvent{
+
+        private val friendRequestEventTopic = "FRIEND_REQUEST_TOPIC"
+
+        @Test
+        @DisplayName("정상적인 kafka 이벤트 전송")
+        fun publishValidEventReturnSuccess(){
+            //given
+            val friendId = ObjectId.get()
+            val publishMessage = objectMapper.writeValueAsString(FriendRequestEventDto(friendId = friendId.toString()))
+
+            val recordMetadata = RecordMetadata(null, 0, 0, 0, 0, 0)
+
+            // SenderResult 구현
+            val senderResult = object : SenderResult<Void> {
+                override fun recordMetadata(): RecordMetadata = recordMetadata
+                override fun exception(): Exception? = null
+                override fun correlationMetadata(): Void? = null
+            }
+
+            `when`(reactiveKafkaProducerTemplate.send(
+                friendRequestEventTopic, publishMessage))
+                .thenReturn(Mono.just(senderResult))
+
+            //when
+
+            StepVerifier.create(friendService.publishRequestFriendEvent(friendId))
+                .expectNextCount(1)
+                .verifyComplete()
+
+            //then
+            verify(reactiveKafkaProducerTemplate, times(1))
+                .send(friendRequestEventTopic, publishMessage)
         }
 
     }

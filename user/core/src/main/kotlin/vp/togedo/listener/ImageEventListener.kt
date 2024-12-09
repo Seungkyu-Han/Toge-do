@@ -9,7 +9,7 @@ class ImageEventListener(
     private val imageService: ImageService
 ) {
 
-    @KafkaListener(topics = ["IMAGE_DELETE_IMAGE_TOPIC"], groupId = "seungkyu")
+    @KafkaListener(topics = ["IMAGE_DELETE_TOPIC"], groupId = "seungkyu")
     fun deleteImageListener(fileName: String){
         imageService.deleteImage(fileName)
     }
