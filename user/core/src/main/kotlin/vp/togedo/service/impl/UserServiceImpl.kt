@@ -2,6 +2,7 @@ package vp.togedo.service.impl
 
 import io.jsonwebtoken.MalformedJwtException
 import org.bson.types.ObjectId
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
@@ -53,13 +54,11 @@ class UserServiceImpl(
         kakaoId: Long?,
         googleId: String?): Mono<UserDocument> {
 
-        val oauth = Oauth(
-            oauthType = oauthEnum,
-            kakaoId = kakaoId,
-            googleId = googleId
-        )
-
-        return userRepository.findByOauth(oauth)
+        return (if (oauthEnum == OauthEnum.KAKAO)
+                userRepository.findByOauth_KakaoId(kakaoId!!)
+            else
+                userRepository.findByOauth_GoogleId(googleId!!)
+                )
             .switchIfEmpty(
                 Mono.error(
                     UserException(ErrorCode.USER_NOT_FOUND_BY_OAUTH)
@@ -76,6 +75,7 @@ class UserServiceImpl(
      * @param email 사용자 이메일
      * @param profileImageUrl 사용자 프로필 이미지 url
      * @return 유저 정보
+     * @throws DuplicateKeyException 해당 이메일이 이미 존재하는 경우
      */
     @Transactional
     override fun createUser(
@@ -87,7 +87,6 @@ class UserServiceImpl(
         profileImageUrl: String?): Mono<UserDocument>{
 
     val oauth = Oauth(
-            oauthType = oauthEnum,
             kakaoId = kakaoId,
             googleId = googleId
         )
@@ -101,6 +100,45 @@ class UserServiceImpl(
         )
 
         return userRepository.save(user)
+            .onErrorResume{
+                if(it is DuplicateKeyException){
+                    insertOauthIdByEmail(
+                        oauthEnum = oauthEnum,
+                        kakaoId = kakaoId,
+                        googleId = googleId,
+                        email = email!!
+                    )
+                }else{
+                    throw it
+                }
+            }
+    }
+
+    /**
+     * email 중복이면 해당 계정에 Oauth 추가
+     * @param oauthEnum oauth Type
+     * @param kakaoId 카카오 oauth Id
+     * @param googleId 구글 oauth Id
+     * @param email 이메일
+     * @return 유저 정보
+     */
+    @Transactional
+    override fun insertOauthIdByEmail(
+        oauthEnum: OauthEnum,
+        kakaoId: Long?,
+        googleId: String?,
+        email: String
+    ): Mono<UserDocument> {
+        return userRepository.findByEmail(email)
+            .flatMap{
+                if (oauthEnum == OauthEnum.KAKAO) {
+                    it.oauth.kakaoId = kakaoId
+                }
+                else{
+                    it.oauth.googleId = googleId
+                }
+                userRepository.save(it)
+            }
     }
 
     /**
