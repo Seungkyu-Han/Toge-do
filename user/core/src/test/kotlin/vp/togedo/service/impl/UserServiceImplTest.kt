@@ -5,11 +5,11 @@ import org.bson.types.ObjectId
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito
-import org.mockito.Mockito.times
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.mockito.kotlin.any
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
@@ -52,10 +52,10 @@ class UserServiceImplTest{
             val kakaoId = 0L
             val user = UserDocument(
                 id = ObjectId.get(),
-                oauth = Oauth(oauthType = oauthType, kakaoId = kakaoId)
+                oauth = Oauth(kakaoId = kakaoId)
             )
 
-            `when`(userRepository.findByOauth(any<Oauth>()))
+            `when`(userRepository.findByOauth_KakaoId(kakaoId))
                 .thenReturn(Mono.just(user))
 
             //when && then
@@ -64,11 +64,11 @@ class UserServiceImplTest{
                 kakaoId = kakaoId,
             ))
                 .expectNextMatches {
-                    user.id == it.id && oauthType == it.oauth.oauthType && kakaoId == it.oauth.kakaoId
+                    user.id == it.id && kakaoId == it.oauth.kakaoId
                 }.verifyComplete()
 
-            Mockito.verify(userRepository, times(1))
-                .findByOauth(any<Oauth>())
+            verify(userRepository, times(1))
+                .findByOauth_KakaoId(kakaoId)
         }
 
         @Test
@@ -77,7 +77,7 @@ class UserServiceImplTest{
             //given
             val oauthType = OauthEnum.KAKAO
             val kakaoId = 0L
-            `when`(userRepository.findByOauth(any<Oauth>()))
+            `when`(userRepository.findByOauth_KakaoId(kakaoId))
                 .thenReturn(Mono.empty())
 
             //when && then
@@ -88,11 +88,63 @@ class UserServiceImplTest{
                 it is UserException && it.message == ErrorCode.USER_NOT_FOUND_BY_OAUTH.message
             }.verify()
 
-            Mockito.verify(userRepository, times(1))
-                .findByOauth(any<Oauth>())
+            verify(userRepository, times(1))
+                .findByOauth_KakaoId(kakaoId)
         }
 
+        @Test
+        @DisplayName("구글 Oauth로 일치하는 유저 조회 성공")
+        fun getUserInfoByOauthGoogleReturnSuccess(){
+            //given
+            val oauthType = OauthEnum.GOOGLE
+            val googleId = UUID.randomUUID().toString()
+            val user = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(googleId = googleId)
+            )
+
+            `when`(userRepository.findByOauth_GoogleId(googleId))
+                .thenReturn(Mono.just(user))
+
+            //when && then
+            StepVerifier.create(userServiceImpl.getUserInfoByOauth(
+                oauthEnum = oauthType,
+                googleId = googleId,
+            ))
+                .expectNextMatches {
+                    googleId == it.oauth.googleId &&
+                    user.id == it.id
+                }.verifyComplete()
+
+            Mockito.verify(userRepository, times(1))
+                .findByOauth_GoogleId(googleId)
+        }
+
+        @Test
+        @DisplayName("구글 Oauth로 일치하는 유저 조회 실패")
+        fun getUserInfoByOauthGoogleReturnEmpty(){
+            //given
+            val oauthType = OauthEnum.GOOGLE
+            val googleId = UUID.randomUUID().toString()
+
+
+            `when`(userRepository.findByOauth_GoogleId(googleId))
+                .thenReturn(Mono.empty())
+
+            //when && then
+            StepVerifier.create(userServiceImpl.getUserInfoByOauth(
+                oauthEnum = oauthType,
+                googleId = googleId,
+            )).expectErrorMatches {
+                it is UserException && it.message == ErrorCode.USER_NOT_FOUND_BY_OAUTH.message
+            }.verify()
+
+            Mockito.verify(userRepository, times(1))
+                .findByOauth_GoogleId(googleId)
+        }
     }
+
+
 
     @Nested
     inner class CreateUser{
@@ -104,7 +156,6 @@ class UserServiceImplTest{
             val oauthType = OauthEnum.KAKAO
             val kakaoId = 0L
             val oauth = Oauth(
-                oauthType = oauthType,
                 kakaoId = kakaoId
             )
 
@@ -117,12 +168,103 @@ class UserServiceImplTest{
                 oauthEnum = oauthType,
                 kakaoId = kakaoId,
             )).expectNextMatches {
-                oauthType == it.oauth.oauthType && kakaoId == it.oauth.kakaoId
+                kakaoId == it.oauth.kakaoId
             }.verifyComplete()
 
-            Mockito.verify(userRepository, times(1))
+            verify(userRepository, times(1))
                 .save(any<UserDocument>())
 
+        }
+
+        @Test
+        @DisplayName("구글 Oauth를 사용하여 사용자를 생성")
+        fun createUserByOauthByGoogle(){
+            //given
+            val oauthType = OauthEnum.GOOGLE
+            val googleId = UUID.randomUUID().toString()
+            val oauth = Oauth(
+                googleId = googleId
+            )
+
+            `when`(userRepository.save(any<UserDocument>()))
+                .thenReturn(
+                    Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth))
+                )
+
+            StepVerifier.create(userServiceImpl.createUser(
+                oauthEnum = oauthType,
+                googleId = googleId,
+            )).expectNextMatches {
+                it.oauth.googleId == oauth.googleId
+            }.verifyComplete()
+
+            verify(userRepository, times(1))
+                .save(any<UserDocument>())
+
+        }
+
+        @Test
+        @DisplayName("해당 이메일이 있는 상태로 구글 Oauth 계정 생성")
+        fun createUserWhenEmailDuplicateByGoogleOauth(){
+            //given
+            val oauthType = OauthEnum.GOOGLE
+            val googleId = UUID.randomUUID().toString()
+            val oauth = Oauth(
+                googleId = googleId
+            )
+
+            `when`(userRepository.save(any<UserDocument>()))
+                .thenReturn(Mono.error(DuplicateKeyException("이메일 중복")))
+                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth)))
+
+            `when`(userRepository.findByEmail(anyString()))
+                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth)))
+
+            StepVerifier.create(userServiceImpl.createUser(
+                oauthEnum = oauthType,
+                googleId = googleId,
+                email = "test@test.com",
+            )).expectNextMatches {
+                googleId == it.oauth.googleId
+            }.verifyComplete()
+
+            verify(userRepository, times(2))
+                .save(any<UserDocument>())
+
+            verify(userRepository, times(1))
+                .findByEmail(anyString())
+        }
+
+        @Test
+        @DisplayName("해당 이메일이 있는 상태로 카카오 Oauth 계정 생성")
+        fun createUserWhenEmailDuplicateByKakaoOauth(){
+            //given
+            val oauthType = OauthEnum.KAKAO
+            val kakaoId = 0L
+            val oauth = Oauth(
+                kakaoId = kakaoId
+            )
+
+            `when`(userRepository.save(any<UserDocument>()))
+                .thenReturn(Mono.error(DuplicateKeyException("이메일 중복")))
+                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth)))
+
+            `when`(userRepository.findByEmail(anyString()))
+                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth)))
+
+            StepVerifier.create(userServiceImpl.createUser(
+                oauthEnum = oauthType,
+                kakaoId = kakaoId,
+                email = "test@test.com",
+            )).expectNextMatches {
+                kakaoId == it.oauth.kakaoId
+            }.verifyComplete()
+
+            verify(userRepository, times(2))
+                .save(any<UserDocument>())
+
+            verify(userRepository, times(1))
+                .findByEmail(anyString())
         }
     }
 
@@ -177,7 +319,7 @@ class UserServiceImplTest{
         fun findUserByValidIdReturnSuccess(){
             //given
             val id = ObjectId.get()
-            val userDocument = UserDocument(id = id, Oauth(OauthEnum.KAKAO, kakaoId = 0L))
+            val userDocument = UserDocument(id = id, Oauth(kakaoId = 0L))
             `when`(userRepository.findById(any<ObjectId>()))
                 .thenReturn(Mono.just(userDocument))
 
@@ -186,7 +328,7 @@ class UserServiceImplTest{
                 .expectNext(userDocument)
                 .verifyComplete()
 
-            Mockito.verify(userRepository, times(1)).findById(id)
+            verify(userRepository, times(1)).findById(id)
         }
 
         @Test
@@ -204,7 +346,7 @@ class UserServiceImplTest{
                 }
                 .verify()
 
-            Mockito.verify(userRepository, times(1)).findById(id)
+            verify(userRepository, times(1)).findById(id)
         }
     }
 }
