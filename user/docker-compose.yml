@@ -17,4 +17,5 @@ networks:
 
 volumes:
   user_volume:
+    name: user_volume
     driver: local
