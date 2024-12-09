@@ -20,7 +20,9 @@ data class UserDocument(
 
     var profileImageUrl: String? = null,
 
-    var friends: Set<ObjectId> = mutableSetOf()
+    var friends: Set<ObjectId> = mutableSetOf(),
+
+    var friendRequests: Set<ObjectId> = mutableSetOf(),
 )
 
 data class Oauth(
