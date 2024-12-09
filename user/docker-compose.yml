@@ -1,0 +1,20 @@
+services:
+  user:
+    image: user:1.0.0
+    container_name: user
+    networks:
+      - vp
+    ports:
+      - "12042:12042"
+    env_file:
+      - /home/ec2-user/.env
+    volumes:
+      - user_volume: /
+
+networks:
+  vp:
+    external: true
+
+volumes:
+  user_volume:
+    driver: local
