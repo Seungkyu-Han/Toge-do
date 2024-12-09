@@ -26,6 +26,13 @@ interface UserService {
         email: String? = null,
         profileImageUrl: String? = null): Mono<UserDocument>
 
+    fun insertOauthIdByEmail(
+        oauthEnum: OauthEnum,
+        kakaoId: Long? = null,
+        googleId: String? = null,
+        email: String
+    ): Mono<UserDocument>
+
     fun findUser(id: ObjectId): Mono<UserDocument>
 
     fun saveUser(userDocument: UserDocument): Mono<UserDocument>
