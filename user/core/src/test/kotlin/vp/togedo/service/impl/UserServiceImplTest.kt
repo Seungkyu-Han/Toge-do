@@ -4,7 +4,6 @@ import io.jsonwebtoken.MalformedJwtException
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.kotlin.any
 import org.springframework.boot.test.mock.mockito.MockBean
