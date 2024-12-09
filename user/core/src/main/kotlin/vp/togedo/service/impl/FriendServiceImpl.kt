@@ -17,7 +17,7 @@ class FriendServiceImpl(
      * @param friends 친구의 id 리스트
      * @return 유저 정보 Flux
      */
-    override fun getUserByFriends(friends: List<ObjectId>): Flux<UserDocument> {
+    override fun getUserByFriends(friends: Set<ObjectId>): Flux<UserDocument> {
         return userRepository.findAllById(friends)
     }
 }
