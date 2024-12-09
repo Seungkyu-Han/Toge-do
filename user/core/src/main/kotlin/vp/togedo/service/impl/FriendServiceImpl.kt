@@ -1,6 +1,7 @@
 package vp.togedo.service.impl
 
 import org.bson.types.ObjectId
+import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -12,7 +13,8 @@ import vp.togedo.util.error.exception.UserException
 
 @Service
 class FriendServiceImpl(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val reactiveKafkaProducerTemplate: ReactiveKafkaProducerTemplate<String, String>
 ): FriendService {
 
     /**
@@ -29,6 +31,7 @@ class FriendServiceImpl(
      * @param userId 요청을 보내는 사용자의 id
      * @param friendId 친구 요청을 받는 사용자의 id
      * @return 친구 요청을 받은 사용자의 user document
+     * @throws UserException 친구 요청을 받는 사용자가 존재하지 않는 경우
      */
     override fun requestFriend(userId: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return userRepository.findById(friendId)
