@@ -58,7 +58,6 @@ class UserController(
                 mediaType = MediaType.APPLICATION_JSON_VALUE)]),
         ApiResponse(responseCode = "503", description = "로그인 중 알 수 없는 에러 발생",
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
-
     )
     suspend fun googleLogin(@RequestParam code: String): ResponseEntity<LoginRes>{
         return userConnector.googleLogin(withContext(Dispatchers.IO) {
