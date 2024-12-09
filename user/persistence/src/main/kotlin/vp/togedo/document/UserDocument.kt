@@ -19,6 +19,8 @@ data class UserDocument(
     var email: String? = null,
 
     var profileImageUrl: String? = null,
+
+    var friends: List<ObjectId> = mutableListOf()
 )
 
 data class Oauth(
