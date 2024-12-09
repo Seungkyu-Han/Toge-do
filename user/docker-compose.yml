@@ -9,7 +9,7 @@ services:
     env_file:
       - /home/ec2-user/.env
     volumes:
-      - user_volume: /image
+      - user_volume:/image
 
 networks:
   vp:
