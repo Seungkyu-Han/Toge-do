@@ -116,7 +116,7 @@ class UserServiceImplTest{
                     user.id == it.id
                 }.verifyComplete()
 
-            Mockito.verify(userRepository, times(1))
+            verify(userRepository, times(1))
                 .findByOauth_GoogleId(googleId)
         }
 
@@ -139,7 +139,7 @@ class UserServiceImplTest{
                 it is UserException && it.message == ErrorCode.USER_NOT_FOUND_BY_OAUTH.message
             }.verify()
 
-            Mockito.verify(userRepository, times(1))
+            verify(userRepository, times(1))
                 .findByOauth_GoogleId(googleId)
         }
     }
