@@ -5,7 +5,7 @@ services:
     networks:
       - vp
     ports:
-      - "12042:12042"
+      - "12041:12041"
     env_file:
       - /home/ec2-user/.env
     volumes:
