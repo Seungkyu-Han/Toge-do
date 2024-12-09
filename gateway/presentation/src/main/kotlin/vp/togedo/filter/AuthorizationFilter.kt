@@ -25,7 +25,7 @@ class AuthorizationFilter(
 
             val token = authHeader!!.removePrefix("Bearer ")
 
-            if (jwtTokenProvider.isAccessToken(token)) {
+            if (!jwtTokenProvider.isAccessToken(token)) {
                 return@GatewayFilter forbid(exchange)
             }
 
