@@ -69,7 +69,7 @@ class UserConnectorImpl(
             .map {
                 LoginRes(
                     accessToken = userService.createJwtAccessToken(it.id!!),
-                    refreshToken = userService.createJwtAccessToken(it.id!!)
+                    refreshToken = userService.createJwtRefreshToken(it.id!!)
                 )
             }
 
@@ -100,7 +100,7 @@ class UserConnectorImpl(
             .map {
                 LoginRes(
                     accessToken = userService.createJwtAccessToken(it.id!!),
-                    refreshToken = userService.createJwtAccessToken(it.id!!)
+                    refreshToken = userService.createJwtRefreshToken(it.id!!)
                 )
             }
 
