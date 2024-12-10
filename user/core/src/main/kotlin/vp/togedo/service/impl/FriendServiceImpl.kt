@@ -11,6 +11,9 @@ import vp.togedo.UserRepository
 import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.UserDocument
 import vp.togedo.service.FriendService
+import vp.togedo.util.error.errorCode.ErrorCode
+import vp.togedo.util.error.exception.UserException
+import vp.togedo.util.exception.AlreadyFriendException
 
 @Service
 class FriendServiceImpl(
@@ -35,10 +38,15 @@ class FriendServiceImpl(
      * @param userId 요청을 보내는 사용자의 id
      * @param friendUserDocument 친구 요청을 받는 사용자의 user document
      * @return 친구 요청을 받은 사용자의 user document
+     * @throws UserException 이미 친구인 사용자
      */
     override fun requestFriend(userId: ObjectId, friendUserDocument: UserDocument): Mono<UserDocument> {
         friendUserDocument.requestFriend(userId)
         return userRepository.save(friendUserDocument)
+            .doOnError{
+                if (it is AlreadyFriendException)
+                    throw UserException(ErrorCode.ALREADY_FRIEND)
+            }
     }
 
     /**
