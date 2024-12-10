@@ -72,7 +72,7 @@ class FriendServiceImpl(
      * 해당 유저와 친구 관계를 삭제하는 메서드
      * @param userId 친구 삭제를 요청하는 유저
      * @param friendId 친구 삭제를 당하는 유저
-     * @return 삭제 당한 유저의 user document
+     * @return 삭제한 유저의 user document
      */
     override fun removeFriend(userId: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return userRepository.findById(userId)
@@ -81,14 +81,8 @@ class FriendServiceImpl(
             }
             .flatMap{
                 userRepository.save(it)
-            }.flatMap {
-                userRepository.findById(friendId)
-            }
-            .flatMap {
-                it.removeFriend(userId)
-            }
-            .flatMap {
-                userRepository.save(it)
+            }.onErrorMap{
+                throw FriendException(ErrorCode.NOT_FRIEND)
             }
     }
 

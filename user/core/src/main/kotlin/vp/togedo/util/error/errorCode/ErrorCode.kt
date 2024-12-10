@@ -16,5 +16,6 @@ enum class ErrorCode(
 
     ALREADY_FRIEND(HttpStatus.CONFLICT, "이미 친구인 사용자입니다."),
     ALREADY_FRIEND_REQUESTED(HttpStatus.CONFLICT, "이미 친구 요청이 전송된 상태입니다."),
-    NO_REQUESTED(HttpStatus.NOT_FOUND, "해당 사용자에게 친구 요청이 오지 않았습니다")
+    NO_REQUESTED(HttpStatus.NOT_FOUND, "해당 사용자에게 친구 요청이 오지 않았습니다"),
+    NOT_FRIEND(HttpStatus.BAD_REQUEST, "친구인 유저가 아닙니다.")
 }

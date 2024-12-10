@@ -292,4 +292,71 @@ class FriendServiceImplTest{
             verify(userRepository, times(1)).findById(userDocument.id!!)
         }
     }
+
+    @Nested
+    inner class RemoveFriend{
+        @Test
+        @DisplayName("친구 목록에 존재하는 사용자를 삭제")
+        fun removeFriendToExistFriendReturnSuccess(){
+            //given
+            val friendId = ObjectId.get()
+            val userDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friendRequests = mutableSetOf(),
+                friends = mutableSetOf(friendId)
+            )
+
+            `when`(userRepository.findById(userDocument.id!!))
+                .thenReturn(Mono.just(userDocument))
+
+            `when`(userRepository.save(userDocument))
+            .thenReturn(Mono.just(userDocument))
+
+            //when
+            StepVerifier.create(friendService.removeFriend(
+                userId = userDocument.id!!,
+                friendId = friendId))
+                .expectNextMatches {
+                    it == userDocument
+                }.verifyComplete()
+
+            //then
+            Assertions.assertFalse(userDocument.friends.contains(friendId))
+
+            verify(userRepository, times(1)).findById(userDocument.id!!)
+            verify(userRepository, times(1)).save(userDocument)
+        }
+
+        @Test
+        @DisplayName("친구 목록에 존재하지 않는 사용자를 삭제")
+        fun removeFriendToNotExistFriendReturnSuccess(){
+            //given
+            val friendId = ObjectId.get()
+            val userDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friendRequests = mutableSetOf(),
+                friends = mutableSetOf()
+            )
+
+            `when`(userRepository.findById(userDocument.id!!))
+                .thenReturn(Mono.just(userDocument))
+
+            //when
+            StepVerifier.create(friendService.removeFriend(
+                userId = userDocument.id!!,
+                friendId = friendId))
+                .expectErrorMatches {
+                    it is FriendException && it.errorCode == ErrorCode.NOT_FRIEND
+                }.verify()
+
+            //then
+            Assertions.assertFalse(userDocument.friends.contains(friendId))
+
+            verify(userRepository, times(1)).findById(userDocument.id!!)
+        }
+    }
 }
