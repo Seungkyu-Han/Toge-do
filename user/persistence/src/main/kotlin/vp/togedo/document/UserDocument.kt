@@ -15,7 +15,7 @@ data class UserDocument(
     @Indexed(unique = true)
     val oauth: Oauth,
 
-    var name: String? = null,
+    var name: String = "사용자${(100..999).random()}",
 
     @Indexed(unique = true)
     var email: String? = null,
