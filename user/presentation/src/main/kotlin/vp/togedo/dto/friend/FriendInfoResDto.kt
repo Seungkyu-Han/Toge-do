@@ -1,4 +1,4 @@
-package vp.togedo.dto
+package vp.togedo.dto.friend
 
 data class FriendInfoResDto(
     val id: String,

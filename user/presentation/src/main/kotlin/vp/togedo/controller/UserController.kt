@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import vp.togedo.connector.EmailConnector
 import vp.togedo.connector.UserConnector
-import vp.togedo.dto.*
+import vp.togedo.dto.user.*
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -113,7 +113,8 @@ class UserController(
             content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)])
     )
     suspend fun requestValidCode(
-        @RequestBody validCodeReqDto: ValidCodeReqDto): ResponseEntity<HttpStatus>{
+        @RequestBody validCodeReqDto: ValidCodeReqDto
+    ): ResponseEntity<HttpStatus>{
         emailConnector.requestValidCode(validCodeReqDto.email)
         return ResponseEntity.ok().build()
     }

@@ -7,16 +7,18 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.bson.types.ObjectId
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import vp.togedo.config.IdConfig
 import vp.togedo.connector.FriendConnector
-import vp.togedo.dto.FriendInfoResDto
+import vp.togedo.dto.friend.FriendInfoResDto
+import vp.togedo.dto.friend.RequestByEmailReqDto
+import vp.togedo.dto.friend.RequestByIdReqDto
 
 @RestController
 @RequestMapping("/api/v1/friend")
@@ -49,4 +51,44 @@ class FriendController(
                 }
         )
     }
+
+    @PostMapping("/request")
+    @Operation(summary = "id를 사용하여 친구요청")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "친구 요청 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음"),
+        ApiResponse(responseCode = "404", description = "해당 유저가 존재하지 않음"),
+        ApiResponse(responseCode = "409", description = "이미 친구인 사용자임"),
+    )
+    fun requestFriendById(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody requestByIdReqDto: RequestByIdReqDto): Mono<ResponseEntity<HttpStatus>> {
+        return friendConnector.requestFriendById(
+            id = idConfig.objectIdProvider(userId),
+            friendId = ObjectId(requestByIdReqDto.friendId))
+            .map {
+                ResponseEntity.ok().build()
+            }
+    }
+
+    @PostMapping("/request-email")
+    @Operation(summary = "email을 사용하여 친구요청")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "친구 요청 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음"),
+        ApiResponse(responseCode = "404", description = "해당 유저가 존재하지 않음"),
+        ApiResponse(responseCode = "409", description = "이미 친구인 사용자임"),
+    )
+    fun requestFriendByEmail(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody requestByEmailReqDto: RequestByEmailReqDto): Mono<ResponseEntity<HttpStatus>> {
+        return friendConnector.requestFriendByEmail(
+            id = idConfig.objectIdProvider(userId),
+            email = requestByEmailReqDto.email)
+            .map {
+                ResponseEntity.ok().build()
+            }
+    }
+
+
 }

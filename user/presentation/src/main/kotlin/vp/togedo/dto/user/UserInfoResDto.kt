@@ -1,4 +1,4 @@
-package vp.togedo.dto
+package vp.togedo.dto.user
 
 import vp.togedo.document.UserDocument
 
