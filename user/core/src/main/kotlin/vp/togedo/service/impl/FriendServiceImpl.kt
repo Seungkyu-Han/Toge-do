@@ -16,6 +16,7 @@ import vp.togedo.util.error.exception.FriendException
 import vp.togedo.util.error.exception.UserException
 import vp.togedo.util.exception.AlreadyFriendException
 import vp.togedo.util.exception.AlreadyFriendRequestException
+import vp.togedo.util.exception.NoFriendRequestException
 
 @Service
 class FriendServiceImpl(
@@ -65,25 +66,36 @@ class FriendServiceImpl(
             friendRequestEventTopic, objectMapper.writeValueAsString(FriendRequestEventDto(friendId = friendId.toString()))
         )
 
+
+
+    /**
+     * TODO("이후에 transactional 작업 필요")
+     */
+
     /**
      * 해당 사용자와 친구 요청을 보낸 사용자의 친구 목록에 각각 친구를 저장하는 메서드
      * @param userId 친구 요청을 받은 사용자의 아이디
      * @param friendId 친구 요청을 보낸 사용자의 아이디
      * @return 친구 요청을 보낸 사용자의 user document
-     * @throws UserException
+     * @throws FriendException 사용자와 이미 친구 관계이거나 사용자에게 친구 요청이 오지 않았던 경우
      */
     override fun acceptFriendRequest(userId: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return userRepository.findById(userId)
-            .map{
-                if (!it.friendRequests.contains(friendId))
-                    return@map Mono.error(UserException(ErrorCode.ALREADY_FRIEND))
-                it.friendRequests.remove(friendId)
-                it.friends.add(friendId)
+            .flatMap {
+                it.approveFriend(userId)
+            }.flatMap{
                 userRepository.save(it)
             }.then(userRepository.findById(friendId))
-            .flatMap{
-                it.friends.add(userId)
+            .flatMap {
+                it.addFriend(userId)
+            }.flatMap {
                 userRepository.save(it)
+            }.onErrorMap {
+                if (it is NoFriendRequestException)
+                    throw FriendException(ErrorCode.NO_REQUESTED)
+                else if(it is AlreadyFriendException)
+                    throw FriendException(ErrorCode.ALREADY_FRIEND)
+                it
             }
     }
 }
