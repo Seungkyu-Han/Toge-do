@@ -22,7 +22,7 @@ import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument
 import vp.togedo.util.error.errorCode.ErrorCode
-import vp.togedo.util.error.exception.UserException
+import vp.togedo.util.error.exception.FriendException
 import java.util.*
 
 @ExtendWith(SpringExtension::class)
@@ -99,7 +99,7 @@ class FriendServiceImplTest{
             //when
             StepVerifier.create(friendService.requestFriend(userId = userId, friendUserDocument = friendUserDocument))
                 .expectErrorMatches {
-                    it is UserException && it.errorCode == ErrorCode.ALREADY_FRIEND
+                    it is FriendException && it.errorCode == ErrorCode.ALREADY_FRIEND
                 }
                 .verify()
         }
@@ -124,7 +124,7 @@ class FriendServiceImplTest{
             //when
             StepVerifier.create(friendService.requestFriend(userId = userId, friendUserDocument = friendUserDocument))
                 .expectErrorMatches {
-                    it is UserException && it.errorCode == ErrorCode.ALREADY_FRIEND_REQUESTED
+                    it is FriendException && it.errorCode == ErrorCode.ALREADY_FRIEND_REQUESTED
                 }
                 .verify()
         }
