@@ -35,6 +35,8 @@ interface UserService {
 
     fun findUser(id: ObjectId): Mono<UserDocument>
 
+    fun findUserByEmail(email: String): Mono<UserDocument>
+
     fun saveUser(userDocument: UserDocument): Mono<UserDocument>
 
 }

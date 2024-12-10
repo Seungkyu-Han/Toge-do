@@ -172,4 +172,17 @@ class UserServiceImpl(
     override fun saveUser(userDocument: UserDocument): Mono<UserDocument> {
         return userRepository.save(userDocument)
     }
+
+    /**
+     * 사용자의 정보를 이메일을 사용하여 데이터베이스로부터 조회
+     * @param email 사용자의 정보를 가져올 이메일
+     * @return 검색된 사용자의 user document
+     * @throws UserException 해당 사용자가 존재하지 않는 경우
+     */
+    override fun findUserByEmail(email: String): Mono<UserDocument> {
+        return userRepository.findByEmail(email)
+            .switchIfEmpty(
+                Mono.error(UserException(ErrorCode.USER_NOT_FOUND))
+            )
+    }
 }
