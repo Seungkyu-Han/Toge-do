@@ -60,10 +60,10 @@ class FriendController(
     )
     fun requestFriendById(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
-        @RequestBody requestByIdReqDto: RequestByIdReqDto): Mono<ResponseEntity<HttpStatus>> {
+        @RequestBody friendIdReqDto: FriendIdReqDto): Mono<ResponseEntity<HttpStatus>> {
         return friendConnector.requestFriendById(
             id = idConfig.objectIdProvider(userId),
-            friendId = ObjectId(requestByIdReqDto.friendId))
+            friendId = ObjectId(friendIdReqDto.friendId))
             .map {
                 ResponseEntity.ok().build()
             }
@@ -121,11 +121,29 @@ class FriendController(
     )
     fun approveFriend(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
-        @RequestBody approveReqDto: ApproveReqDto
+        @RequestBody friendIdReqDto: FriendIdReqDto
     ): Mono<ResponseEntity<HttpStatus>>{
         return friendConnector.approveFriend(
             id = idConfig.objectIdProvider(userId),
-            friendId = ObjectId(approveReqDto.friendId)
+            friendId = ObjectId(friendIdReqDto.friendId)
+        ).map{
+            ResponseEntity.ok().build()
+        }
+    }
+
+    @PatchMapping("/disconnect")
+    @Operation(summary = "친구 관계를 삭제")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "성공"),
+        ApiResponse(responseCode = "400", description = "친구가 아닌 사용자"),
+        ApiResponse(responseCode = "403", description = "권한 없음")
+    )
+    fun disconnectFriend(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody friendIdReqDto: FriendIdReqDto): Mono<ResponseEntity<HttpStatus>>{
+        return friendConnector.disconnectFriend(
+            id = idConfig.objectIdProvider(userId),
+            friendId = ObjectId(friendIdReqDto.friendId)
         ).map{
             ResponseEntity.ok().build()
         }
