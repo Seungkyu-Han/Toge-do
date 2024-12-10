@@ -21,6 +21,8 @@ import vp.togedo.UserRepository
 import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument
+import vp.togedo.util.error.errorCode.ErrorCode
+import vp.togedo.util.error.exception.UserException
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [FriendServiceImpl::class])
@@ -76,6 +78,52 @@ class FriendServiceImplTest{
             verify(userRepository, times(1)).save(friendUserDocument)
         }
 
+        @Test
+        @DisplayName("이미 친구인 사용자에게 친구 요청")
+        fun requestToAlreadyFriendReturnException(){
+            //given
+            val userId = ObjectId.get()
+            val friendId = ObjectId.get()
+            val friendUserDocument = UserDocument(
+                id = friendId,
+                oauth = Oauth(),
+                friends = mutableSetOf(userId),
+            )
+
+            `when`(userRepository.findById(friendId))
+                .thenReturn(Mono.just(friendUserDocument))
+
+            //when
+            StepVerifier.create(friendService.requestFriend(userId = userId, friendUserDocument = friendUserDocument))
+                .expectErrorMatches {
+                    it is UserException && it.errorCode == ErrorCode.ALREADY_FRIEND
+                }
+                .verify()
+        }
+
+
+        @Test
+        @DisplayName("이미 친구 요청 보낸 사용자에게 친구 요청")
+        fun requestToAlreadyFriendRequestedReturnException(){
+            //given
+            val userId = ObjectId.get()
+            val friendId = ObjectId.get()
+            val friendUserDocument = UserDocument(
+                id = friendId,
+                oauth = Oauth(),
+                friendRequests = mutableSetOf(userId),
+            )
+
+            `when`(userRepository.findById(friendId))
+                .thenReturn(Mono.just(friendUserDocument))
+
+            //when
+            StepVerifier.create(friendService.requestFriend(userId = userId, friendUserDocument = friendUserDocument))
+                .expectErrorMatches {
+                    it is UserException && it.errorCode == ErrorCode.ALREADY_FRIEND_REQUESTED
+                }
+                .verify()
+        }
     }
 
     @Nested

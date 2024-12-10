@@ -26,7 +26,7 @@ data class UserDocument(
 
     var friendRequests: MutableSet<ObjectId> = mutableSetOf(),
 ){
-    fun requestFriend(userId: ObjectId):UserDocument{
+    fun requestFriend(userId: ObjectId): UserDocument{
         if(friends.contains(userId))
             throw AlreadyFriendException("이미 친구인 사용자입니다.")
         if(friendRequests.contains(userId))

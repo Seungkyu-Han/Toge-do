@@ -42,14 +42,14 @@ class FriendServiceImpl(
      * @throws UserException 이미 친구인 사용자
      */
     override fun requestFriend(userId: ObjectId, friendUserDocument: UserDocument): Mono<UserDocument> {
-        friendUserDocument.requestFriend(userId)
+        try{
+            friendUserDocument.requestFriend(userId)
+        }catch(e: AlreadyFriendException){
+            return Mono.error(UserException(ErrorCode.ALREADY_FRIEND))
+        }catch (e: AlreadyFriendRequestException){
+            return Mono.error(UserException(ErrorCode.ALREADY_FRIEND_REQUESTED))
+        }
         return userRepository.save(friendUserDocument)
-            .doOnError{
-                if (it is AlreadyFriendException)
-                    throw UserException(ErrorCode.ALREADY_FRIEND)
-                else if(it is AlreadyFriendRequestException)
-                    throw UserException(ErrorCode.ALREADY_FRIEND_REQUESTED)
-            }
     }
 
     /**
