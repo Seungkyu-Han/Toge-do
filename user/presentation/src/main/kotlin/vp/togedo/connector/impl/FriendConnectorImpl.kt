@@ -18,7 +18,12 @@ class FriendConnectorImpl(
 
     override fun getFriendsInfo(id: ObjectId): Flux<UserDocument> {
         return userService.findUser(id)
-            .flatMapMany { friendService.getUserByFriends(it.friends)}
+            .flatMapMany { friendService.getUsersBySet(it.friends)}
+    }
+
+    override fun getFriendRequests(id: ObjectId): Flux<UserDocument> {
+        return userService.findUser(id)
+            .flatMapMany { friendService.getUsersBySet(it.friendRequests) }
     }
 
     override fun requestFriendById(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {

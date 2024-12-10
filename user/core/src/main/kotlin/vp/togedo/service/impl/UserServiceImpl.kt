@@ -94,7 +94,7 @@ class UserServiceImpl(
         val user = UserDocument(
             id = null,
             oauth = oauth,
-            name = name,
+            name = name ?: "사용자${(100..999).random()}",
             email = email,
             profileImageUrl = profileImageUrl
         )

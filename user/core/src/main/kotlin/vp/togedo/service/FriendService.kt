@@ -8,7 +8,7 @@ import vp.togedo.document.UserDocument
 
 interface FriendService {
 
-    fun getUserByFriends(friends: Set<ObjectId>): Flux<UserDocument>
+    fun getUsersBySet(friends: Set<ObjectId>): Flux<UserDocument>
 
     fun requestFriend(userId: ObjectId, friendUserDocument: UserDocument): Mono<UserDocument>
 

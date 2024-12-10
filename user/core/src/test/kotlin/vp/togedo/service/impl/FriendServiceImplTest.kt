@@ -23,6 +23,7 @@ import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.UserException
+import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [FriendServiceImpl::class])
@@ -58,6 +59,7 @@ class FriendServiceImplTest{
             val friendId = ObjectId.get()
             val friendUserDocument = UserDocument(
                 id = friendId,
+                name = UUID.randomUUID().toString(),
                 oauth = Oauth()
             )
 
@@ -87,6 +89,7 @@ class FriendServiceImplTest{
             val friendUserDocument = UserDocument(
                 id = friendId,
                 oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
                 friends = mutableSetOf(userId),
             )
 
@@ -111,6 +114,7 @@ class FriendServiceImplTest{
             val friendUserDocument = UserDocument(
                 id = friendId,
                 oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
                 friendRequests = mutableSetOf(userId),
             )
 
