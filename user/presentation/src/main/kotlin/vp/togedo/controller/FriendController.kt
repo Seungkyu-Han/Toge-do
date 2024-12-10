@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,6 +20,7 @@ import vp.togedo.dto.FriendInfoResDto
 
 @RestController
 @RequestMapping("/api/v1/friend")
+@Tag(name = "친구 API", description = "친구 신청 및 조회와 관련된 API입니다.")
 class FriendController(
     private val idConfig: IdConfig,
     private val friendConnector: FriendConnector
