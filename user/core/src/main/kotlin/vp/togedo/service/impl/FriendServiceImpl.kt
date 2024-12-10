@@ -14,6 +14,7 @@ import vp.togedo.service.FriendService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.UserException
 import vp.togedo.util.exception.AlreadyFriendException
+import vp.togedo.util.exception.AlreadyFriendRequestException
 
 @Service
 class FriendServiceImpl(
@@ -46,6 +47,8 @@ class FriendServiceImpl(
             .doOnError{
                 if (it is AlreadyFriendException)
                     throw UserException(ErrorCode.ALREADY_FRIEND)
+                else if(it is AlreadyFriendRequestException)
+                    throw UserException(ErrorCode.ALREADY_FRIEND_REQUESTED)
             }
     }
 

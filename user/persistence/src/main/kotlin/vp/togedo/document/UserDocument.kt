@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import vp.togedo.util.exception.AlreadyFriendException
+import vp.togedo.util.exception.AlreadyFriendRequestException
 
 @Document(collection = "user")
 data class UserDocument(
@@ -28,6 +29,8 @@ data class UserDocument(
     fun requestFriend(userId: ObjectId):UserDocument{
         if(friends.contains(userId))
             throw AlreadyFriendException("이미 친구인 사용자입니다.")
+        if(friendRequests.contains(userId))
+            throw AlreadyFriendRequestException("이미 친구 요청이 전송된 상태입니다.")
         this.friendRequests.add(userId)
         return this
     }
