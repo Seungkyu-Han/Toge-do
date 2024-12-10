@@ -51,6 +51,7 @@ class UserServiceImplTest{
             val kakaoId = 0L
             val user = UserDocument(
                 id = ObjectId.get(),
+                name = UUID.randomUUID().toString(),
                 oauth = Oauth(kakaoId = kakaoId)
             )
 
@@ -99,6 +100,7 @@ class UserServiceImplTest{
             val googleId = UUID.randomUUID().toString()
             val user = UserDocument(
                 id = ObjectId.get(),
+                name = UUID.randomUUID().toString(),
                 oauth = Oauth(googleId = googleId)
             )
 
@@ -160,7 +162,7 @@ class UserServiceImplTest{
 
             `when`(userRepository.save(any<UserDocument>()))
                 .thenReturn(
-                    Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth))
+                    Mono.just(UserDocument(id = ObjectId.get(), name = UUID.randomUUID().toString(), oauth = oauth))
                 )
 
             StepVerifier.create(userServiceImpl.createUser(
@@ -187,7 +189,7 @@ class UserServiceImplTest{
 
             `when`(userRepository.save(any<UserDocument>()))
                 .thenReturn(
-                    Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth))
+                    Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth, name = UUID.randomUUID().toString()))
                 )
 
             StepVerifier.create(userServiceImpl.createUser(
@@ -214,10 +216,10 @@ class UserServiceImplTest{
 
             `when`(userRepository.save(any<UserDocument>()))
                 .thenReturn(Mono.error(DuplicateKeyException("이메일 중복")))
-                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth)))
+                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth, name = UUID.randomUUID().toString())))
 
             `when`(userRepository.findByEmail(anyString()))
-                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth)))
+                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth, name = UUID.randomUUID().toString())))
 
             StepVerifier.create(userServiceImpl.createUser(
                 oauthEnum = oauthType,
@@ -246,10 +248,10 @@ class UserServiceImplTest{
 
             `when`(userRepository.save(any<UserDocument>()))
                 .thenReturn(Mono.error(DuplicateKeyException("이메일 중복")))
-                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth)))
+                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth, name = UUID.randomUUID().toString())))
 
             `when`(userRepository.findByEmail(anyString()))
-                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth)))
+                .thenReturn(Mono.just(UserDocument(id = ObjectId.get(), oauth = oauth, name = UUID.randomUUID().toString())))
 
             StepVerifier.create(userServiceImpl.createUser(
                 oauthEnum = oauthType,
@@ -318,7 +320,7 @@ class UserServiceImplTest{
         fun findUserByValidIdReturnSuccess(){
             //given
             val id = ObjectId.get()
-            val userDocument = UserDocument(id = id, Oauth(kakaoId = 0L))
+            val userDocument = UserDocument(id = id, Oauth(kakaoId = 0L), name = UUID.randomUUID().toString())
             `when`(userRepository.findById(any<ObjectId>()))
                 .thenReturn(Mono.just(userDocument))
 
