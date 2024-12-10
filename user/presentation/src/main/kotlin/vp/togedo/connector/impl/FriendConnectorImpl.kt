@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.FriendConnector
 import vp.togedo.document.UserDocument
 import vp.togedo.service.FriendService
@@ -24,6 +25,8 @@ class FriendConnectorImpl(
         return userService.findUser(friendId)
             .flatMap {
                 friendService.requestFriend(id, it)
+            }.publishOn(Schedulers.boundedElastic()).doOnSuccess {
+                friendService.publishRequestFriendEvent(it.id!!).block()
             }
     }
 
@@ -31,6 +34,8 @@ class FriendConnectorImpl(
         return userService.findUserByEmail(email)
             .flatMap {
                 friendService.requestFriend(id, it)
+            }.publishOn(Schedulers.boundedElastic()).doOnSuccess {
+                friendService.publishRequestFriendEvent(it.id!!).block()
             }
     }
 }
