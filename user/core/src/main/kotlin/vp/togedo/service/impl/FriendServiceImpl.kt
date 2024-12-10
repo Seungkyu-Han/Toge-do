@@ -12,6 +12,7 @@ import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.UserDocument
 import vp.togedo.service.FriendService
 import vp.togedo.util.error.errorCode.ErrorCode
+import vp.togedo.util.error.exception.FriendException
 import vp.togedo.util.error.exception.UserException
 import vp.togedo.util.exception.AlreadyFriendException
 import vp.togedo.util.exception.AlreadyFriendRequestException
@@ -45,9 +46,11 @@ class FriendServiceImpl(
         try{
             friendUserDocument.requestFriend(userId)
         }catch(e: AlreadyFriendException){
-            return Mono.error(UserException(ErrorCode.ALREADY_FRIEND))
+            return Mono.error(FriendException(
+                errorCode = ErrorCode.ALREADY_FRIEND, state = 0
+            ))
         }catch (e: AlreadyFriendRequestException){
-            return Mono.error(UserException(ErrorCode.ALREADY_FRIEND_REQUESTED))
+            return Mono.error(FriendException(ErrorCode.ALREADY_FRIEND_REQUESTED, state = 1))
         }
         return userRepository.save(friendUserDocument)
     }
@@ -61,4 +64,26 @@ class FriendServiceImpl(
         reactiveKafkaProducerTemplate.send(
             friendRequestEventTopic, objectMapper.writeValueAsString(FriendRequestEventDto(friendId = friendId.toString()))
         )
+
+    /**
+     * 해당 사용자와 친구 요청을 보낸 사용자의 친구 목록에 각각 친구를 저장하는 메서드
+     * @param userId 친구 요청을 받은 사용자의 아이디
+     * @param friendId 친구 요청을 보낸 사용자의 아이디
+     * @return 친구 요청을 보낸 사용자의 user document
+     * @throws UserException
+     */
+    override fun acceptFriendRequest(userId: ObjectId, friendId: ObjectId): Mono<UserDocument> {
+        return userRepository.findById(userId)
+            .map{
+                if (!it.friendRequests.contains(friendId))
+                    return@map Mono.error(UserException(ErrorCode.ALREADY_FRIEND))
+                it.friendRequests.remove(friendId)
+                it.friends.add(friendId)
+                userRepository.save(it)
+            }.then(userRepository.findById(friendId))
+            .flatMap{
+                it.friends.add(userId)
+                userRepository.save(it)
+            }
+    }
 }
