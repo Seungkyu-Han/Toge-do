@@ -50,4 +50,11 @@ class FriendConnectorImpl(
                 friendService.publishApproveFriendEvent(friendId).block()
             }
     }
+
+    override fun disconnectFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
+        return friendService.removeFriend(id, friendId)
+            .flatMap {
+                friendService.removeFriend(friendId, id)
+            }
+    }
 }
