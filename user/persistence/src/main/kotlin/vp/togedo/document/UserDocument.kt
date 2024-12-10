@@ -38,11 +38,13 @@ data class UserDocument(
     }
 
     fun approveFriend(userId: ObjectId): Mono<UserDocument> {
+
         return Mono.fromCallable {
-            if(!this.friendRequests.contains(userId))
-                throw NoFriendRequestException("친구 요청이 없었습니다.")
             if(friends.contains(userId))
                 throw AlreadyFriendException("이미 친구인 사용자입니다.")
+            if(!this.friendRequests.contains(userId)){
+                throw NoFriendRequestException("친구 요청이 없었습니다.")
+            }
             this.friendRequests.remove(userId)
             this.friends.add(userId)
             this

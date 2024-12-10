@@ -67,11 +67,6 @@ class FriendServiceImpl(
         )
 
 
-
-    /**
-     * TODO("이후에 transactional 작업 필요")
-     */
-
     /**
      * 해당 사용자와 친구 요청을 보낸 사용자의 친구 목록에 각각 친구를 저장하는 메서드
      * @param userId 친구 요청을 받은 사용자의 아이디
@@ -82,10 +77,13 @@ class FriendServiceImpl(
     override fun acceptFriendRequest(userId: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return userRepository.findById(userId)
             .flatMap {
-                it.approveFriend(userId)
+                it.approveFriend(friendId)
             }.flatMap{
                 userRepository.save(it)
-            }.then(userRepository.findById(friendId))
+            }
+            .flatMap{
+                userRepository.findById(friendId)
+            }
             .flatMap {
                 it.addFriend(userId)
             }.flatMap {
