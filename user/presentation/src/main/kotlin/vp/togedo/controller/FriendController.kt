@@ -19,6 +19,7 @@ import vp.togedo.connector.FriendConnector
 import vp.togedo.dto.friend.FriendInfoResDto
 import vp.togedo.dto.friend.RequestByEmailReqDto
 import vp.togedo.dto.friend.RequestByIdReqDto
+import vp.togedo.dto.friend.RequestFriendResDto
 
 @RestController
 @RequestMapping("/api/v1/friend")
@@ -90,5 +91,26 @@ class FriendController(
             }
     }
 
-
+    @GetMapping("/request-list")
+    @Operation(summary = "요청 친구 목록을 조회(정렬 X)")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "요청 친구 목록 조회 성공",
+            content = [Content(schema = Schema(implementation = RequestFriendResDto::class),
+                mediaType = MediaType.APPLICATION_JSON_VALUE)]),
+        ApiResponse(responseCode = "403", description = "권한 에러",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun getRequestFriends(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String
+    ): ResponseEntity<Flux<RequestFriendResDto>> {
+        return ResponseEntity.ok().body(
+            friendConnector.getFriendRequests(idConfig.objectIdProvider(userId))
+                .map{
+                    RequestFriendResDto(
+                        name = it.name,
+                        image = it.profileImageUrl
+                    )
+                }
+        )
+    }
 }
