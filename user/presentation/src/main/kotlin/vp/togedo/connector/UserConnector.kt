@@ -2,9 +2,9 @@ package vp.togedo.connector
 
 import org.bson.types.ObjectId
 import reactor.core.publisher.Mono
-import vp.togedo.dto.LoginRes
-import vp.togedo.dto.UserInfoReqDto
-import vp.togedo.dto.UserInfoResDto
+import vp.togedo.dto.user.LoginRes
+import vp.togedo.dto.user.UserInfoReqDto
+import vp.togedo.dto.user.UserInfoResDto
 
 interface UserConnector {
 

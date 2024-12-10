@@ -1,4 +1,4 @@
-package vp.togedo.dto
+package vp.togedo.dto.user
 
 import org.springframework.http.codec.multipart.FilePart
 

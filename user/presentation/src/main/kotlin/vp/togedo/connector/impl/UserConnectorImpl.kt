@@ -8,9 +8,9 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import vp.togedo.connector.UserConnector
-import vp.togedo.dto.LoginRes
-import vp.togedo.dto.UserInfoReqDto
-import vp.togedo.dto.UserInfoResDto
+import vp.togedo.dto.user.LoginRes
+import vp.togedo.dto.user.UserInfoReqDto
+import vp.togedo.dto.user.UserInfoResDto
 import vp.togedo.enums.OauthEnum
 import vp.togedo.service.GoogleService
 import vp.togedo.service.ImageService
@@ -69,7 +69,7 @@ class UserConnectorImpl(
             .map {
                 LoginRes(
                     accessToken = userService.createJwtAccessToken(it.id!!),
-                    refreshToken = userService.createJwtAccessToken(it.id!!)
+                    refreshToken = userService.createJwtRefreshToken(it.id!!)
                 )
             }
 
@@ -100,7 +100,7 @@ class UserConnectorImpl(
             .map {
                 LoginRes(
                     accessToken = userService.createJwtAccessToken(it.id!!),
-                    refreshToken = userService.createJwtAccessToken(it.id!!)
+                    refreshToken = userService.createJwtRefreshToken(it.id!!)
                 )
             }
 
