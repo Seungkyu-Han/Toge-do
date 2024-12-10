@@ -16,10 +16,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.config.IdConfig
 import vp.togedo.connector.FriendConnector
-import vp.togedo.dto.friend.FriendInfoResDto
-import vp.togedo.dto.friend.RequestByEmailReqDto
-import vp.togedo.dto.friend.RequestByIdReqDto
-import vp.togedo.dto.friend.RequestFriendResDto
+import vp.togedo.dto.friend.*
 
 @RestController
 @RequestMapping("/api/v1/friend")
@@ -112,5 +109,25 @@ class FriendController(
                     )
                 }
         )
+    }
+
+    @PostMapping("/approve")
+    @Operation(summary = "해당 사용자와의 친구를 수락")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음"),
+        ApiResponse(responseCode = "404", description = "친구 요청이 온 적 없음"),
+        ApiResponse(responseCode = "409", description = "이미 친구인 사용자")
+    )
+    fun approveFriend(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody approveReqDto: ApproveReqDto
+    ): Mono<ResponseEntity<HttpStatus>>{
+        return friendConnector.approveFriend(
+            id = idConfig.objectIdProvider(userId),
+            friendId = ObjectId(approveReqDto.friendId)
+        ).map{
+            ResponseEntity.ok().build()
+        }
     }
 }

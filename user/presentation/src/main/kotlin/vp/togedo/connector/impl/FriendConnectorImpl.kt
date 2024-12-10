@@ -43,4 +43,11 @@ class FriendConnectorImpl(
                 friendService.publishRequestFriendEvent(it.id!!).block()
             }
     }
+
+    override fun approveFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
+        return friendService.acceptFriendRequest(id, friendId)
+            .publishOn(Schedulers.boundedElastic()).doOnSuccess {
+                friendService.publishApproveFriendEvent(friendId).block()
+            }
+    }
 }
