@@ -1,6 +1,7 @@
 package vp.togedo.document
 
 import org.bson.types.ObjectId
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -23,7 +24,14 @@ data class UserDocument(
     var friends: MutableSet<ObjectId> = mutableSetOf(),
 
     var friendRequests: MutableSet<ObjectId> = mutableSetOf(),
-)
+){
+    fun requestFriend(userId: ObjectId):UserDocument{
+        if(friends.contains(userId))
+            throw DataIntegrityViolationException("이미 친구인 사용자입니다.")
+        this.friendRequests.add(userId)
+        return this
+    }
+}
 
 data class Oauth(
     var kakaoId: Long? = null,

@@ -10,7 +10,7 @@ interface FriendService {
 
     fun getUserByFriends(friends: Set<ObjectId>): Flux<UserDocument>
 
-    fun requestFriend(userId: ObjectId, friendId: ObjectId): Mono<UserDocument>
+    fun requestFriend(userId: ObjectId, friendUserDocument: UserDocument): Mono<UserDocument>
 
     fun publishRequestFriendEvent(friendId: ObjectId): Mono<SenderResult<Void>>
 }
