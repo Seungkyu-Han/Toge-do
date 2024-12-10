@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono
 import vp.togedo.util.exception.AlreadyFriendException
 import vp.togedo.util.exception.AlreadyFriendRequestException
 import vp.togedo.util.exception.NoFriendRequestException
+import vp.togedo.util.exception.NotFriendException
 
 @Document(collection = "user")
 data class UserDocument(
@@ -58,7 +59,18 @@ data class UserDocument(
             this.friends.add(userId)
             this
         }
+    }
 
+    fun removeFriend(userId: ObjectId): Mono<UserDocument> {
+        return Mono.fromCallable {
+            if (this.friends.contains(userId)){
+                this.friends.remove(userId)
+                this
+            }
+            else{
+                throw NotFriendException("친구가 아닌 사용자입니다.")
+            }
+        }
     }
 }
 

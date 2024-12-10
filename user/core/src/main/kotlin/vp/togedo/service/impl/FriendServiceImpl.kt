@@ -69,6 +69,24 @@ class FriendServiceImpl(
         )
 
     /**
+     * 해당 유저와 친구 관계를 삭제하는 메서드
+     * @param userId 친구 삭제를 요청하는 유저
+     * @param friendId 친구 삭제를 당하는 유저
+     * @return 삭제한 유저의 user document
+     */
+    override fun removeFriend(userId: ObjectId, friendId: ObjectId): Mono<UserDocument> {
+        return userRepository.findById(userId)
+            .flatMap {
+                it.removeFriend(friendId)
+            }
+            .flatMap{
+                userRepository.save(it)
+            }.onErrorMap{
+                throw FriendException(ErrorCode.NOT_FRIEND)
+            }
+    }
+
+    /**
      * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
      * @param friendId 친구 요청을 받는 사용자의 id
      * @return kafka send result
