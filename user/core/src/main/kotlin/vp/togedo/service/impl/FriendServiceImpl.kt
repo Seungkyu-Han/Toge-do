@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kafka.sender.SenderResult
 import vp.togedo.UserRepository
+import vp.togedo.data.dto.friend.FriendApproveEventDto
 import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.UserDocument
 import vp.togedo.service.FriendService
@@ -26,6 +27,7 @@ class FriendServiceImpl(
 ): FriendService {
 
     private val friendRequestEventTopic = "FRIEND_REQUEST_TOPIC"
+    private val friendApproveEventTopic = "FRIEND_APPROVE_TOPIC"
 
     /**
      * 친구 목록에 있는 ID를 이용해 사용자를 검색해오는 메서드
@@ -66,6 +68,15 @@ class FriendServiceImpl(
             friendRequestEventTopic, objectMapper.writeValueAsString(FriendRequestEventDto(friendId = friendId.toString()))
         )
 
+    /**
+     * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
+     * @param friendId 친구 요청을 받는 사용자의 id
+     * @return kafka send result
+     */
+    override fun publishApproveFriendEvent(friendId: ObjectId): Mono<SenderResult<Void>> {
+        return reactiveKafkaProducerTemplate.send(
+            friendApproveEventTopic, objectMapper.writeValueAsString(FriendApproveEventDto(friendId = friendId.toString())))
+    }
 
     /**
      * 해당 사용자와 친구 요청을 보낸 사용자의 친구 목록에 각각 친구를 저장하는 메서드
