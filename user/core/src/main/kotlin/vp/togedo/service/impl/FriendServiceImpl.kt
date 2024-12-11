@@ -60,12 +60,17 @@ class FriendServiceImpl(
 
     /**
      * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
-     * @param friendId 친구 요청을 받는 사용자의 id
+     * @param receiverId 친구 요청을 받는 사용자의 id
+     * @param sender 친구 요청을 보낸 사용자의 이름
      * @return kafka send result
      */
-    override fun publishRequestFriendEvent(friendId: ObjectId): Mono<SenderResult<Void>> =
+    override fun publishRequestFriendEvent(receiverId: ObjectId, sender: String): Mono<SenderResult<Void>> =
         reactiveKafkaProducerTemplate.send(
-            friendRequestEventTopic, objectMapper.writeValueAsString(FriendRequestEventDto(friendId = friendId.toString()))
+            friendRequestEventTopic, objectMapper.writeValueAsString(
+                FriendRequestEventDto(
+                    receiverId = receiverId.toString(),
+                    sender = sender,
+                ))
         )
 
     /**
@@ -88,12 +93,17 @@ class FriendServiceImpl(
 
     /**
      * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
-     * @param friendId 친구 요청을 받는 사용자의 id
+     * @param receiverId 친구 요청을 보낸 사용자의 id
+     * @param sender 친구 요청을 받은 사용자의 이름
      * @return kafka send result
      */
-    override fun publishApproveFriendEvent(friendId: ObjectId): Mono<SenderResult<Void>> {
+    override fun publishApproveFriendEvent(receiverId: ObjectId, sender: String): Mono<SenderResult<Void>> {
         return reactiveKafkaProducerTemplate.send(
-            friendApproveEventTopic, objectMapper.writeValueAsString(FriendApproveEventDto(friendId = friendId.toString())))
+            friendApproveEventTopic, objectMapper.writeValueAsString(
+                FriendApproveEventDto(
+                    receiverId = receiverId.toString(),
+                    sender = sender,
+                    )))
     }
 
     /**
@@ -121,6 +131,50 @@ class FriendServiceImpl(
                 if (it is NoFriendRequestException)
                     throw FriendException(ErrorCode.NO_REQUESTED)
                 else if(it is AlreadyFriendException)
+                    throw FriendException(ErrorCode.ALREADY_FRIEND)
+                it
+            }
+    }
+
+    /**
+     * 친구 요청을 받은 사용자가 보낸 사용자의 요청을 수락하는 메서드
+     * @param receiverId 요청을 받은 사용자의 id
+     * @param senderId 요청을 보낸 사용자의 id
+     * @return 요청을 받은 사용자의 user document
+     * @throws FriendException 사용자와 이미 친구 관계이거나 사용자에게 친구 요청이 오지 않았던 경우
+     */
+    override fun approveFriend(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument> {
+        return userRepository.findById(receiverId)
+            .flatMap {
+                it.approveFriend(senderId)
+            }
+            .flatMap {
+                userRepository.save(it)
+            }.onErrorMap {
+                if (it is NoFriendRequestException)
+                    throw FriendException(ErrorCode.NO_REQUESTED)
+                else if(it is AlreadyFriendException)
+                    throw FriendException(ErrorCode.ALREADY_FRIEND)
+                it
+            }
+    }
+
+    /**
+     * 친구 요청을 보냈던 사용자에게 친구를 추가해주는 메서드
+     * @param receiverId 친구 요청을 보냈던 사용자의 id
+     * @param senderId 수락한 사용자의 id
+     * @return 요청을 보냈던 사용자의 user document
+     * @throws FriendException 사용자와 이미 친구 관계인 경우
+     */
+    override fun addFriend(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument> {
+        return userRepository.findById(receiverId)
+            .flatMap {
+                it.addFriend(senderId)
+            }
+            .flatMap {
+                userRepository.save(it)
+            }.onErrorMap {
+                if (it is AlreadyFriendException)
                     throw FriendException(ErrorCode.ALREADY_FRIEND)
                 it
             }
