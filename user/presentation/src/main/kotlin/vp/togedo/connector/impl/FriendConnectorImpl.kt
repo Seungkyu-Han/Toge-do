@@ -80,6 +80,10 @@ class FriendConnectorImpl(
         return receiverDocument
     }
 
+    override fun rejectFriend(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument> {
+        return friendService.rejectRequest(receiverId, senderId)
+    }
+
     override fun disconnectFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return friendService.removeFriend(id, friendId)
             .flatMap {

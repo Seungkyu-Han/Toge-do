@@ -17,5 +17,7 @@ interface FriendConnector {
 
     suspend fun approveFriend(id: ObjectId, friendId: ObjectId): UserDocument
 
+    fun rejectFriend(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument>
+
     fun disconnectFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument>
 }
