@@ -299,6 +299,186 @@ class FriendServiceImplTest{
     }
 
     @Nested
+    inner class ApproveFriend{
+        @Test
+        @DisplayName("친구 요청이 온 사용자의 친구 요청 수락")
+        fun approveRequestToRequestedReturnSuccess(){
+            //given
+            val senderDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+            )
+
+            val receiverDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friendRequests = mutableSetOf(senderDocument.id!!),
+            )
+
+            `when`(userRepository.findById(receiverDocument.id!!))
+                .thenReturn(Mono.just(receiverDocument))
+
+            `when`(userRepository.save(receiverDocument))
+                .thenReturn(Mono.just(receiverDocument))
+
+            //when
+            StepVerifier.create(friendService.approveFriend(
+                receiverId = receiverDocument.id!!,
+                senderId = senderDocument.id!!,
+            )).expectNextMatches{
+                it == receiverDocument
+            }.verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+            verify(userRepository, times(1)).save(receiverDocument)
+            Assertions.assertFalse(receiverDocument.friendRequests.contains(senderDocument.id!!))
+            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id!!))
+        }
+
+        @Test
+        @DisplayName("이미 친구 상태인 친구에게 친구 수락")
+        fun approveRequestToAlreadyFriendReturnException(){
+            //given
+            val senderDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+            )
+
+            val receiverDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friends = mutableSetOf(senderDocument.id!!),
+            )
+
+            `when`(userRepository.findById(receiverDocument.id!!))
+                .thenReturn(Mono.just(receiverDocument))
+
+            //when
+            StepVerifier.create(friendService.approveFriend(
+                receiverId = receiverDocument.id!!,
+                senderId = senderDocument.id!!,
+            )).expectErrorMatches {
+                it is FriendException && it.errorCode == ErrorCode.ALREADY_FRIEND
+            }.verify()
+
+            //then
+            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+        }
+
+
+        @Test
+        @DisplayName("이미 친구 요청이 오지 않은 친구에게 친구 수락")
+        fun approveRequestToNotRequestedReturnException(){
+            //given
+            val senderDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+            )
+
+            val receiverDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString()
+            )
+
+            `when`(userRepository.findById(receiverDocument.id!!))
+                .thenReturn(Mono.just(receiverDocument))
+
+            //when
+            StepVerifier.create(friendService.approveFriend(
+                receiverId = receiverDocument.id!!,
+                senderId = senderDocument.id!!,
+            )).expectErrorMatches {
+                it is FriendException && it.errorCode == ErrorCode.NO_REQUESTED
+            }.verify()
+
+            //then
+            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+        }
+    }
+
+    @Nested
+    inner class AddFriend{
+        @Test
+        @DisplayName("친구가 아닌 상태의 사용자와 친구 추가")
+        fun addFriendToNotFriendReturnSuccess(){
+            //given
+            val senderDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString()
+            )
+
+            val receiverDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+            )
+
+            `when`(userRepository.findById(receiverDocument.id!!))
+                .thenReturn(Mono.just(receiverDocument))
+
+            `when`(userRepository.save(receiverDocument))
+                .thenReturn(Mono.just(receiverDocument))
+
+            //when
+            StepVerifier.create(friendService.addFriend(
+                receiverId = receiverDocument.id!!,
+                senderId = senderDocument.id!!,
+            )).expectNextMatches{
+                it == receiverDocument
+            }.verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+            verify(userRepository, times(1)).save(receiverDocument)
+            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id!!))
+        }
+
+        @Test
+        @DisplayName("친구인 사용자와 친구 추가")
+        fun addFriendToAlreadyFriendReturnException(){
+            //given
+            val senderDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString()
+            )
+
+            val receiverDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friends = mutableSetOf(senderDocument.id!!),
+            )
+
+            `when`(userRepository.findById(receiverDocument.id!!))
+                .thenReturn(Mono.just(receiverDocument))
+
+            `when`(userRepository.save(receiverDocument))
+                .thenReturn(Mono.just(receiverDocument))
+
+            //when
+            StepVerifier.create(friendService.addFriend(
+                receiverId = receiverDocument.id!!,
+                senderId = senderDocument.id!!,
+            )).expectErrorMatches{
+                it is FriendException && it.errorCode == ErrorCode.ALREADY_FRIEND
+            }.verify()
+
+            //then
+            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id!!))
+        }
+    }
+
+    @Nested
     inner class RemoveFriend{
         @Test
         @DisplayName("친구 목록에 존재하는 사용자를 삭제")
