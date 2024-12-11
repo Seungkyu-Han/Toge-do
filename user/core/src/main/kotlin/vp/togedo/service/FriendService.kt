@@ -21,8 +21,6 @@ interface FriendService {
      */
     fun requestFriend(userId: ObjectId, friendUserDocument: UserDocument): Mono<UserDocument>
 
-    fun acceptFriendRequest(userId: ObjectId, friendId: ObjectId): Mono<UserDocument>
-
     /**
      * 친구 요청을 받은 사용자가 보낸 사용자의 요청을 수락하는 메서드
      * @param receiverId 요청을 받은 사용자의 id
