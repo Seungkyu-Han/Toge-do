@@ -34,6 +34,15 @@ interface FriendService {
 
     fun addFriend(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument>
 
+    /**
+     * 해당 사용자의 친구 요청을 거절하는 메서드
+     * @param receiverId 친구 요청을 받았던 사용자 id
+     * @param senderId 친구 요청을 보냈던 사용자 id
+     * @return 요청을 받았던 사용자의 user document
+     * @throws FriendException 해당 사용자의 요청이 오지 않았던 경우
+     */
+    fun rejectRequest(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument>
+
     fun removeFriend(userId: ObjectId, friendId: ObjectId): Mono<UserDocument>
 
     fun publishRequestFriendEvent(receiverId: ObjectId, sender: String): Mono<SenderResult<Void>>

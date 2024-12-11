@@ -72,6 +72,18 @@ data class UserDocument(
             }
         }
     }
+
+    fun removeRequest(userId: ObjectId): Mono<UserDocument> {
+        return Mono.fromCallable{
+            if(this.friendRequests.contains(userId)){
+                this.friendRequests.remove(userId)
+                this
+            }
+            else{
+                throw NoFriendRequestException("친구 요청이 없었습니다.")
+            }
+        }
+    }
 }
 
 data class Oauth(

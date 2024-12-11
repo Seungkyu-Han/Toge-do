@@ -159,6 +159,21 @@ class FriendServiceImpl(
             }
     }
 
+    override fun rejectRequest(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument> {
+        return userRepository.findById(receiverId)
+            .flatMap {
+                it.removeRequest(senderId)
+            }
+            .flatMap {
+                userRepository.save(it)
+            }
+            .onErrorMap {
+                if (it is NoFriendRequestException)
+                    throw FriendException(ErrorCode.NO_REQUESTED)
+                it
+            }
+    }
+
     /**
      * 친구 요청을 보냈던 사용자에게 친구를 추가해주는 메서드
      * @param receiverId 친구 요청을 보냈던 사용자의 id
