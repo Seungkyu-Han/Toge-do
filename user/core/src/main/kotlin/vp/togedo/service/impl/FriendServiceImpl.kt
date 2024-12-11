@@ -15,9 +15,7 @@ import vp.togedo.service.FriendService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.FriendException
 import vp.togedo.util.error.exception.UserException
-import vp.togedo.util.exception.AlreadyFriendException
-import vp.togedo.util.exception.AlreadyFriendRequestException
-import vp.togedo.util.exception.NoFriendRequestException
+import vp.togedo.util.exception.*
 
 @Service
 class FriendServiceImpl(
@@ -54,6 +52,8 @@ class FriendServiceImpl(
             ))
         }catch (e: AlreadyFriendRequestException){
             return Mono.error(FriendException(ErrorCode.ALREADY_FRIEND_REQUESTED, state = 1))
+        }catch (e: CantRequestToMeException){
+            return Mono.error(FriendException(ErrorCode.CANT_REQUEST_TO_ME))
         }
         return userRepository.save(friendUserDocument)
     }
@@ -87,7 +87,11 @@ class FriendServiceImpl(
             .flatMap{
                 userRepository.save(it)
             }.onErrorMap{
-                throw FriendException(ErrorCode.NOT_FRIEND)
+                when(it){
+                    is CantRequestToMeException -> FriendException(ErrorCode.CANT_REQUEST_TO_ME)
+                    is NotFriendException -> FriendException(ErrorCode.NOT_FRIEND)
+                    else -> it
+                }
             }
     }
 
@@ -107,36 +111,6 @@ class FriendServiceImpl(
     }
 
     /**
-     * 해당 사용자와 친구 요청을 보낸 사용자의 친구 목록에 각각 친구를 저장하는 메서드
-     * @param userId 친구 요청을 받은 사용자의 아이디
-     * @param friendId 친구 요청을 보낸 사용자의 아이디
-     * @return 친구 요청을 보낸 사용자의 user document
-     * @throws FriendException 사용자와 이미 친구 관계이거나 사용자에게 친구 요청이 오지 않았던 경우
-     */
-    override fun acceptFriendRequest(userId: ObjectId, friendId: ObjectId): Mono<UserDocument> {
-        return userRepository.findById(userId)
-            .flatMap {
-                it.approveFriend(friendId)
-            }.flatMap{
-                userRepository.save(it)
-            }
-            .flatMap{
-                userRepository.findById(friendId)
-            }
-            .flatMap {
-                it.addFriend(userId)
-            }.flatMap {
-                userRepository.save(it)
-            }.onErrorMap {
-                if (it is NoFriendRequestException)
-                    throw FriendException(ErrorCode.NO_REQUESTED)
-                else if(it is AlreadyFriendException)
-                    throw FriendException(ErrorCode.ALREADY_FRIEND)
-                it
-            }
-    }
-
-    /**
      * 친구 요청을 받은 사용자가 보낸 사용자의 요청을 수락하는 메서드
      * @param receiverId 요청을 받은 사용자의 id
      * @param senderId 요청을 보낸 사용자의 id
@@ -151,11 +125,29 @@ class FriendServiceImpl(
             .flatMap {
                 userRepository.save(it)
             }.onErrorMap {
-                if (it is NoFriendRequestException)
-                    throw FriendException(ErrorCode.NO_REQUESTED)
-                else if(it is AlreadyFriendException)
-                    throw FriendException(ErrorCode.ALREADY_FRIEND)
-                it
+                when(it){
+                    is CantRequestToMeException ->  FriendException(ErrorCode.CANT_REQUEST_TO_ME)
+                    is AlreadyFriendException ->  FriendException(ErrorCode.ALREADY_FRIEND)
+                    is NoFriendRequestException -> FriendException(ErrorCode.NO_REQUESTED)
+                    else -> it
+                }
+            }
+    }
+
+    override fun rejectRequest(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument> {
+        return userRepository.findById(receiverId)
+            .flatMap {
+                it.removeRequest(senderId)
+            }
+            .flatMap {
+                userRepository.save(it)
+            }
+            .onErrorMap {
+                when(it){
+                    is CantRequestToMeException ->  FriendException(ErrorCode.CANT_REQUEST_TO_ME)
+                    is NoFriendRequestException ->  FriendException(ErrorCode.NO_REQUESTED)
+                    else -> it
+                }
             }
     }
 

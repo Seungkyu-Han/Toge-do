@@ -5,10 +5,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import reactor.core.publisher.Mono
-import vp.togedo.util.exception.AlreadyFriendException
-import vp.togedo.util.exception.AlreadyFriendRequestException
-import vp.togedo.util.exception.NoFriendRequestException
-import vp.togedo.util.exception.NotFriendException
+import vp.togedo.util.exception.*
 
 @Document(collection = "user")
 data class UserDocument(
@@ -30,6 +27,8 @@ data class UserDocument(
     var friendRequests: MutableSet<ObjectId> = mutableSetOf(),
 ){
     fun requestFriend(userId: ObjectId): UserDocument{
+        if(userId == this.id)
+            throw CantRequestToMeException("나에게는 요청할 수 없습니다.")
         if(friends.contains(userId))
             throw AlreadyFriendException("이미 친구인 사용자입니다.")
         if(friendRequests.contains(userId))
@@ -39,8 +38,9 @@ data class UserDocument(
     }
 
     fun approveFriend(userId: ObjectId): Mono<UserDocument> {
-
         return Mono.fromCallable {
+            if(userId == this.id)
+                throw CantRequestToMeException("나에게는 요청할 수 없습니다.")
             if(friends.contains(userId))
                 throw AlreadyFriendException("이미 친구인 사용자입니다.")
             if(!this.friendRequests.contains(userId)){
@@ -54,6 +54,8 @@ data class UserDocument(
 
     fun addFriend(userId: ObjectId): Mono<UserDocument> {
         return Mono.fromCallable {
+            if(userId == this.id)
+                throw CantRequestToMeException("나에게는 요청할 수 없습니다.")
             if(friends.contains(userId))
                 throw AlreadyFriendException("이미 친구인 사용자입니다.")
             this.friends.add(userId)
@@ -63,12 +65,28 @@ data class UserDocument(
 
     fun removeFriend(userId: ObjectId): Mono<UserDocument> {
         return Mono.fromCallable {
+            if(userId == this.id)
+                throw CantRequestToMeException("나에게는 요청할 수 없습니다.")
             if (this.friends.contains(userId)){
                 this.friends.remove(userId)
                 this
             }
             else{
                 throw NotFriendException("친구가 아닌 사용자입니다.")
+            }
+        }
+    }
+
+    fun removeRequest(userId: ObjectId): Mono<UserDocument> {
+        return Mono.fromCallable{
+            if(userId == this.id)
+                throw CantRequestToMeException("나에게는 요청할 수 없습니다.")
+            if(this.friendRequests.contains(userId)){
+                this.friendRequests.remove(userId)
+                this
+            }
+            else{
+                throw NoFriendRequestException("친구 요청이 없었습니다.")
             }
         }
     }

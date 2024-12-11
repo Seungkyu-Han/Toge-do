@@ -143,4 +143,23 @@ class FriendController(
             ResponseEntity.ok().build()
         }
     }
+
+    @DeleteMapping("/request-reject")
+    @Operation(summary = "친구 요청을 거부")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "친구 요청 거부 성공"),
+        ApiResponse(responseCode = "403", description = "권한이 없음"),
+        ApiResponse(responseCode = "404", description = "해당 사용자로부터 요청이 없음")
+    )
+    fun rejectFriend(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestParam senderId: String): Mono<ResponseEntity<HttpStatus>>{
+        return friendConnector.rejectFriend(
+            receiverId = idConfig.objectIdProvider(userId),
+            senderId = ObjectId(senderId)
+        ).map{
+            ResponseEntity.ok().build()
+        }
+    }
+
 }
