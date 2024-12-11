@@ -141,7 +141,12 @@ class FriendServiceImplTest{
         fun publishValidEventReturnSuccess(){
             //given
             val friendId = ObjectId.get()
-            val publishMessage = objectMapper.writeValueAsString(FriendRequestEventDto(friendId = friendId.toString()))
+            val userId = ObjectId.get()
+            val publishMessage = objectMapper.writeValueAsString(
+                FriendRequestEventDto(
+                    receiverId = friendId.toString(),
+                    sender = userId.toString(),
+                ))
 
             val recordMetadata = RecordMetadata(null, 0, 0, 0, 0, 0)
 
@@ -158,7 +163,7 @@ class FriendServiceImplTest{
 
             //when
 
-            StepVerifier.create(friendService.publishRequestFriendEvent(friendId))
+            StepVerifier.create(friendService.publishRequestFriendEvent(friendId, userId.toString()))
                 .expectNextCount(1)
                 .verifyComplete()
 

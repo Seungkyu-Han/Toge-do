@@ -16,7 +16,7 @@ interface FriendService {
 
     fun removeFriend(userId: ObjectId, friendId: ObjectId): Mono<UserDocument>
 
-    fun publishRequestFriendEvent(friendId: ObjectId): Mono<SenderResult<Void>>
+    fun publishRequestFriendEvent(receiverId: ObjectId, sender: String): Mono<SenderResult<Void>>
 
-    fun publishApproveFriendEvent(friendId: ObjectId): Mono<SenderResult<Void>>
+    fun publishApproveFriendEvent(receiverId: ObjectId, sender: String): Mono<SenderResult<Void>>
 }

@@ -29,25 +29,46 @@ class FriendConnectorImpl(
     override fun requestFriendById(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return userService.findUser(friendId)
             .flatMap {
-                friendService.requestFriend(id, it)
-            }.publishOn(Schedulers.boundedElastic()).doOnSuccess {
-                friendService.publishRequestFriendEvent(it.id!!).block()
+                friendDocument ->
+                friendService.requestFriend(id, friendDocument)
+                    .publishOn(Schedulers.boundedElastic())
+                    .doOnSuccess {
+                        userService.findUser(id)
+                            .map{
+                                userDocument ->
+                                friendService.publishRequestFriendEvent(friendDocument.id!!, userDocument.name)
+                            }.block()
+                    }
             }
     }
 
     override fun requestFriendByEmail(id: ObjectId, email: String): Mono<UserDocument> {
         return userService.findUserByEmail(email)
             .flatMap {
-                friendService.requestFriend(id, it)
-            }.publishOn(Schedulers.boundedElastic()).doOnSuccess {
-                friendService.publishRequestFriendEvent(it.id!!).block()
+                    friendDocument ->
+                friendService.requestFriend(id, friendDocument)
+                    .publishOn(Schedulers.boundedElastic())
+                    .doOnSuccess {
+                        userService.findUser(id)
+                            .map{
+                                userDocument ->
+                                friendService.publishRequestFriendEvent(friendDocument.id!!, userDocument.name)
+                            }.block()
+                    }
             }
     }
 
     override fun approveFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return friendService.acceptFriendRequest(id, friendId)
-            .publishOn(Schedulers.boundedElastic()).doOnSuccess {
-                friendService.publishApproveFriendEvent(friendId).block()
+            .publishOn(Schedulers.boundedElastic())
+            .doOnSuccess {
+                receiver ->
+                userService.findUser(id)
+                    .flatMap{
+                        userDocument ->
+                        friendService.publishApproveFriendEvent(receiverId = receiver.id!!, userDocument.name)
+                    }.block()
+
             }
     }
 
