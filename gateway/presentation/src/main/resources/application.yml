@@ -24,7 +24,14 @@ spring:
         - id: notification
           uri: ${NOTIFICATION_URI}
           predicates:
-            - Path=/notification/**, /api/v1/notification/**
+            - Path=/notification/**
+
+        - id: notification-security
+          uri: ${NOTIFICATION_URI}
+          predicates:
+            - Path=/api/v1/notification/**
+          filters:
+            - AuthorizationFilter
 
 JWT:
   SECRET: ${JWT_SECRET}

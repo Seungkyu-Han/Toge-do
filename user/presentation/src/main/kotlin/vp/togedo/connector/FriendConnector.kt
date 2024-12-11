@@ -11,9 +11,9 @@ interface FriendConnector {
 
     fun getFriendRequests(id: ObjectId): Flux<UserDocument>
 
-    fun requestFriendById(id: ObjectId, friendId: ObjectId): Mono<UserDocument>
+    suspend fun requestFriendById(id: ObjectId, friendId: ObjectId): UserDocument
 
-    fun requestFriendByEmail(id: ObjectId, email: String): Mono<UserDocument>
+    suspend fun requestFriendByEmail(id: ObjectId, email: String): UserDocument
 
     suspend fun approveFriend(id: ObjectId, friendId: ObjectId): UserDocument
 

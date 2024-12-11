@@ -9,7 +9,6 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.FriendConnector
 import vp.togedo.document.UserDocument
 import vp.togedo.service.FriendService
@@ -31,36 +30,38 @@ class FriendConnectorImpl(
             .flatMapMany { friendService.getUsersBySet(it.friendRequests) }
     }
 
-    override fun requestFriendById(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
-        return userService.findUser(friendId)
-            .flatMap {
-                friendDocument ->
-                friendService.requestFriend(id, friendDocument)
-                    .publishOn(Schedulers.boundedElastic())
-                    .doOnSuccess {
-                        userService.findUser(id)
-                            .map{
-                                userDocument ->
-                                friendService.publishRequestFriendEvent(friendDocument.id!!, userDocument.name)
-                            }.block()
-                    }
-            }
+    override suspend fun requestFriendById(id: ObjectId, friendId: ObjectId): UserDocument {
+
+        val receiverDocument = userService.findUser(friendId).awaitSingle()
+
+        friendService.requestFriend(id, receiverDocument).awaitSingle()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val senderDocument = userService.findUser(id).awaitSingle()
+            friendService.publishRequestFriendEvent(
+                receiverId = receiverDocument.id!!,
+                sender = senderDocument.name,
+            ).awaitSingleOrNull()
+        }
+
+        return receiverDocument
     }
 
-    override fun requestFriendByEmail(id: ObjectId, email: String): Mono<UserDocument> {
-        return userService.findUserByEmail(email)
-            .flatMap {
-                    friendDocument ->
-                friendService.requestFriend(id, friendDocument)
-                    .publishOn(Schedulers.boundedElastic())
-                    .doOnSuccess {
-                        userService.findUser(id)
-                            .map{
-                                userDocument ->
-                                friendService.publishRequestFriendEvent(friendDocument.id!!, userDocument.name)
-                            }.block()
-                    }
-            }
+    override suspend fun requestFriendByEmail(id: ObjectId, email: String): UserDocument {
+
+        val receiverDocument = userService.findUserByEmail(email).awaitSingle()
+
+        friendService.requestFriend(id, receiverDocument).awaitSingle()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val senderDocument = userService.findUser(id).awaitSingle()
+            friendService.publishRequestFriendEvent(
+                receiverId = receiverDocument.id!!,
+                sender = senderDocument.name,
+            ).awaitSingleOrNull()
+        }
+
+        return receiverDocument
     }
 
     override suspend fun approveFriend(id: ObjectId, friendId: ObjectId): UserDocument {
