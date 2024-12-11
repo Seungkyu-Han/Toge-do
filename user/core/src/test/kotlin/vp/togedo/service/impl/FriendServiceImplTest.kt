@@ -544,4 +544,79 @@ class FriendServiceImplTest{
             verify(userRepository, times(1)).findById(userDocument.id!!)
         }
     }
+
+    @Nested
+    inner class RejectRequest{
+        @Test
+        @DisplayName("친구 요청이 온 사용자의 요청 거부")
+        fun rejectRequestToRequestReturnSuccess(){
+            //given
+            val senderDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friendRequests = mutableSetOf(),
+            )
+
+            val receiveDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friendRequests = mutableSetOf(senderDocument.id!!),
+            )
+
+            `when`(userRepository.findById(receiveDocument.id!!))
+                .thenReturn(Mono.just(receiveDocument))
+
+            `when`(userRepository.save(receiveDocument))
+                .thenReturn(Mono.just(receiveDocument))
+
+            //when
+            StepVerifier.create(friendService.rejectRequest(
+                receiverId = receiveDocument.id!!,
+                senderId = senderDocument.id!!,
+            )).expectNextMatches {
+                it == receiveDocument
+            }.verifyComplete()
+
+            //then
+            Assertions.assertFalse(receiveDocument.friends.contains(senderDocument.id!!))
+            verify(userRepository, times(1)).findById(receiveDocument.id!!)
+            verify(userRepository, times(1)).save(receiveDocument)
+        }
+
+        @Test
+        @DisplayName("친구 요청이 오지 않은 사용자의 요청 거부")
+        fun rejectRequestToNoRequestReturnException(){
+            //given
+            val senderDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friendRequests = mutableSetOf(),
+            )
+
+            val receiveDocument = UserDocument(
+                id = ObjectId.get(),
+                oauth = Oauth(),
+                name = UUID.randomUUID().toString(),
+                friendRequests = mutableSetOf(),
+            )
+
+            `when`(userRepository.findById(receiveDocument.id!!))
+                .thenReturn(Mono.just(receiveDocument))
+
+            //when
+            StepVerifier.create(friendService.rejectRequest(
+                receiverId = receiveDocument.id!!,
+                senderId = senderDocument.id!!,
+            )).expectErrorMatches {
+                it is FriendException && it.errorCode == ErrorCode.NO_REQUESTED
+            }.verify()
+
+            //then
+            Assertions.assertFalse(receiveDocument.friends.contains(senderDocument.id!!))
+            verify(userRepository, times(1)).findById(receiveDocument.id!!)
+        }
+    }
 }
