@@ -9,5 +9,5 @@ interface NotificationService {
 
     fun subscribeNotification(id: String): Flux<ServerSentEvent<SSEDto>>
 
-    fun publishNotification(id: String, sseDao: SSEDao)
+    fun publishNotification(id: String, sseDao: SSEDao): Boolean
 }

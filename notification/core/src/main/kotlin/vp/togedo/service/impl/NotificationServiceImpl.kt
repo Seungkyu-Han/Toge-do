@@ -32,7 +32,13 @@ class NotificationServiceImpl: NotificationService {
             }
     }
 
-    override fun publishNotification(id: String, sseDao: SSEDao) {
-        sinkMap[id]?.tryEmitNext(sseDao)
+    override fun publishNotification(id: String, sseDao: SSEDao): Boolean {
+        val sink = sinkMap[id]
+        return if (sink != null) {
+            sink.tryEmitNext(sseDao)
+            true
+        } else {
+            false
+        }
     }
 }
