@@ -1,5 +1,10 @@
 package vp.togedo.connector.impl
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -58,18 +63,20 @@ class FriendConnectorImpl(
             }
     }
 
-    override fun approveFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
-        return friendService.acceptFriendRequest(id, friendId)
-            .publishOn(Schedulers.boundedElastic())
-            .doOnSuccess {
-                receiver ->
-                userService.findUser(id)
-                    .flatMap{
-                        userDocument ->
-                        friendService.publishApproveFriendEvent(receiverId = receiver.id!!, userDocument.name)
-                    }.block()
+    override suspend fun approveFriend(id: ObjectId, friendId: ObjectId): UserDocument {
 
-            }
+        val senderDocument = friendService.approveFriend(id, friendId).awaitSingle()
+
+        val receiverDocument = friendService.addFriend(friendId, id).awaitSingle()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            friendService.publishApproveFriendEvent(
+                receiverId = receiverDocument.id!!,
+                sender = senderDocument.name,
+            ).awaitSingleOrNull()
+        }
+
+        return receiverDocument
     }
 
     override fun disconnectFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {

@@ -15,7 +15,7 @@ interface FriendConnector {
 
     fun requestFriendByEmail(id: ObjectId, email: String): Mono<UserDocument>
 
-    fun approveFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument>
+    suspend fun approveFriend(id: ObjectId, friendId: ObjectId): UserDocument
 
     fun disconnectFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument>
 }

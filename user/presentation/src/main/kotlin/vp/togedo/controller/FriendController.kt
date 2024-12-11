@@ -119,16 +119,15 @@ class FriendController(
         ApiResponse(responseCode = "404", description = "친구 요청이 온 적 없음"),
         ApiResponse(responseCode = "409", description = "이미 친구인 사용자")
     )
-    fun approveFriend(
+    suspend fun approveFriend(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
         @RequestBody friendIdReqDto: FriendIdReqDto
-    ): Mono<ResponseEntity<HttpStatus>>{
-        return friendConnector.approveFriend(
+    ): ResponseEntity<HttpStatus>{
+        friendConnector.approveFriend(
             id = idConfig.objectIdProvider(userId),
             friendId = ObjectId(friendIdReqDto.friendId)
-        ).map{
-            ResponseEntity.ok().build()
-        }
+        )
+        return ResponseEntity.ok().build()
     }
 
     @PatchMapping("/disconnect")
