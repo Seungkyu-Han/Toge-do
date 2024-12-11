@@ -101,7 +101,8 @@ class FriendController(
                 .map{
                     RequestFriendResDto(
                         name = it.name,
-                        image = it.profileImageUrl
+                        image = it.profileImageUrl,
+                        id = it.id.toString(),
                     )
                 }
         )
