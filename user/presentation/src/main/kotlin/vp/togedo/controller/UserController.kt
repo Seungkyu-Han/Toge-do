@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Mono
 import vp.togedo.connector.EmailConnector
 import vp.togedo.connector.UserConnector
 import vp.togedo.dto.user.*
@@ -137,4 +138,22 @@ class UserController(
             .body(CheckValidResDto(result = emailConnector.checkValidCode(code = code, email = email)))
     }
 
+    @PatchMapping("/send-notification")
+    @Operation(summary = "앱 푸쉬 알림 동의 여부")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "변경 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음")
+    )
+    fun changeNotification(
+        @RequestBody sendNotificationReqDto:SendNotificationReqDto,
+        @Parameter(hidden = true, required = false) @RequestHeader("Authorization") accessToken: String?
+    ): Mono<ResponseEntity<HttpStatus>> {
+        return userConnector.changeNotification(
+            isAgree = sendNotificationReqDto.isAgree,
+            deviceToken = sendNotificationReqDto.deviceToken,
+            id = userConnector.extractUserIdByToken(accessToken)
+        ).map{
+            ResponseEntity.ok().build()
+        }
+    }
 }

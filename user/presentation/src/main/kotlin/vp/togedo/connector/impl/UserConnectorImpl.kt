@@ -8,6 +8,7 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import vp.togedo.connector.UserConnector
+import vp.togedo.document.UserDocument
 import vp.togedo.dto.user.LoginRes
 import vp.togedo.dto.user.UserInfoReqDto
 import vp.togedo.dto.user.UserInfoResDto
@@ -149,5 +150,18 @@ class UserConnectorImpl(
                 UserInfoResDto(it)
             }
             .awaitSingle()
+    }
+
+    override fun changeNotification(isAgree: Boolean, deviceToken: String, id: ObjectId): Mono<UserDocument> {
+        return userService.findUser(id)
+            .map {
+                if(isAgree)
+                    it.deviceToken = deviceToken
+                else
+                    it.deviceToken = null
+                it
+            }.flatMap{
+                userService.saveUser(it)
+            }
     }
 }
