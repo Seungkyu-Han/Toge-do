@@ -39,7 +39,7 @@ class FriendConnectorImpl(
         CoroutineScope(Dispatchers.IO).launch {
             val senderDocument = userService.findUser(id).awaitSingle()
             friendService.publishRequestFriendEvent(
-                receiverId = receiverDocument.id!!,
+                receiver = receiverDocument,
                 sender = senderDocument.name,
             ).awaitSingleOrNull()
         }
@@ -56,8 +56,8 @@ class FriendConnectorImpl(
         CoroutineScope(Dispatchers.IO).launch {
             val senderDocument = userService.findUser(id).awaitSingle()
             friendService.publishRequestFriendEvent(
-                receiverId = receiverDocument.id!!,
-                sender = senderDocument.name,
+                receiver = receiverDocument,
+                sender = senderDocument.name
             ).awaitSingleOrNull()
         }
 
@@ -66,14 +66,14 @@ class FriendConnectorImpl(
 
     override suspend fun approveFriend(id: ObjectId, friendId: ObjectId): UserDocument {
 
-        val senderDocument = friendService.approveFriend(id, friendId).awaitSingle()
+        val receiverDocument = friendService.approveFriend(id, friendId).awaitSingle()
 
-        val receiverDocument = friendService.addFriend(friendId, id).awaitSingle()
+        val senderDocument = friendService.addFriend(friendId, id).awaitSingle()
 
         CoroutineScope(Dispatchers.IO).launch {
             friendService.publishApproveFriendEvent(
-                receiverId = receiverDocument.id!!,
-                sender = senderDocument.name,
+                receiver = senderDocument,
+                sender = receiverDocument.name,
             ).awaitSingleOrNull()
         }
 

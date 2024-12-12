@@ -60,16 +60,17 @@ class FriendServiceImpl(
 
     /**
      * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
-     * @param receiverId 친구 요청을 받는 사용자의 id
+     * @param receiver 친구 요청을 받는 사용자의 user document
      * @param sender 친구 요청을 보낸 사용자의 이름
      * @return kafka send result
      */
-    override fun publishRequestFriendEvent(receiverId: ObjectId, sender: String): Mono<SenderResult<Void>> =
+    override fun publishRequestFriendEvent(receiver: UserDocument, sender: String): Mono<SenderResult<Void>> =
         reactiveKafkaProducerTemplate.send(
             friendRequestEventTopic, objectMapper.writeValueAsString(
                 FriendRequestEventDto(
-                    receiverId = receiverId.toString(),
+                    receiverId = receiver.id.toString(),
                     sender = sender,
+                    deviceToken = receiver.deviceToken
                 ))
         )
 
@@ -97,16 +98,17 @@ class FriendServiceImpl(
 
     /**
      * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
-     * @param receiverId 친구 요청을 보낸 사용자의 id
+     * @param receiver 친구 요청을 보낸 사용자의 user document
      * @param sender 친구 요청을 받은 사용자의 이름
      * @return kafka send result
      */
-    override fun publishApproveFriendEvent(receiverId: ObjectId, sender: String): Mono<SenderResult<Void>> {
+    override fun publishApproveFriendEvent(receiver: UserDocument, sender: String): Mono<SenderResult<Void>> {
         return reactiveKafkaProducerTemplate.send(
             friendApproveEventTopic, objectMapper.writeValueAsString(
                 FriendApproveEventDto(
-                    receiverId = receiverId.toString(),
+                    receiverId = receiver.id.toString(),
                     sender = sender,
+                    deviceToken = receiver.deviceToken
                     )))
     }
 

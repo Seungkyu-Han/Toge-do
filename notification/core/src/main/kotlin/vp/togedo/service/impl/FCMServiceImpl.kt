@@ -10,9 +10,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 import vp.togedo.service.FCMService
 import java.io.FileInputStream
 
+@Service
 class FCMServiceImpl(
     @Value("\${FCM.CREDENTIALS}")
     private val credentials: String
