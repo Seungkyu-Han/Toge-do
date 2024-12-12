@@ -35,3 +35,6 @@ springdoc:
   swagger-ui:
     url: /notification/v3/api-docs
     path: /notification/swagger
+
+FCM:
+  CREDENTIALS: ${FCM_CREDENTIALS}
