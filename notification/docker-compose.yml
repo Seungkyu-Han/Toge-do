@@ -1,0 +1,17 @@
+services:
+  notification:
+    image: notification:1.0.0
+    container_name: notification
+    networks:
+      - vp
+    ports:
+      - "12042:12042"
+    env_file:
+      - /home/ec2-user/.env
+    volumes:
+      - "${FCM_CREDENTIALS_PATH}:${FCM_CREDENTIALS}"
+
+networks:
+  vp:
+    external: true
+
