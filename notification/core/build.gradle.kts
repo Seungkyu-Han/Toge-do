@@ -22,6 +22,11 @@ dependencies {
     //KAFKA
     implementation("io.projectreactor.kafka:reactor-kafka")
     implementation("org.springframework.kafka:spring-kafka")
+
+    //FCM
+    implementation("com.google.firebase:firebase-admin:9.4.2")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
 }
 
 tasks.test {

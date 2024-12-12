@@ -25,6 +25,8 @@ data class UserDocument(
     var friends: MutableSet<ObjectId> = mutableSetOf(),
 
     var friendRequests: MutableSet<ObjectId> = mutableSetOf(),
+
+    var deviceToken: String? = null,
 ){
     fun requestFriend(userId: ObjectId): UserDocument{
         if(userId == this.id)

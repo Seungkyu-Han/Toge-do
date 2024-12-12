@@ -7,29 +7,47 @@ import vp.togedo.data.notification.EventEnums
 import vp.togedo.data.notification.FriendApproveEventDto
 import vp.togedo.data.notification.FriendRequestEventDto
 import vp.togedo.data.notification.SSEDao
+import vp.togedo.service.FCMService
 import vp.togedo.service.NotificationService
 
 @Component
 class FriendEventListener(
     private val notificationService: NotificationService,
+    private val fcmService: FCMService,
     private val objectMapper: ObjectMapper,
 ) {
 
     @KafkaListener(topics = ["FRIEND_REQUEST_TOPIC"], groupId = "seungkyu")
     fun requestFriend(message: String){
+        val event = EventEnums.REQUEST_FRIEND_EVENT
         val friendRequestEventDto = objectMapper.readValue(message, FriendRequestEventDto::class.java)
-        notificationService.publishNotification(
+        val isSSE = notificationService.publishNotification(
             id = friendRequestEventDto.receiverId,
             sseDao = SSEDao(EventEnums.REQUEST_FRIEND_EVENT, friendRequestEventDto.sender)
         )
+        if (!isSSE && friendRequestEventDto.deviceToken != null){
+            fcmService.pushNotification(
+                deviceToken = friendRequestEventDto.deviceToken,
+                title = event.eventTitle,
+                content = "${friendRequestEventDto.sender}${event.eventContent}"
+            )
+        }
     }
 
     @KafkaListener(topics = ["FRIEND_APPROVE_TOPIC"], groupId = "seungkyu")
     fun approveFriend(message: String){
+        val event = EventEnums.APPROVE_FRIEND_EVENT
         val friendApproveEventDto = objectMapper.readValue(message, FriendApproveEventDto::class.java)
-        notificationService.publishNotification(
+        val isSSE = notificationService.publishNotification(
             id = friendApproveEventDto.receiverId,
-            sseDao = SSEDao(EventEnums.APPROVE_FRIEND_EVENT, friendApproveEventDto.sender)
+            sseDao = SSEDao(event, friendApproveEventDto.sender)
         )
+        if (!isSSE && friendApproveEventDto.deviceToken != null){
+            fcmService.pushNotification(
+                deviceToken = friendApproveEventDto.deviceToken,
+                title = event.eventTitle,
+                content = "${friendApproveEventDto.sender}${event.eventContent}",
+            )
+        }
     }
 }
