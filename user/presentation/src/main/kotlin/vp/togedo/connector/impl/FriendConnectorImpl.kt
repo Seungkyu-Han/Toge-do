@@ -7,6 +7,8 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
+import org.springframework.transaction.reactive.TransactionalOperator
+import org.springframework.transaction.reactive.executeAndAwait
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.connector.FriendConnector
@@ -16,6 +18,7 @@ import vp.togedo.service.UserService
 
 @Service
 class FriendConnectorImpl(
+    private val transactionalOperator: TransactionalOperator,
     private val userService: UserService,
     private val friendService: FriendService
 ): FriendConnector {
@@ -66,9 +69,13 @@ class FriendConnectorImpl(
 
     override suspend fun approveFriend(id: ObjectId, friendId: ObjectId): UserDocument {
 
-        val receiverDocument = friendService.approveFriend(id, friendId).awaitSingle()
+        lateinit var receiverDocument: UserDocument
+        lateinit var senderDocument: UserDocument
 
-        val senderDocument = friendService.addFriend(friendId, id).awaitSingle()
+        transactionalOperator.executeAndAwait {
+            receiverDocument = friendService.approveFriend(id, friendId).awaitSingle()
+            senderDocument = friendService.addFriend(friendId, id).awaitSingle()
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             friendService.publishApproveFriendEvent(
@@ -84,10 +91,11 @@ class FriendConnectorImpl(
         return friendService.rejectRequest(receiverId, senderId)
     }
 
+//    @Transactional
     override fun disconnectFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
-        return friendService.removeFriend(id, friendId)
+        return transactionalOperator.transactional(friendService.removeFriend(id, friendId)
             .flatMap {
                 friendService.removeFriend(friendId, id)
-            }
+            })
     }
 }
