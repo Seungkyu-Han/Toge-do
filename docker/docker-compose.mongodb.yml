@@ -7,7 +7,7 @@ services:
       - "27017:27017"
     volumes:
       - ${MONGO_DB_DATA}:/data
-      - ./mongo.key:/etc/mongo/mongodb.key:r  # 로컬에서 만든 keyfile을 /etc/mongo/mongodb.key로 마운트
+      - ./mongo.key:/etc/mongo/mongodb.key:ro  # 로컬에서 만든 keyfile을 /etc/mongo/mongodb.key로 마운트
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
