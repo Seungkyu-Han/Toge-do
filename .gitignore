@@ -40,3 +40,4 @@ docker/.env
 **/.env
 /http/http-client.private.env.json
 **/toge-do-66704-firebase-adminsdk-7gacv-c76eda8614.json
+/docker/mongo.key
