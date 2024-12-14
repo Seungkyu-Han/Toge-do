@@ -29,7 +29,8 @@ class FriendEventListener(
             fcmService.pushNotification(
                 deviceToken = friendRequestEventDto.deviceToken,
                 title = event.eventTitle,
-                content = "${friendRequestEventDto.sender}${event.eventContent}"
+                content = "${friendRequestEventDto.sender}${event.eventContent}",
+                image = friendRequestEventDto.image
             )
         }
     }
@@ -47,6 +48,7 @@ class FriendEventListener(
                 deviceToken = friendApproveEventDto.deviceToken,
                 title = event.eventTitle,
                 content = "${friendApproveEventDto.sender}${event.eventContent}",
+                image = friendApproveEventDto.image
             )
         }
     }

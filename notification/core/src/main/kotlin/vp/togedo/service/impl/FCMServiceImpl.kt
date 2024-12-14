@@ -29,7 +29,7 @@ class FCMServiceImpl(
         FirebaseApp.initializeApp(options)
     }
 
-    override fun pushNotification(deviceToken: String, title: String, content: String) {
+    override fun pushNotification(deviceToken: String, title: String, content: String, image: String?) {
         CoroutineScope(Dispatchers.IO).launch {
             val notification = Notification.builder()
                 .setTitle(title)
@@ -39,6 +39,7 @@ class FCMServiceImpl(
             val message = Message.builder()
                 .setNotification(notification)
                 .setToken(deviceToken)
+                .putData("image", image)
                 .build()
             FirebaseMessaging.getInstance().send(message)
         }
