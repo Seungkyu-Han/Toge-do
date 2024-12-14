@@ -23,13 +23,14 @@ class FriendEventListener(
         val friendRequestEventDto = objectMapper.readValue(message, FriendRequestEventDto::class.java)
         val isSSE = notificationService.publishNotification(
             id = friendRequestEventDto.receiverId,
-            sseDao = SSEDao(EventEnums.REQUEST_FRIEND_EVENT, friendRequestEventDto.sender)
+            sseDao = SSEDao(event, friendRequestEventDto.sender, friendRequestEventDto.image)
         )
         if (!isSSE && friendRequestEventDto.deviceToken != null){
             fcmService.pushNotification(
                 deviceToken = friendRequestEventDto.deviceToken,
                 title = event.eventTitle,
-                content = "${friendRequestEventDto.sender}${event.eventContent}"
+                content = "${friendRequestEventDto.sender}${event.eventContent}",
+                image = friendRequestEventDto.image
             )
         }
     }
@@ -40,13 +41,14 @@ class FriendEventListener(
         val friendApproveEventDto = objectMapper.readValue(message, FriendApproveEventDto::class.java)
         val isSSE = notificationService.publishNotification(
             id = friendApproveEventDto.receiverId,
-            sseDao = SSEDao(event, friendApproveEventDto.sender)
+            sseDao = SSEDao(event, friendApproveEventDto.sender, friendApproveEventDto.image)
         )
         if (!isSSE && friendApproveEventDto.deviceToken != null){
             fcmService.pushNotification(
                 deviceToken = friendApproveEventDto.deviceToken,
                 title = event.eventTitle,
                 content = "${friendApproveEventDto.sender}${event.eventContent}",
+                image = friendApproveEventDto.image
             )
         }
     }
