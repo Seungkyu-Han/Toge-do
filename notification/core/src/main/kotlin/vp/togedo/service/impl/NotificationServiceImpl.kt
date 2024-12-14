@@ -24,10 +24,12 @@ class NotificationServiceImpl: NotificationService {
                 ServerSentEvent
                     .builder(
                         SSEDto(
-                            sender = sseDao.sender
+                            state = sseDao.event.eventValue,
+                            sender = sseDao.sender,
+                            image = sseDao.image,
                         )
                     )
-                    .event(sseDao.event.eventValue.toString())
+                    .event("message")
                     .build()
             }
     }
