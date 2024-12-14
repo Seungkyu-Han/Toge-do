@@ -1,0 +1,18 @@
+server:
+  port: 12043
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      auto-index-creation: true
+
+springdoc:
+  api-docs:
+    path: /schedule/v3/api-docs
+  swagger-ui:
+    url: /schedule/v3/api-docs
+    path: /schedule/swagger
+
+SWAGGER:
+  URL: ${SWAGGER_URL}
