@@ -1,4 +1,4 @@
-package vp.togedo
+package vp.togedo.repository
 
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository

@@ -6,7 +6,7 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
-import vp.togedo.UserRepository
+import vp.togedo.repository.UserRepository
 import vp.togedo.config.jwt.JwtTokenProvider
 import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument

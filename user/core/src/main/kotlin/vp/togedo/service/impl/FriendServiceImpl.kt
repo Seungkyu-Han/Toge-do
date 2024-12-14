@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kafka.sender.SenderResult
-import vp.togedo.UserRepository
+import vp.togedo.repository.UserRepository
 import vp.togedo.data.dto.friend.FriendApproveEventDto
 import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.UserDocument
