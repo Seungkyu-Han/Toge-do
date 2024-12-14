@@ -8,6 +8,7 @@ import reactor.core.publisher.Sinks.Many
 import vp.togedo.data.notification.SSEDao
 import vp.togedo.data.notification.SSEDto
 import vp.togedo.service.NotificationService
+import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
@@ -17,21 +18,29 @@ class NotificationServiceImpl: NotificationService {
 
     override fun subscribeNotification(id: String): Flux<ServerSentEvent<SSEDto>> {
         sinkMap[id] = Sinks.many().unicast().onBackpressureBuffer()
-        return sinkMap[id]!!.asFlux()
+
+        val notificationFlux = sinkMap[id]!!.asFlux()
             .doOnCancel { sinkMap.remove(id) }
-            .map{
-                sseDao ->
-                ServerSentEvent
-                    .builder(
-                        SSEDto(
-                            state = sseDao.event.eventValue,
-                            sender = sseDao.sender,
-                            image = sseDao.image,
-                        )
+            .map { sseDao ->
+                ServerSentEvent.builder(
+                    SSEDto(
+                        state = sseDao.event.eventValue,
+                        sender = sseDao.sender,
+                        image = sseDao.image,
                     )
+                )
                     .event("message")
                     .build()
             }
+
+        val keepAliveFlux = Flux.interval(Duration.ofSeconds(30))
+            .map {
+                ServerSentEvent.builder<SSEDto>()
+                    .comment("keep-alive")
+                    .build()
+            }
+
+        return Flux.merge(notificationFlux, keepAliveFlux)
     }
 
     override fun publishNotification(id: String, sseDao: SSEDao): Boolean {
