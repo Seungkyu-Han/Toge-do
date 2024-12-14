@@ -1,0 +1,13 @@
+services:
+  schedule:
+    image: schedule:1.0.0
+    networks:
+      - vp
+    ports:
+      - "12043:12043"
+    env_file:
+      - /home/ec2-user/.env
+
+networks:
+  vp:
+    external: true

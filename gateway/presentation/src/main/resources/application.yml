@@ -33,5 +33,18 @@ spring:
           filters:
             - AuthorizationFilter
 
+        - id: schedule
+          uri: ${SCHEDULE_URI}
+          predicates:
+            - Path=/schedule/**
+
+        - id: schedule-securitu
+          uri: ${SCHEDULE_URI}
+          predicates:
+            - Path=/api/v1/schedule/**
+          filters:
+            - AuthorizationFilter
+
+
 JWT:
   SECRET: ${JWT_SECRET}
