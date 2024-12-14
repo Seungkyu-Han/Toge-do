@@ -9,6 +9,8 @@ data class FriendRequestEventDto(
     val deviceToken: String?,
     @JsonProperty("sender")
     val sender: String,
+    @JsonProperty("image")
+    val image: String?
 )
 
 data class FriendApproveEventDto(
@@ -17,5 +19,7 @@ data class FriendApproveEventDto(
     @JsonProperty("deviceToken")
     val deviceToken: String?,
     @JsonProperty("sender")
-    val sender: String
+    val sender: String,
+    @JsonProperty("image")
+    val image: String?
 )
