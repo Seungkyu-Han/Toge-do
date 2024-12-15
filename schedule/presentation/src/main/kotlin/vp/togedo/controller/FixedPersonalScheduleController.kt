@@ -7,17 +7,14 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.bson.types.ObjectId
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import vp.togedo.config.IdComponent
 import vp.togedo.connector.FixedPersonalScheduleConnector
-import vp.togedo.data.dto.fixedPersonalSchedule.CreateFixedReqDto
-import vp.togedo.data.dto.fixedPersonalSchedule.FixedPersonalScheduleDto
-import vp.togedo.data.dto.fixedPersonalSchedule.ReadFixedResDto
-import vp.togedo.data.dto.fixedPersonalSchedule.UpdateFixedReqDto
+import vp.togedo.data.dao.ScheduleDao
+import vp.togedo.data.dto.fixedPersonalSchedule.*
 
 @RestController
 @RequestMapping("/api/v1/fixed-personal-schedule")
@@ -31,53 +28,48 @@ class FixedPersonalScheduleController(
     @Operation(summary = "개인 고정 스케줄 조회")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "스케줄 조회 성공",
-            content = [Content(schema = Schema(implementation = ReadFixedResDto::class),
+            content = [Content(schema = Schema(implementation = FixedPersonalScheduleListDto::class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE)]),
         ApiResponse(responseCode = "403", description = "권한 에러",
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
     )
     suspend fun getSchedules(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String
-    ): ResponseEntity<ReadFixedResDto> {
-        val readFixedResDto = fixedPersonalScheduleConnector.readFixedSchedule(
-            id = idComponent.objectIdProvider(userId)
+    ): ResponseEntity<FixedPersonalScheduleListDto> {
+        return ResponseEntity.ok(
+            daoToDto(
+                fixedPersonalScheduleConnector.readFixedSchedule(id = idComponent.objectIdProvider(userId))
+            )
         )
-        return ResponseEntity.ok(readFixedResDto)
     }
 
     @PostMapping("/create")
     @Operation(summary = "개인 고정 스케줄 생성")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "스케줄 생성 성공",
-            content = [Content(schema = Schema(implementation = ReadFixedResDto::class),
+            content = [Content(schema = Schema(implementation = FixedPersonalScheduleListDto::class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE)]),
         ApiResponse(responseCode = "403", description = "권한 에러",
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
     )
     suspend fun createSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
-        @RequestBody createFixedReqDto: CreateFixedReqDto
-    ): ResponseEntity<FixedPersonalScheduleDto>{
-        val schedule = fixedPersonalScheduleConnector.createFixedSchedule(
-            userId = idComponent.objectIdProvider(userId),
-            createFixedReqDto = createFixedReqDto
-        )
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            FixedPersonalScheduleDto(
-                id = schedule.scheduleId!!.toString(),
-                startTime = schedule.startTime,
-                endTime = schedule.endTime,
-                title = schedule.title,
-                color = schedule.color,
+        @RequestBody createFixedReqDtoList: List<CreateFixedReqDto>
+    ): ResponseEntity<FixedPersonalScheduleListDto>{
+        return ResponseEntity.status(201)
+            .body(
+                daoToDto(fixedPersonalScheduleConnector.createFixedSchedule(
+                    userId = idComponent.objectIdProvider(userId),
+                    createFixedReqDtoList = createFixedReqDtoList
+                ))
             )
-        )
     }
 
     @PutMapping("/update")
     @Operation(summary = "개인 고정 스케줄 수정")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "스케줄 수정 성공",
-            content = [Content(schema = Schema(implementation = ReadFixedResDto::class),
+            content = [Content(schema = Schema(implementation = FixedPersonalScheduleListDto::class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE)]),
         ApiResponse(responseCode = "403", description = "권한 에러",
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
@@ -87,19 +79,12 @@ class FixedPersonalScheduleController(
     suspend fun updateSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
         @RequestBody updateFixedReqDto: UpdateFixedReqDto
-    ): ResponseEntity<FixedPersonalScheduleDto>{
-        val schedule = fixedPersonalScheduleConnector.updateFixedSchedule(
-            id = idComponent.objectIdProvider(userId),
-            updateFixedReqDto = updateFixedReqDto
-        )
-        return ResponseEntity.ok().body(
-            FixedPersonalScheduleDto(
-                id = schedule.scheduleId!!.toString(),
-                startTime = schedule.startTime,
-                endTime = schedule.endTime,
-                title = schedule.title,
-                color = schedule.color,
-            )
+    ): ResponseEntity<FixedPersonalScheduleListDto>{
+        return ResponseEntity.ok(
+            daoToDto(fixedPersonalScheduleConnector.updateFixedSchedule(
+                id = idComponent.objectIdProvider(userId),
+                updateFixedReqDto = updateFixedReqDto
+            ))
         )
     }
 
@@ -114,13 +99,27 @@ class FixedPersonalScheduleController(
     )
     suspend fun deleteSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
-        @RequestParam scheduleId: String
+        @RequestParam scheduleId: List<String>
     ): ResponseEntity<HttpStatus>{
         fixedPersonalScheduleConnector.deleteFixedSchedule(
             userId = idComponent.objectIdProvider(userId),
-            scheduleId = ObjectId(scheduleId)
+            scheduleIdList = scheduleId
         )
         return ResponseEntity.ok().build()
+    }
+
+    private fun daoToDto(scheduleDaoList: List<ScheduleDao>): FixedPersonalScheduleListDto{
+        return FixedPersonalScheduleListDto(
+            schedules = scheduleDaoList.map{
+                FixedPersonalScheduleDto(
+                    id = it.scheduleId!!.toString(),
+                    startTime = it.startTime,
+                    endTime = it.startTime,
+                    title = it.title,
+                    color = it.color,
+                )
+            }
+        )
     }
 
 }

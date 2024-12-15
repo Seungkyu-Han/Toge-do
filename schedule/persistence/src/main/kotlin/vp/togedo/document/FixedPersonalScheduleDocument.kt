@@ -64,6 +64,8 @@ data class FixedPersonalScheduleDocument(
 
             this.isValidTime(newSchedule)
 
+            this.isConflictTime(newSchedule)
+
             this.schedules[index] = newSchedule
 
             this
