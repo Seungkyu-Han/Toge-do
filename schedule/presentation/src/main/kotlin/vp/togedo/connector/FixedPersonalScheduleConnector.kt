@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import vp.togedo.data.dao.ScheduleDao
 import vp.togedo.data.dto.fixedPersonalSchedule.CreateFixedReqDto
 import vp.togedo.data.dto.fixedPersonalSchedule.ReadFixedResDto
+import vp.togedo.data.dto.fixedPersonalSchedule.UpdateFixedReqDto
 
 interface FixedPersonalScheduleConnector {
 
@@ -20,4 +21,12 @@ interface FixedPersonalScheduleConnector {
      * @param id 사용자의 아이디
      */
     suspend fun readFixedSchedule(id: ObjectId): ReadFixedResDto
+
+    /**
+     * 사용자의 고정 스케줄 수정하기
+     * @param id 사용자의 아이디
+     * @param updateFixedReqDto 고정 스케줄 생성 dto
+     * @return 생성된 스케줄 dao
+     */
+    suspend fun updateFixedSchedule(id: ObjectId, updateFixedReqDto: UpdateFixedReqDto): ScheduleDao
 }

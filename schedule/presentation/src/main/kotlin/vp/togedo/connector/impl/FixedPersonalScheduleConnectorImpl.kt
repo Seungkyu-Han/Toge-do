@@ -7,6 +7,7 @@ import vp.togedo.data.dao.ScheduleDao
 import vp.togedo.data.dto.fixedPersonalSchedule.CreateFixedReqDto
 import vp.togedo.data.dto.fixedPersonalSchedule.FixedPersonalScheduleElement
 import vp.togedo.data.dto.fixedPersonalSchedule.ReadFixedResDto
+import vp.togedo.data.dto.fixedPersonalSchedule.UpdateFixedReqDto
 import vp.togedo.service.FixedPersonalScheduleService
 
 @Service
@@ -43,5 +44,16 @@ class FixedPersonalScheduleConnectorImpl(
         )
     }
 
-
+    override suspend fun updateFixedSchedule(id: ObjectId, updateFixedReqDto: UpdateFixedReqDto): ScheduleDao {
+        return fixedPersonalScheduleService.modifySchedule(
+            ScheduleDao(
+                userId = id,
+                scheduleId = ObjectId(updateFixedReqDto.id),
+                startTime = updateFixedReqDto.startTime,
+                endTime = updateFixedReqDto.endTime,
+                title = updateFixedReqDto.title,
+                color = updateFixedReqDto.color
+            )
+        )
+    }
 }
