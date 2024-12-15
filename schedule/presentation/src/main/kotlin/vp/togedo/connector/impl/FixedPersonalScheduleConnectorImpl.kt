@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import vp.togedo.connector.FixedPersonalScheduleConnector
 import vp.togedo.data.dao.ScheduleDao
 import vp.togedo.data.dto.fixedPersonalSchedule.CreateFixedReqDto
-import vp.togedo.data.dto.fixedPersonalSchedule.FixedPersonalScheduleElement
+import vp.togedo.data.dto.fixedPersonalSchedule.FixedPersonalScheduleDto
 import vp.togedo.data.dto.fixedPersonalSchedule.ReadFixedResDto
 import vp.togedo.data.dto.fixedPersonalSchedule.UpdateFixedReqDto
 import vp.togedo.service.FixedPersonalScheduleService
@@ -33,7 +33,7 @@ class FixedPersonalScheduleConnectorImpl(
 
         return ReadFixedResDto(
             schedules = scheduleDaoList.map{
-                FixedPersonalScheduleElement(
+                FixedPersonalScheduleDto(
                     id = it.scheduleId!!.toString(),
                     startTime = it.startTime,
                     endTime = it.endTime,
