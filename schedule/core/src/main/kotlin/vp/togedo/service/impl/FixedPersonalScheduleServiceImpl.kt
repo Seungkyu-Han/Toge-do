@@ -38,6 +38,22 @@ class FixedPersonalScheduleServiceImpl(
         return scheduleDao
     }
 
+    override suspend fun readSchedule(userId: ObjectId): List<ScheduleDao> {
+        val fixedPersonalSchedule: FixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(userId)
+            .awaitSingleOrNull() ?: FixedPersonalScheduleDocument(userId = userId)
+
+        return fixedPersonalSchedule.schedules.map{
+            ScheduleDao(
+                userId = userId,
+                scheduleId = it.id,
+                startTime = it.startTime,
+                endTime = it.endTime,
+                title = it.title,
+                color = it.color
+            )
+        }
+    }
+
     override suspend fun modifySchedule(scheduleDao: ScheduleDao): ScheduleDao {
         val fixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(scheduleDao.userId).awaitSingleOrNull()
             ?: throw ScheduleException(ErrorCode.SCHEDULE_INFO_CANT_FIND)

@@ -13,6 +13,13 @@ interface FixedPersonalScheduleService {
     suspend fun createSchedule(scheduleDao: ScheduleDao): ScheduleDao
 
     /**
+     * 해당 유저의 고정 스케줄을 조회
+     * @param userId 조회할 유저의 objectId
+     * @return scheduleDao 리스트
+     */
+    suspend fun readSchedule(userId: ObjectId): List<ScheduleDao>
+
+    /**
      * 해당 스케줄을 수정
      * @param scheduleDao 스케줄 dao
      * @return 변경된 scheduleDao
