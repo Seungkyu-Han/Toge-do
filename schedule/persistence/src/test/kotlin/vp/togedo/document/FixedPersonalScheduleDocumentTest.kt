@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test
 import reactor.test.StepVerifier
 import vp.togedo.util.exception.ConflictScheduleException
 import vp.togedo.util.exception.InvalidTimeException
+import vp.togedo.util.exception.ScheduleNotFoundException
 import java.util.*
 
 class FixedPersonalScheduleDocumentTest{
@@ -553,6 +554,75 @@ class FixedPersonalScheduleDocumentTest{
             StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(schedule))
                 .expectErrorMatches {
                     it is ConflictScheduleException
+                }.verify()
+        }
+    }
+
+    @Nested
+    inner class DeleteScheduleById{
+
+        private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
+            id = ObjectId.get(),
+            userId = ObjectId.get(),
+            schedules = mutableListOf()
+        )
+
+        @Test
+        @DisplayName("하나만 존재하는 리스트에서 존재하는 스케줄을 삭제")
+        fun deleteExistScheduleInOneElementScheduleListReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11100,
+                endTime = 11159,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            fixedPersonalScheduleDocument.schedules.add(schedule)
+
+            //when && then
+            StepVerifier.create(fixedPersonalScheduleDocument.deleteScheduleById(schedule.id))
+                .verifyComplete()
+        }
+
+        @Test
+        @DisplayName("2개 이상 존재하는 리스트에서 존재하는 스케줄을 삭제")
+        fun deleteExistScheduleMoreThenTwoElementScheduleListReturnSuccess(){
+            //given
+            val beforeSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11000,
+                endTime = 11059,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11100,
+                endTime = 11159,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
+            fixedPersonalScheduleDocument.schedules.add(schedule)
+
+            //when && then
+            StepVerifier.create(fixedPersonalScheduleDocument.deleteScheduleById(schedule.id))
+                .verifyComplete()
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 스케줄을 삭제 시도")
+        fun deleteNotExistScheduleReturnException(){
+            //given
+            val scheduleId = ObjectId.get()
+
+            //when
+            StepVerifier.create(fixedPersonalScheduleDocument.deleteScheduleById(scheduleId))
+                .expectErrorMatches {
+                    it is ScheduleNotFoundException
                 }.verify()
         }
     }

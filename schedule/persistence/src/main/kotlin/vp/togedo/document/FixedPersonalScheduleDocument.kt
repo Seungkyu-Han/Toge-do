@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono
 import vp.togedo.util.exception.ConflictScheduleException
 import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
+import vp.togedo.util.exception.ScheduleNotFoundException
 
 @Document(collection = "fixed_personal_schedule")
 data class FixedPersonalScheduleDocument(
@@ -38,12 +39,11 @@ data class FixedPersonalScheduleDocument(
         }
     }
 
-    fun deleteScheduleById(id: ObjectId): Mono<Boolean> {
-        return Mono.fromCallable {
-            this.schedules.removeIf {
-                it.id == id
-            }
-        }
+    fun deleteScheduleById(id: ObjectId): Mono<Void> {
+        return if(this.schedules.removeIf { it.id == id })
+            Mono.empty()
+        else
+            Mono.error(ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다."))
     }
 
     fun isValidTime(schedule: Schedule): Boolean {
