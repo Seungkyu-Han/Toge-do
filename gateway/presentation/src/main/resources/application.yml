@@ -38,10 +38,10 @@ spring:
           predicates:
             - Path=/schedule/**
 
-        - id: schedule-securitu
+        - id: schedule-security
           uri: ${SCHEDULE_URI}
           predicates:
-            - Path=/api/v1/schedule/**
+            - Path=/api/v1/fixed-personal-schedule/**
           filters:
             - AuthorizationFilter
 
