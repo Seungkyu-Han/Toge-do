@@ -18,15 +18,22 @@ interface FixedPersonalScheduleConnector {
 
     /**
      * 사용자의 고정 스케줄 가져오기
-     * @param id 사용자의 아이디
+     * @param id 사용자의 objectId
      */
     suspend fun readFixedSchedule(id: ObjectId): ReadFixedResDto
 
     /**
      * 사용자의 고정 스케줄 수정하기
-     * @param id 사용자의 아이디
+     * @param id 사용자의 objectId
      * @param updateFixedReqDto 고정 스케줄 생성 dto
      * @return 생성된 스케줄 dao
      */
     suspend fun updateFixedSchedule(id: ObjectId, updateFixedReqDto: UpdateFixedReqDto): ScheduleDao
+
+    /**
+     * 사용자의 고정 스케줄 삭제하기
+     * @param userId 사용자의 objectId
+     * @param scheduleId 스케줄의 objectId
+     */
+    suspend fun deleteFixedSchedule(userId: ObjectId, scheduleId: ObjectId)
 }
