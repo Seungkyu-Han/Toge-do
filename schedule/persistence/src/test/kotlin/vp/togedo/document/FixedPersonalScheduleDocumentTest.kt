@@ -626,4 +626,122 @@ class FixedPersonalScheduleDocumentTest{
                 }.verify()
         }
     }
+
+    @Nested
+    inner class ModifyScheduleById{
+        private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
+            id = ObjectId.get(),
+            userId = ObjectId.get(),
+            schedules = mutableListOf()
+        )
+
+        @Test
+        @DisplayName("존재하는 스케줄을 수정")
+        fun modifyScheduleToExistScheduleReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11100,
+                endTime = 11159,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            fixedPersonalScheduleDocument.schedules.add(schedule)
+
+            val modifiedStartTime = 11200
+            val modifiedEndTime = 11259
+            val modifiedTitle = UUID.randomUUID().toString()
+            val modifiedColor = UUID.randomUUID().toString()
+
+            //when && then
+
+            StepVerifier.create(fixedPersonalScheduleDocument.modifyScheduleById(
+                id = schedule.id,
+                startTime = modifiedStartTime,
+                endTime = modifiedEndTime,
+                title = modifiedTitle,
+                color = modifiedColor
+            )).expectNextMatches {
+                it.schedules.size == 1 &&
+                        it.schedules[0].id == schedule.id &&
+                        it.schedules[0].startTime == modifiedStartTime &&
+                        it.schedules[0].endTime == modifiedEndTime &&
+                        it.schedules[0].title == modifiedTitle &&
+                        it.schedules[0].color == modifiedColor
+            }.verifyComplete()
+        }
+
+
+        @Test
+        @DisplayName("사이에 존재하는 스케줄을 수정")
+        fun modifyScheduleToSandwichScheduleReturnSuccess(){
+            //given
+            val beforeSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 21100,
+                endTime = 21159,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val afterSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 31100,
+                endTime = 31159,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 21100,
+                endTime = 21159,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
+            fixedPersonalScheduleDocument.schedules.add(schedule)
+            fixedPersonalScheduleDocument.schedules.add(afterSchedule)
+
+            val modifiedStartTime = 21200
+            val modifiedEndTime = 21259
+            val modifiedTitle = UUID.randomUUID().toString()
+            val modifiedColor = UUID.randomUUID().toString()
+
+            //when && then
+
+            StepVerifier.create(fixedPersonalScheduleDocument.modifyScheduleById(
+                id = schedule.id,
+                startTime = modifiedStartTime,
+                endTime = modifiedEndTime,
+                title = modifiedTitle,
+                color = modifiedColor
+            )).expectNextMatches {
+                it.schedules.size == 3 &&
+                        it.schedules[1].id == schedule.id &&
+                        it.schedules[1].startTime == modifiedStartTime &&
+                        it.schedules[1].endTime == modifiedEndTime &&
+                        it.schedules[1].title == modifiedTitle &&
+                        it.schedules[1].color == modifiedColor
+            }.verifyComplete()
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 스케줄을 수정")
+        fun modifyScheduleToNotExistScheduleReturnException(){
+            //given
+            val scheduleId = ObjectId.get()
+
+            //when && then
+            StepVerifier.create(fixedPersonalScheduleDocument.modifyScheduleById(
+                id = scheduleId,
+                startTime = 11000,
+                endTime = 11159,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()))
+                .expectErrorMatches {
+                    it is ScheduleNotFoundException
+                }.verify()
+        }
+    }
 }

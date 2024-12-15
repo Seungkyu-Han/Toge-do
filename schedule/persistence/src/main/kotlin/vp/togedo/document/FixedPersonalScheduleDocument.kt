@@ -26,9 +26,6 @@ data class FixedPersonalScheduleDocument(
             //시간 범위 검사
             this.isValidTime(schedule)
 
-            //시작시간과 종료시간 순서 검사
-            this.isStartTimeBefore(schedule)
-
             //스케줄 충돌 체크 및 삽입 인덱스 반환
             val insertedIndex = this.isConflictTime(schedule)
 
@@ -46,6 +43,33 @@ data class FixedPersonalScheduleDocument(
             Mono.error(ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다."))
     }
 
+    fun modifyScheduleById(
+        id: ObjectId,
+        startTime: Int,
+        endTime: Int,
+        title: String,
+        color: String): Mono<FixedPersonalScheduleDocument>{
+        return Mono.fromCallable {
+            val index = this.schedules.indexOfFirst { it.id == id }
+
+            if (index < 0)
+                throw ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다.")
+
+            val newSchedule = this.schedules[index].copy(
+                startTime = startTime,
+                endTime = endTime,
+                title = title,
+                color = color
+            )
+
+            this.isValidTime(newSchedule)
+
+            this.schedules[index] = newSchedule
+
+            this
+        }
+    }
+
     fun isValidTime(schedule: Schedule): Boolean {
         try{
             validTimeCheck(schedule.startTime)
@@ -56,6 +80,11 @@ data class FixedPersonalScheduleDocument(
             validTimeCheck(schedule.endTime)
         }catch(e: InvalidTimeException){
             throw InvalidTimeException("종료 시간이 ${e.message}")
+        }
+        try{
+            isStartTimeBefore(schedule)
+        }catch(e: EndTimeBeforeStartTimeException){
+            throw e
         }
         return true
     }
