@@ -38,6 +38,22 @@ class FixedPersonalScheduleServiceImpl(
         return scheduleDao
     }
 
+    override suspend fun modifySchedule(scheduleDao: ScheduleDao): ScheduleDao {
+        val fixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(scheduleDao.userId).awaitSingleOrNull()
+            ?: throw ScheduleException(ErrorCode.SCHEDULE_INFO_CANT_FIND)
+
+        fixedPersonalScheduleDocument.modifyScheduleById(
+            id = scheduleDao.scheduleId!!,
+            startTime = scheduleDao.startTime,
+            endTime = scheduleDao.endTime,
+            title = scheduleDao.title,
+            color = scheduleDao.color).awaitSingle()
+
+        fixedPersonalScheduleRepository.save(fixedPersonalScheduleDocument).awaitSingle()
+
+        return scheduleDao
+    }
+
     override suspend fun deleteSchedule(userId: ObjectId, scheduleId: ObjectId){
         val fixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(userId).awaitSingleOrNull()
             ?: throw ScheduleException(ErrorCode.SCHEDULE_INFO_CANT_FIND)
