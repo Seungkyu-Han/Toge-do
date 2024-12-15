@@ -7,10 +7,11 @@ interface FixedPersonalScheduleService {
 
     /**
      * 해당 유저의 고정 스케줄을 추가
-     * @param scheduleDao 스케줄 dao
-     * @return id 추가된 scheduleDao
+     * @param userId 스케줄을 생성할 유저의 objectId
+     * @param scheduleDaoList 스케줄 dao 리스트
+     * @return id가 추가된 scheduleDao 리스트
      */
-    suspend fun createSchedule(scheduleDao: ScheduleDao): ScheduleDao
+    suspend fun createSchedule(userId: ObjectId, scheduleDaoList: List<ScheduleDao>): List<ScheduleDao>
 
     /**
      * 해당 유저의 고정 스케줄을 조회
@@ -21,10 +22,11 @@ interface FixedPersonalScheduleService {
 
     /**
      * 해당 스케줄을 수정
-     * @param scheduleDao 스케줄 dao
-     * @return 변경된 scheduleDao
+     * @param userId 스케줄을 수정할 유저의 objectId
+     * @param scheduleDaoList 스케줄 dao 리스트
+     * @return 변경된 scheduleDao 리스트
      */
-    suspend fun modifySchedule(scheduleDao: ScheduleDao): ScheduleDao
+    suspend fun modifySchedule(userId: ObjectId, scheduleDaoList: List<ScheduleDao>): List<ScheduleDao>
 
     /**
      * 해당 스케줄을 삭제

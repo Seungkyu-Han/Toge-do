@@ -17,25 +17,30 @@ class FixedPersonalScheduleServiceImpl(
     private val fixedPersonalScheduleRepository: FixedPersonalScheduleRepository
 ): FixedPersonalScheduleService {
 
-    override suspend fun createSchedule(scheduleDao: ScheduleDao) : ScheduleDao{
-        val fixedPersonalSchedule: FixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(scheduleDao.userId)
-            .awaitSingleOrNull() ?: FixedPersonalScheduleDocument(userId = scheduleDao.userId)
+    override suspend fun createSchedule(userId: ObjectId, scheduleDaoList: List<ScheduleDao>) : List<ScheduleDao>{
+        val fixedPersonalSchedule: FixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(userId)
+            .awaitSingleOrNull() ?: FixedPersonalScheduleDocument(userId = userId)
 
-        val schedule = Schedule(
-            id = ObjectId.get(),
-            startTime = scheduleDao.startTime,
-            endTime = scheduleDao.endTime,
-            title = scheduleDao.title,
-            color = scheduleDao.color
-        )
+        val createdScheduleDaoList = scheduleDaoList.map {
+            scheduleDao ->
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = scheduleDao.startTime,
+                endTime = scheduleDao.endTime,
+                title = scheduleDao.title,
+                color = scheduleDao.color
+            )
 
-        fixedPersonalSchedule.addSchedule(schedule).awaitSingle()
+            fixedPersonalSchedule.addSchedule(schedule).awaitSingle()
+
+            scheduleDao.copy(
+                scheduleId = schedule.id
+            )
+        }
 
         fixedPersonalScheduleRepository.save(fixedPersonalSchedule).awaitSingle()
 
-        scheduleDao.scheduleId = schedule.id
-
-        return scheduleDao
+        return createdScheduleDaoList
     }
 
     override suspend fun readSchedule(userId: ObjectId): List<ScheduleDao> {
@@ -44,7 +49,6 @@ class FixedPersonalScheduleServiceImpl(
 
         return fixedPersonalSchedule.schedules.map{
             ScheduleDao(
-                userId = userId,
                 scheduleId = it.id,
                 startTime = it.startTime,
                 endTime = it.endTime,
@@ -54,20 +58,23 @@ class FixedPersonalScheduleServiceImpl(
         }
     }
 
-    override suspend fun modifySchedule(scheduleDao: ScheduleDao): ScheduleDao {
-        val fixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(scheduleDao.userId).awaitSingleOrNull()
+    override suspend fun modifySchedule(userId: ObjectId, scheduleDaoList: List<ScheduleDao>): List<ScheduleDao> {
+        val fixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(userId).awaitSingleOrNull()
             ?: throw ScheduleException(ErrorCode.SCHEDULE_INFO_CANT_FIND)
 
-        fixedPersonalScheduleDocument.modifyScheduleById(
-            id = scheduleDao.scheduleId!!,
-            startTime = scheduleDao.startTime,
-            endTime = scheduleDao.endTime,
-            title = scheduleDao.title,
-            color = scheduleDao.color).awaitSingle()
+        scheduleDaoList.map {
+            scheduleDao ->
+            fixedPersonalScheduleDocument.modifyScheduleById(
+                id = scheduleDao.scheduleId!!,
+                startTime = scheduleDao.startTime,
+                endTime = scheduleDao.endTime,
+                title = scheduleDao.title,
+                color = scheduleDao.color).awaitSingle()
+        }
 
         fixedPersonalScheduleRepository.save(fixedPersonalScheduleDocument).awaitSingle()
 
-        return scheduleDao
+        return scheduleDaoList
     }
 
     override suspend fun deleteSchedule(userId: ObjectId, scheduleIdList: List<ObjectId>){
