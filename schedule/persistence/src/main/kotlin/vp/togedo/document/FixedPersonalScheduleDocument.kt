@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import reactor.core.publisher.Mono
 import vp.togedo.util.exception.ConflictScheduleException
+import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
 
 @Document(collection = "fixed_personal_schedule")
@@ -23,6 +24,9 @@ data class FixedPersonalScheduleDocument(
 
             //시간 범위 검사
             this.isValidTime(schedule)
+
+            //시작시간과 종료시간 순서 검사
+            this.isStartTimeBefore(schedule)
 
             //스케줄 충돌 체크 및 삽입 인덱스 반환
             val insertedIndex = this.isConflictTime(schedule)
@@ -42,7 +46,7 @@ data class FixedPersonalScheduleDocument(
         }
     }
 
-    private fun isValidTime(schedule: Schedule): Boolean {
+    fun isValidTime(schedule: Schedule): Boolean {
         try{
             validTimeCheck(schedule.startTime)
         }catch(e: InvalidTimeException){
@@ -56,7 +60,7 @@ data class FixedPersonalScheduleDocument(
         return true
     }
 
-    private fun validTimeCheck(time: Int): Boolean{
+    fun validTimeCheck(time: Int): Boolean{
         if(time !in 10000..72359)
             throw InvalidTimeException("week 범위 밖입니다.")
         val hour = (time % 10000) / 100
@@ -68,9 +72,14 @@ data class FixedPersonalScheduleDocument(
         return true
     }
 
-    private fun isConflictTime(schedule: Schedule): Int{
+    fun isConflictTime(schedule: Schedule): Int{
 
-        val index = this.schedules.binarySearch(schedule.startTime){ it.startTime }
+        if(schedules.size == 0)
+            return 0
+
+        val index = this.schedules.binarySearch(0){
+            scheduleElement -> scheduleElement.startTime.compareTo(schedule.startTime)
+        }
 
         if(index >= 0)
             throw ConflictScheduleException("해당 시작시간에 시작하는 스케줄이 있습니다.")
@@ -79,16 +88,22 @@ data class FixedPersonalScheduleDocument(
 
         //앞의 종료 시간과, 해당 스케줄의 시작 시간을 비교
         if (insertedIndex > 0){
-            if(this.schedules[insertedIndex - 1].endTime > schedule.startTime)
+            if(this.schedules[insertedIndex - 1].endTime >= schedule.startTime)
                 throw ConflictScheduleException("전 스케줄이 종료되지 않았습니다.")
         }
         //뒤의 시작 시간과, 해당 스케줄의 종료 시간을 비교
         if (insertedIndex < this.schedules.size){
-            if(this.schedules[insertedIndex].startTime < schedule.endTime)
+            if(this.schedules[insertedIndex].startTime <= schedule.endTime)
                 throw ConflictScheduleException("뒤 스케줄의 시작시간과 충돌합니다.")
         }
 
         return insertedIndex
+    }
+
+    private fun isStartTimeBefore(schedule: Schedule): Boolean {
+        if (schedule.startTime > schedule.endTime)
+            throw EndTimeBeforeStartTimeException("종료시간이 시작시간보다 앞입니다.")
+        return true
     }
 }
 
