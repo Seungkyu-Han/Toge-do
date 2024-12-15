@@ -9,13 +9,15 @@ import vp.togedo.document.FixedPersonalScheduleDocument
 import vp.togedo.document.Schedule
 import vp.togedo.repository.FixedPersonalScheduleRepository
 import vp.togedo.service.FixedPersonalScheduleService
+import vp.togedo.util.error.errorCode.ErrorCode
+import vp.togedo.util.error.exception.ScheduleException
 
 @Service
 class FixedPersonalScheduleServiceImpl(
     private val fixedPersonalScheduleRepository: FixedPersonalScheduleRepository
 ): FixedPersonalScheduleService {
 
-    override suspend fun createSchedule(scheduleDao: ScheduleDao): ScheduleDao {
+    override suspend fun createSchedule(scheduleDao: ScheduleDao) : ScheduleDao{
         val fixedPersonalSchedule: FixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(scheduleDao.userId)
             .awaitSingleOrNull() ?: FixedPersonalScheduleDocument(userId = scheduleDao.userId)
 
@@ -34,5 +36,14 @@ class FixedPersonalScheduleServiceImpl(
         scheduleDao.scheduleId = schedule.id
 
         return scheduleDao
+    }
+
+    override suspend fun deleteSchedule(userId: ObjectId, scheduleId: ObjectId){
+        val fixedPersonalScheduleDocument = fixedPersonalScheduleRepository.findByUserId(userId).awaitSingleOrNull()
+            ?: throw ScheduleException(ErrorCode.SCHEDULE_INFO_CANT_FIND)
+
+        fixedPersonalScheduleDocument.deleteScheduleById(scheduleId).awaitSingleOrNull()
+
+        fixedPersonalScheduleRepository.save(fixedPersonalScheduleDocument).awaitSingle()
     }
 }
