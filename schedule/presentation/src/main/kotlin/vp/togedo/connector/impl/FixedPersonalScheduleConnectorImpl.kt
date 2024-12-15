@@ -57,7 +57,9 @@ class FixedPersonalScheduleConnectorImpl(
         )
     }
 
-    override suspend fun deleteFixedSchedule(userId: ObjectId, scheduleId: ObjectId) {
-        fixedPersonalScheduleService.deleteSchedule(userId, scheduleId)
+    override suspend fun deleteFixedSchedule(userId: ObjectId, scheduleIdList: List<String>) {
+        fixedPersonalScheduleService.deleteSchedule(userId, scheduleIdList.map{
+            ObjectId(it)
+        })
     }
 }

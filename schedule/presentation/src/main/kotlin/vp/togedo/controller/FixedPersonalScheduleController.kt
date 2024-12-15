@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.bson.types.ObjectId
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -114,11 +113,11 @@ class FixedPersonalScheduleController(
     )
     suspend fun deleteSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
-        @RequestParam scheduleId: String
+        @RequestParam scheduleId: List<String>
     ): ResponseEntity<HttpStatus>{
         fixedPersonalScheduleConnector.deleteFixedSchedule(
             userId = idComponent.objectIdProvider(userId),
-            scheduleId = ObjectId(scheduleId)
+            scheduleIdList = scheduleId
         )
         return ResponseEntity.ok().build()
     }

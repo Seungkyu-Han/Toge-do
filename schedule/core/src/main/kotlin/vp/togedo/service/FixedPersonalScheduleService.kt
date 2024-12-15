@@ -29,7 +29,7 @@ interface FixedPersonalScheduleService {
     /**
      * 해당 스케줄을 삭제
      * @param userId 해당 유저의 id
-     * @param scheduleId 삭제하려는 스케줄의 id
+     * @param scheduleIdList 삭제하려는 스케줄의 id 리스트
      */
-    suspend fun deleteSchedule(userId: ObjectId, scheduleId: ObjectId)
+    suspend fun deleteSchedule(userId: ObjectId, scheduleIdList: List<ObjectId>)
 }
