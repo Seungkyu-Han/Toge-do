@@ -18,7 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.kafka.sender.SenderResult
 import reactor.test.StepVerifier
-import vp.togedo.UserRepository
+import vp.togedo.repository.UserRepository
 import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument
@@ -151,7 +151,8 @@ class FriendServiceImplTest{
                 FriendRequestEventDto(
                     receiverId = friendId.toString(),
                     sender = userId.toString(),
-                    deviceToken = null
+                    deviceToken = null,
+                    image = UUID.randomUUID().toString()
                 ))
 
             val recordMetadata = RecordMetadata(null, 0, 0, 0, 0, 0)
@@ -169,7 +170,7 @@ class FriendServiceImplTest{
 
             //when
 
-            StepVerifier.create(friendService.publishRequestFriendEvent(friendUserDocument, userId.toString()))
+            StepVerifier.create(friendService.publishRequestFriendEvent(friendUserDocument, friendUserDocument))
                 .expectNextCount(1)
                 .verifyComplete()
 

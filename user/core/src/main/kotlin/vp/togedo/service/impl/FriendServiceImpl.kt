@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.kafka.sender.SenderResult
-import vp.togedo.UserRepository
+import vp.togedo.repository.UserRepository
 import vp.togedo.data.dto.friend.FriendApproveEventDto
 import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.UserDocument
@@ -61,17 +61,17 @@ class FriendServiceImpl(
     /**
      * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
      * @param receiver 친구 요청을 받는 사용자의 user document
-     * @param sender 친구 요청을 보낸 사용자의 이름
+     * @param sender 친구 요청을 보낸 사용자의 user document
      * @return kafka send result
      */
-    override fun publishRequestFriendEvent(receiver: UserDocument, sender: String): Mono<SenderResult<Void>> =
+    override fun publishRequestFriendEvent(receiver: UserDocument, sender: UserDocument): Mono<SenderResult<Void>> =
         reactiveKafkaProducerTemplate.send(
             friendRequestEventTopic, objectMapper.writeValueAsString(
                 FriendRequestEventDto(
                     receiverId = receiver.id.toString(),
-                    sender = sender,
+                    sender = sender.name,
                     deviceToken = receiver.deviceToken,
-                    image = receiver.profileImageUrl
+                    image = sender.profileImageUrl
                 ))
         )
 
@@ -100,17 +100,17 @@ class FriendServiceImpl(
     /**
      * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
      * @param receiver 친구 요청을 보낸 사용자의 user document
-     * @param sender 친구 요청을 받은 사용자의 이름
+     * @param sender 친구 요청을 받은 사용자의 user document
      * @return kafka send result
      */
-    override fun publishApproveFriendEvent(receiver: UserDocument, sender: String): Mono<SenderResult<Void>> {
+    override fun publishApproveFriendEvent(receiver: UserDocument, sender: UserDocument): Mono<SenderResult<Void>> {
         return reactiveKafkaProducerTemplate.send(
             friendApproveEventTopic, objectMapper.writeValueAsString(
                 FriendApproveEventDto(
                     receiverId = receiver.id.toString(),
-                    sender = sender,
+                    sender = sender.name,
                     deviceToken = receiver.deviceToken,
-                    image = receiver.profileImageUrl
+                    image = sender.profileImageUrl
                     )))
     }
 

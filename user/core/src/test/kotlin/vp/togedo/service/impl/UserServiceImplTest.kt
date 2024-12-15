@@ -14,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 
 import reactor.test.StepVerifier
-import vp.togedo.UserRepository
+import vp.togedo.repository.UserRepository
 import vp.togedo.config.jwt.JwtTokenProvider
 import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument

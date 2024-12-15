@@ -43,7 +43,7 @@ class FriendConnectorImpl(
             val senderDocument = userService.findUser(id).awaitSingle()
             friendService.publishRequestFriendEvent(
                 receiver = receiverDocument,
-                sender = senderDocument.name,
+                sender = senderDocument
             ).awaitSingleOrNull()
         }
 
@@ -60,7 +60,7 @@ class FriendConnectorImpl(
             val senderDocument = userService.findUser(id).awaitSingle()
             friendService.publishRequestFriendEvent(
                 receiver = receiverDocument,
-                sender = senderDocument.name
+                sender = senderDocument
             ).awaitSingleOrNull()
         }
 
@@ -80,7 +80,7 @@ class FriendConnectorImpl(
         CoroutineScope(Dispatchers.IO).launch {
             friendService.publishApproveFriendEvent(
                 receiver = senderDocument,
-                sender = receiverDocument.name,
+                sender = receiverDocument
             ).awaitSingleOrNull()
         }
 
