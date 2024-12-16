@@ -89,10 +89,10 @@ resilience4j:
   timelimiter:
     instances:
       user:
-        timeout-duration: 3s
+        timeout-duration: 5s
 
       schedule:
-        timeout-duration: 3s
+        timeout-duration: 5s
 
 logging:
   level:
