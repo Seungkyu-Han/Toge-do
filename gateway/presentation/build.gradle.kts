@@ -20,6 +20,9 @@ dependencies {
         runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64")
     }
 
+    //CIRCUIT BREAKER
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("io.projectreactor:reactor-test")
