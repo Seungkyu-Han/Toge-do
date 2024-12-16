@@ -1,6 +1,7 @@
 services:
   schedule:
     image: schedule:1.0.0
+    container_name: schedule
     networks:
       - vp
     ports:
