@@ -14,12 +14,21 @@ spring:
           uri: ${USER_URI}
           predicates:
             - Path=/user/**, /api/v1/user/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: user
+                fallbackUri: forward:/fallback/user
         - id: user-security
           uri: ${USER_URI}
           predicates:
             - Path=/api/v1/friend/**
           filters:
             - AuthorizationFilter
+            - name: CircuitBreaker
+              args:
+                name: user
+                fallbackUri: forward:/fallback/user
 
         - id: notification
           uri: ${NOTIFICATION_URI}
@@ -37,6 +46,11 @@ spring:
           uri: ${SCHEDULE_URI}
           predicates:
             - Path=/schedule/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: schedule
+                fallbackUri: forward:/fallback/schedule
 
         - id: schedule-security
           uri: ${SCHEDULE_URI}
@@ -44,7 +58,42 @@ spring:
             - Path=/api/v1/fixed-personal-schedule/**
           filters:
             - AuthorizationFilter
+            - name: CircuitBreaker
+              args:
+                name: schedule
+                fallbackUri: forward:/fallback/schedule
 
 
 JWT:
   SECRET: ${JWT_SECRET}
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      user:
+        sliding-window-size: 10
+        minimum-number-of-calls: 4
+        automatic-transition-from-open-to-half-open-enabled: true
+        permitted-number-of-calls-in-half-open-state: 4
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 50
+
+      schedule:
+        sliding-window-size: 10
+        minimum-number-of-calls: 4
+        automatic-transition-from-open-to-half-open-enabled: true
+        permitted-number-of-calls-in-half-open-state: 4
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 50
+  timelimiter:
+    instances:
+      user:
+        timeout-duration: 3s
+
+      schedule:
+        timeout-duration: 3s
+
+logging:
+  level:
+    io.github.resilience4j.circuitbreaker: debug
