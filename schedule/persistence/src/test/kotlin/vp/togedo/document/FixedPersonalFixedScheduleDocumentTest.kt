@@ -669,6 +669,15 @@ class FixedPersonalScheduleDocumentTest{
                         it.fixedSchedules[0].title == modifiedTitle &&
                         it.fixedSchedules[0].color == modifiedColor
             }.verifyComplete()
+
+            Assertions.assertTrue{
+                fixedPersonalScheduleDocument.fixedSchedules.size == 1 &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].id == fixedSchedule.id &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].startTime == modifiedStartTime &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].endTime == modifiedEndTime &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].title == modifiedTitle &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].color == modifiedColor
+            }
         }
 
 
@@ -703,8 +712,8 @@ class FixedPersonalScheduleDocumentTest{
             fixedPersonalScheduleDocument.fixedSchedules.add(fixedSchedule)
             fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
-            val modifiedStartTime = 21200
-            val modifiedEndTime = 21259
+            val modifiedStartTime = 41200
+            val modifiedEndTime = 41259
             val modifiedTitle = UUID.randomUUID().toString()
             val modifiedColor = UUID.randomUUID().toString()
 
@@ -718,11 +727,21 @@ class FixedPersonalScheduleDocumentTest{
                 color = modifiedColor
             )).expectNextMatches {
                 it.fixedSchedules.size == 3 &&
-                        it.fixedSchedules[1].id == fixedSchedule.id &&
-                        it.fixedSchedules[1].startTime == modifiedStartTime &&
-                        it.fixedSchedules[1].endTime == modifiedEndTime &&
-                        it.fixedSchedules[1].title == modifiedTitle &&
-                        it.fixedSchedules[1].color == modifiedColor
+
+                        it.fixedSchedules[0].id == beforeFixedSchedule.id &&
+                        it.fixedSchedules[0].startTime == beforeFixedSchedule.startTime &&
+                        it.fixedSchedules[0].endTime == beforeFixedSchedule.endTime &&
+                        it.fixedSchedules[0].title == beforeFixedSchedule.title &&
+                        it.fixedSchedules[0].color == beforeFixedSchedule.color
+
+
+
+
+                        it.fixedSchedules[2].id == fixedSchedule.id &&
+                        it.fixedSchedules[2].startTime == modifiedStartTime &&
+                        it.fixedSchedules[2].endTime == modifiedEndTime &&
+                        it.fixedSchedules[2].title == modifiedTitle &&
+                        it.fixedSchedules[2].color == modifiedColor
             }.verifyComplete()
         }
 
