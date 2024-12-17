@@ -1,12 +1,14 @@
 package vp.togedo.connector.impl
 
 import org.bson.types.ObjectId
+import org.springframework.stereotype.Service
 import vp.togedo.connector.FlexiblePersonalScheduleConnector
 import vp.togedo.data.dao.FlexibleScheduleDao
 import vp.togedo.data.dto.flexiblePersonalSchedule.CreateFlexibleReqDto
 import vp.togedo.data.dto.flexiblePersonalSchedule.UpdateFlexibleReqDto
 import vp.togedo.service.FlexiblePersonalScheduleService
 
+@Service
 class FlexiblePersonalScheduleConnectorImpl(
     private val flexiblePersonalScheduleService: FlexiblePersonalScheduleService
 ): FlexiblePersonalScheduleConnector {
