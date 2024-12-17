@@ -49,27 +49,26 @@ data class FixedPersonalScheduleDocument(
         endTime: Int,
         title: String,
         color: String): Mono<FixedPersonalScheduleDocument>{
-        return Mono.fromCallable {
-            val index = this.fixedSchedules.indexOfFirst { it.id == id }
 
-            if (index < 0)
-                throw ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다.")
+        val index = this.fixedSchedules.indexOfFirst { it.id == id }
 
-            val newSchedule = this.fixedSchedules[index].copy(
-                startTime = startTime,
-                endTime = endTime,
-                title = title,
-                color = color
-            )
+        if (index < 0)
+            throw ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다.")
 
-            this.isValidTime(newSchedule)
+        val newSchedule = FixedSchedule(
+            id = id,
+            startTime = startTime,
+            endTime = endTime,
+            title = title,
+            color = color
+        )
 
-            this.isConflictTime(newSchedule)
+        this.isValidTime(newSchedule)
 
-            this.fixedSchedules[index] = newSchedule
+        this.isConflictTime(newSchedule)
 
-            this
-        }
+        return deleteScheduleById(id)
+            .then(addSchedule(newSchedule))
     }
 
     fun isValidTime(fixedSchedule: FixedSchedule): Boolean {
