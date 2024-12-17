@@ -78,12 +78,12 @@ class FixedPersonalScheduleController(
     )
     suspend fun updateSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
-        @RequestBody updateFixedReqDto: UpdateFixedReqDto
+        @RequestBody updateFixedReqDtoList: List<UpdateFixedReqDto>
     ): ResponseEntity<FixedPersonalScheduleListDto>{
         return ResponseEntity.ok(
             daoToDto(fixedPersonalScheduleConnector.updateFixedSchedule(
                 id = idComponent.objectIdProvider(userId),
-                updateFixedReqDto = updateFixedReqDto
+                updateFixedReqDtoList = updateFixedReqDtoList
             ))
         )
     }

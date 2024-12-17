@@ -24,10 +24,10 @@ interface FixedPersonalScheduleConnector {
     /**
      * 사용자의 고정 스케줄 수정하기
      * @param id 사용자의 objectId
-     * @param updateFixedReqDto 고정 스케줄 생성 dto
+     * @param updateFixedReqDtoList 고정 스케줄 생성 dto 리스트
      * @return 생성된 스케줄 dao
      */
-    suspend fun updateFixedSchedule(id: ObjectId, updateFixedReqDto: UpdateFixedReqDto): List<FixedScheduleDao>
+    suspend fun updateFixedSchedule(id: ObjectId, updateFixedReqDtoList: List<UpdateFixedReqDto>): List<FixedScheduleDao>
 
     /**
      * 사용자의 고정 스케줄 삭제하기

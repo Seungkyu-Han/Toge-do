@@ -32,15 +32,23 @@ class FixedPersonalScheduleConnectorImpl(
         return fixedPersonalScheduleService.readSchedule(id)
     }
 
-    override suspend fun updateFixedSchedule(id: ObjectId, updateFixedReqDto: UpdateFixedReqDto): List<FixedScheduleDao> {
+    override suspend fun updateFixedSchedule(id: ObjectId, updateFixedReqDtoList: List<UpdateFixedReqDto>): List<FixedScheduleDao> {
         return fixedPersonalScheduleService.modifySchedule(
             userId = id,
-            mutableListOf()
+            updateFixedReqDtoList.map{
+                FixedScheduleDao(
+                    scheduleId = ObjectId(it.id),
+                    startTime = it.startTime,
+                    endTime = it.endTime,
+                    title = it.title,
+                    color = it.color
+                )
+            }
         )
     }
 
-    override suspend fun deleteFixedSchedule(userId: ObjectId, scheduleIdList: List<String>) {
-        fixedPersonalScheduleService.deleteSchedule(userId, scheduleIdList.map{
+    override suspend fun deleteFixedSchedule(userId: ObjectId, fixedScheduleIdList: List<String>) {
+        fixedPersonalScheduleService.deleteSchedule(userId, fixedScheduleIdList.map{
             ObjectId(it)
         })
     }
