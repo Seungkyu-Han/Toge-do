@@ -56,4 +56,12 @@ class FlexiblePersonalScheduleConnectorImpl(
         )
     }
 
+    override suspend fun deleteFlexibleSchedule(userId: ObjectId, flexibleScheduleIdList: List<String>) {
+        flexiblePersonalScheduleService.deleteSchedule(
+            userId = userId,
+            scheduleIdList = flexibleScheduleIdList.map{
+                scheduleId -> ObjectId(scheduleId)
+            }
+        )
+    }
 }

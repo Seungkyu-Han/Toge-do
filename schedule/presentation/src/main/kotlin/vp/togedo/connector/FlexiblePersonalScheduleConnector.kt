@@ -28,4 +28,11 @@ interface FlexiblePersonalScheduleConnector {
      * @return 생성된 스케줄 dao
      */
     suspend fun updateFlexibleSchedule(id: ObjectId, updateFlexibleReqDtoList: List<UpdateFlexibleReqDto>): List<FlexibleScheduleDao>
+
+    /**
+     * 사용자의 가변 스케줄 삭제하기
+     * @param userId 사용자의 objectId
+     * @param flexibleScheduleIdList 스케줄의 ObjectId 리스트
+     */
+    suspend fun deleteFlexibleSchedule(userId: ObjectId, flexibleScheduleIdList: List<String>)
 }
