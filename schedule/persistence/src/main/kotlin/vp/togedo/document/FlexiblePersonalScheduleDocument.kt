@@ -49,29 +49,35 @@ data class FlexiblePersonalScheduleDocument(
         startTime: Int,
         endTime: Int,
         title: String,
-        color: String
+        color: String,
+        friends: List<ObjectId>
     ): Mono<FlexiblePersonalScheduleDocument> {
-        return Mono.fromCallable {
-            val index = this.flexibleSchedules.indexOfFirst { it.id == id }
 
-            if (index < 0)
-                throw ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다.")
+        val index = this.flexibleSchedules.indexOfFirst { it.id == id }
 
-            val newSchedule = this.flexibleSchedules[index].copy(
+        if (index < 0)
+            return Mono.error(ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다."))
+
+        val oldSchedule = this.flexibleSchedules[index]
+
+        this.deleteScheduleByIndex(index)
+
+        return this.addSchedule(
+            FlexibleSchedule(
+                id = id,
                 startTime = startTime,
                 endTime = endTime,
                 title = title,
-                color = color
+                color = color,
+                friends = friends
             )
-
-            this.isValidTime(newSchedule)
-
-            this.isConflictTime(newSchedule)
-
-            this.flexibleSchedules[index] = newSchedule
-
-            this
+        ).doOnError{
+            this.flexibleSchedules.add(index, oldSchedule)
         }
+    }
+
+    private fun deleteScheduleByIndex(index: Int){
+        this.flexibleSchedules.removeAt(index)
     }
 
     fun isConflictTime(flexibleSchedule: FlexibleSchedule): Int{
@@ -122,7 +128,7 @@ data class FlexiblePersonalScheduleDocument(
     }
 
     fun validTimeCheck(time: Int): Boolean{
-        if(time !in 10000..72359)
+        if(time !in 2000_0000..2100_0000)
             throw InvalidTimeException("week 범위 밖입니다.")
         val hour = (time % 10000) / 100
         if (hour !in 0..23)
