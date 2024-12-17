@@ -31,4 +31,10 @@ class FlexiblePersonalScheduleConnectorImpl(
             }
         )
     }
+
+    override suspend fun readFlexibleSchedule(id: ObjectId): List<FlexibleScheduleDao> {
+        return flexiblePersonalScheduleService.readSchedule(id)
+    }
+
+
 }

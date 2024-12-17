@@ -13,4 +13,12 @@ interface FlexiblePersonalScheduleConnector {
      * @return 생성된 스케줄 dao
      */
     suspend fun createFlexibleSchedule(userId: ObjectId, createFlexibleReqDtoList: List<CreateFlexibleReqDto>): List<FlexibleScheduleDao>
+
+    /**
+     * 사용자의 가변 스케줄 가져오기
+     * @param id 사용자의 objectId
+     */
+    suspend fun readFlexibleSchedule(id: ObjectId): List<FlexibleScheduleDao>
+
+
 }
