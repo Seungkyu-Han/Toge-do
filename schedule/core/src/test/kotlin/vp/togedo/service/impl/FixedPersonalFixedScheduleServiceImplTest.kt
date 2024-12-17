@@ -11,9 +11,9 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
-import vp.togedo.data.dao.ScheduleDao
+import vp.togedo.data.dao.FixedScheduleDao
 import vp.togedo.document.FixedPersonalScheduleDocument
-import vp.togedo.document.Schedule
+import vp.togedo.document.FixedSchedule
 import vp.togedo.repository.FixedPersonalScheduleRepository
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.ScheduleException
@@ -21,7 +21,7 @@ import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [FixedPersonalScheduleServiceImpl::class])
-class FixedPersonalScheduleServiceImplTest{
+class FixedPersonalFixedScheduleServiceImplTest{
 
     @MockBean
     private lateinit var fixedPersonalScheduleRepository: FixedPersonalScheduleRepository
@@ -36,22 +36,22 @@ class FixedPersonalScheduleServiceImplTest{
     }
 
     @Nested
-    inner class CreateSchedule{
+    inner class CreateFixedSchedule{
 
         private val userId = ObjectId.get()
 
         private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
             id = ObjectId.get(),
             userId = userId,
-            schedules = mutableListOf()
+            fixedSchedules = mutableListOf()
         )
 
         @Test
         @DisplayName("해당 유저의 스케줄이 없는 경우")
         fun createScheduleWhenNotExistScheduleReturnSuccess(){
             //given
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoList = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = null,
                     startTime = 11100,
                     endTime = 11200,
@@ -67,16 +67,16 @@ class FixedPersonalScheduleServiceImplTest{
 
             //when
             val coroutine = mono{
-                fixedPersonalScheduleService.createSchedule(userId, scheduleDaoList)
+                fixedPersonalScheduleService.createSchedule(userId, fixedScheduleDaoList)
             }
 
             //then
             StepVerifier.create(coroutine)
                 .expectNextMatches {
-                    scheduleDaoList[0].startTime == it[0].startTime &&
-                            scheduleDaoList[0].endTime == it[0].endTime &&
-                            scheduleDaoList[0].title == it[0].title &&
-                            scheduleDaoList[0].color == it[0].color &&
+                    fixedScheduleDaoList[0].startTime == it[0].startTime &&
+                            fixedScheduleDaoList[0].endTime == it[0].endTime &&
+                            fixedScheduleDaoList[0].title == it[0].title &&
+                            fixedScheduleDaoList[0].color == it[0].color &&
                             it[0].scheduleId != null
                 }.verifyComplete()
         }
@@ -85,8 +85,8 @@ class FixedPersonalScheduleServiceImplTest{
         @DisplayName("해당 유저의 스케줄이 존재하는 경우")
         fun createScheduleWhenExistScheduleReturnSuccess(){
             //given
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoList = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = null,
                     startTime = 11100,
                     endTime = 11200,
@@ -103,16 +103,16 @@ class FixedPersonalScheduleServiceImplTest{
 
             //when
             val coroutine = mono{
-                fixedPersonalScheduleService.createSchedule(userId, scheduleDaoList)
+                fixedPersonalScheduleService.createSchedule(userId, fixedScheduleDaoList)
             }
 
             //then
             StepVerifier.create(coroutine)
                 .expectNextMatches {
-                    scheduleDaoList[0].startTime == it[0].startTime &&
-                            scheduleDaoList[0].endTime == it[0].endTime &&
-                            scheduleDaoList[0].title == it[0].title &&
-                            scheduleDaoList[0].color == it[0].color &&
+                    fixedScheduleDaoList[0].startTime == it[0].startTime &&
+                            fixedScheduleDaoList[0].endTime == it[0].endTime &&
+                            fixedScheduleDaoList[0].title == it[0].title &&
+                            fixedScheduleDaoList[0].color == it[0].color &&
                             it[0].scheduleId != null
                 }.verifyComplete()
         }
@@ -121,8 +121,8 @@ class FixedPersonalScheduleServiceImplTest{
         @DisplayName("조회한 스케줄에 일정이 존재하는 경우")
         fun createScheduleWhenExistScheduleHaveSchedulesReturnSuccess(){
             //given
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = ObjectId.get(),
                     startTime = 11100,
                     endTime = 11159,
@@ -131,8 +131,8 @@ class FixedPersonalScheduleServiceImplTest{
                 )
             )
 
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoList = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = null,
                     startTime = 11200,
                     endTime = 11259,
@@ -149,16 +149,16 @@ class FixedPersonalScheduleServiceImplTest{
 
             //when
             val coroutine = mono{
-                fixedPersonalScheduleService.createSchedule(userId, scheduleDaoList)
+                fixedPersonalScheduleService.createSchedule(userId, fixedScheduleDaoList)
             }
 
             //then
             StepVerifier.create(coroutine)
                 .expectNextMatches {
-                    scheduleDaoList[0].startTime == it[0].startTime &&
-                            scheduleDaoList[0].endTime == it[0].endTime &&
-                            scheduleDaoList[0].title == it[0].title &&
-                            scheduleDaoList[0].color == it[0].color &&
+                    fixedScheduleDaoList[0].startTime == it[0].startTime &&
+                            fixedScheduleDaoList[0].endTime == it[0].endTime &&
+                            fixedScheduleDaoList[0].title == it[0].title &&
+                            fixedScheduleDaoList[0].color == it[0].color &&
                             it[0].scheduleId != null
                 }.verifyComplete()
         }
@@ -167,8 +167,8 @@ class FixedPersonalScheduleServiceImplTest{
         @DisplayName("기존에 존재하는 일정과 충돌하는 경우")
         fun createScheduleWhenExistAndConflictReturnException(){
             //given
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = ObjectId.get(),
                     startTime = 11100,
                     endTime = 11159,
@@ -178,8 +178,8 @@ class FixedPersonalScheduleServiceImplTest{
             )
 
 
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoList = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = null,
                     startTime = 11100,
                     endTime = 11159,
@@ -196,7 +196,7 @@ class FixedPersonalScheduleServiceImplTest{
 
             //when
             val coroutine = mono{
-                fixedPersonalScheduleService.createSchedule(userId, scheduleDaoList)
+                fixedPersonalScheduleService.createSchedule(userId, fixedScheduleDaoList)
             }
 
             //then
@@ -212,15 +212,15 @@ class FixedPersonalScheduleServiceImplTest{
         fun createScheduleWhenExistAndConflictWithInsertSchedulesReturnException(){
             //given
 
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoLists = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = null,
                     startTime = 11100,
                     endTime = 11159,
                     title = UUID.randomUUID().toString(),
                     color = UUID.randomUUID().toString()
                 ),
-                ScheduleDao(
+                FixedScheduleDao(
                     scheduleId = null,
                     startTime = 11100,
                     endTime = 11159,
@@ -237,7 +237,7 @@ class FixedPersonalScheduleServiceImplTest{
 
             //when
             val coroutine = mono{
-                fixedPersonalScheduleService.createSchedule(userId, scheduleDaoList)
+                fixedPersonalScheduleService.createSchedule(userId, fixedScheduleDaoLists)
             }
 
             //then
@@ -250,14 +250,14 @@ class FixedPersonalScheduleServiceImplTest{
     }
 
     @Nested
-    inner class ReadSchedule{
+    inner class ReadFixedSchedule{
 
         private val userId = ObjectId.get()
 
         private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
             id = ObjectId.get(),
             userId = userId,
-            schedules = mutableListOf()
+            fixedSchedules = mutableListOf()
         )
 
         @Test
@@ -283,8 +283,8 @@ class FixedPersonalScheduleServiceImplTest{
         @DisplayName("스케줄이 하나 존재하는 유저가 스케줄을 조회")
         fun readScheduleByExistOneScheduleUserReturnSuccess(){
             //given
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = ObjectId.get(),
                     startTime = 11100,
                     endTime = 11159,
@@ -304,12 +304,12 @@ class FixedPersonalScheduleServiceImplTest{
             //then
             StepVerifier.create(coroutine)
                 .expectNextMatches {
-                    it.size == fixedPersonalScheduleDocument.schedules.size &&
-                            it[0].scheduleId == fixedPersonalScheduleDocument.schedules[0].id &&
-                            it[0].title == fixedPersonalScheduleDocument.schedules[0].title &&
-                            it[0].color == fixedPersonalScheduleDocument.schedules[0].color &&
-                            it[0].startTime == fixedPersonalScheduleDocument.schedules[0].startTime &&
-                            it[0].endTime == fixedPersonalScheduleDocument.schedules[0].endTime
+                    it.size == fixedPersonalScheduleDocument.fixedSchedules.size &&
+                            it[0].scheduleId == fixedPersonalScheduleDocument.fixedSchedules[0].id &&
+                            it[0].title == fixedPersonalScheduleDocument.fixedSchedules[0].title &&
+                            it[0].color == fixedPersonalScheduleDocument.fixedSchedules[0].color &&
+                            it[0].startTime == fixedPersonalScheduleDocument.fixedSchedules[0].startTime &&
+                            it[0].endTime == fixedPersonalScheduleDocument.fixedSchedules[0].endTime
                 }.verifyComplete()
         }
 
@@ -317,8 +317,8 @@ class FixedPersonalScheduleServiceImplTest{
         @DisplayName("스케줄이 두개 이상 존재하는 유저가 스케줄을 조회")
         fun readScheduleByExistMoreThanOneScheduleUserReturnSuccess(){
             //given
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = ObjectId.get(),
                     startTime = 11100,
                     endTime = 11159,
@@ -327,8 +327,8 @@ class FixedPersonalScheduleServiceImplTest{
                 )
             )
 
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = ObjectId.get(),
                     startTime = 11200,
                     endTime = 11259,
@@ -348,29 +348,29 @@ class FixedPersonalScheduleServiceImplTest{
             //then
             StepVerifier.create(coroutine)
                 .expectNextMatches {
-                    it.size == fixedPersonalScheduleDocument.schedules.size &&
-                            it[0].scheduleId == fixedPersonalScheduleDocument.schedules[0].id &&
-                            it[0].title == fixedPersonalScheduleDocument.schedules[0].title &&
-                            it[0].color == fixedPersonalScheduleDocument.schedules[0].color &&
-                            it[0].startTime == fixedPersonalScheduleDocument.schedules[0].startTime &&
-                            it[0].endTime == fixedPersonalScheduleDocument.schedules[0].endTime &&
+                    it.size == fixedPersonalScheduleDocument.fixedSchedules.size &&
+                            it[0].scheduleId == fixedPersonalScheduleDocument.fixedSchedules[0].id &&
+                            it[0].title == fixedPersonalScheduleDocument.fixedSchedules[0].title &&
+                            it[0].color == fixedPersonalScheduleDocument.fixedSchedules[0].color &&
+                            it[0].startTime == fixedPersonalScheduleDocument.fixedSchedules[0].startTime &&
+                            it[0].endTime == fixedPersonalScheduleDocument.fixedSchedules[0].endTime &&
 
-                            it[1].scheduleId == fixedPersonalScheduleDocument.schedules[1].id &&
-                            it[1].title == fixedPersonalScheduleDocument.schedules[1].title &&
-                            it[1].color == fixedPersonalScheduleDocument.schedules[1].color &&
-                            it[1].startTime == fixedPersonalScheduleDocument.schedules[1].startTime &&
-                            it[1].endTime == fixedPersonalScheduleDocument.schedules[1].endTime
+                            it[1].scheduleId == fixedPersonalScheduleDocument.fixedSchedules[1].id &&
+                            it[1].title == fixedPersonalScheduleDocument.fixedSchedules[1].title &&
+                            it[1].color == fixedPersonalScheduleDocument.fixedSchedules[1].color &&
+                            it[1].startTime == fixedPersonalScheduleDocument.fixedSchedules[1].startTime &&
+                            it[1].endTime == fixedPersonalScheduleDocument.fixedSchedules[1].endTime
                 }.verifyComplete()
         }
     }
 
     @Nested
-    inner class ModifySchedule{
+    inner class ModifyFixedSchedule{
         private val userId = ObjectId.get()
         private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
             id = ObjectId.get(),
             userId = userId,
-            schedules = mutableListOf()
+            fixedSchedules = mutableListOf()
         )
 
         @Test
@@ -378,8 +378,8 @@ class FixedPersonalScheduleServiceImplTest{
         fun modifyToExistScheduleOneElementReturnSuccess(){
             //given
             val scheduleId = ObjectId.get()
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = scheduleId,
                     startTime = 11100,
                     endTime = 11159,
@@ -388,8 +388,8 @@ class FixedPersonalScheduleServiceImplTest{
                 )
             )
 
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoList = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = scheduleId,
                     startTime = 11200,
                     endTime = 11259,
@@ -408,19 +408,19 @@ class FixedPersonalScheduleServiceImplTest{
             val coroutine = mono{
                 fixedPersonalScheduleService.modifySchedule(
                     userId = userId,
-                    scheduleDaoList = scheduleDaoList
+                    fixedScheduleDaoList = fixedScheduleDaoList
                 )
             }
 
             //then
             StepVerifier.create(coroutine)
                 .expectNextMatches {
-                    it.size == scheduleDaoList.size &&
+                    it.size == fixedScheduleDaoList.size &&
                             it[0].scheduleId == scheduleId &&
-                            it[0].startTime == scheduleDaoList[0].startTime &&
-                            it[0].endTime == scheduleDaoList[0].endTime &&
-                            it[0].title == scheduleDaoList[0].title &&
-                            it[0].color == scheduleDaoList[0].color
+                            it[0].startTime == fixedScheduleDaoList[0].startTime &&
+                            it[0].endTime == fixedScheduleDaoList[0].endTime &&
+                            it[0].title == fixedScheduleDaoList[0].title &&
+                            it[0].color == fixedScheduleDaoList[0].color
                 }.verifyComplete()
         }
 
@@ -429,8 +429,8 @@ class FixedPersonalScheduleServiceImplTest{
         fun modifyToExistScheduleMoreThanElementReturnSuccess(){
             //given
             val scheduleIdList = listOf(ObjectId.get(), ObjectId.get())
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = scheduleIdList[0],
                     startTime = 11100,
                     endTime = 11159,
@@ -439,8 +439,8 @@ class FixedPersonalScheduleServiceImplTest{
                 )
             )
 
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = scheduleIdList[1],
                     startTime = 21100,
                     endTime = 21159,
@@ -449,15 +449,15 @@ class FixedPersonalScheduleServiceImplTest{
                 )
             )
 
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoLists = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = scheduleIdList[1],
                     startTime = 31100,
                     endTime = 31159,
                     title = UUID.randomUUID().toString(),
                     color = UUID.randomUUID().toString()
                 ),
-                ScheduleDao(
+                FixedScheduleDao(
                     scheduleId = scheduleIdList[0],
                     startTime = 21100,
                     endTime = 21159,
@@ -476,25 +476,25 @@ class FixedPersonalScheduleServiceImplTest{
             val coroutine = mono{
                 fixedPersonalScheduleService.modifySchedule(
                     userId = userId,
-                    scheduleDaoList = scheduleDaoList
+                    fixedScheduleDaoList = fixedScheduleDaoLists
                 )
             }
 
             //then
             StepVerifier.create(coroutine)
                 .expectNextMatches {
-                    it.size == scheduleDaoList.size &&
-                            it[0].scheduleId == scheduleDaoList[0].scheduleId &&
-                            it[0].startTime == scheduleDaoList[0].startTime &&
-                            it[0].endTime == scheduleDaoList[0].endTime &&
-                            it[0].title == scheduleDaoList[0].title &&
-                            it[0].color == scheduleDaoList[0].color &&
+                    it.size == fixedScheduleDaoLists.size &&
+                            it[0].scheduleId == fixedScheduleDaoLists[0].scheduleId &&
+                            it[0].startTime == fixedScheduleDaoLists[0].startTime &&
+                            it[0].endTime == fixedScheduleDaoLists[0].endTime &&
+                            it[0].title == fixedScheduleDaoLists[0].title &&
+                            it[0].color == fixedScheduleDaoLists[0].color &&
 
-                            it[1].scheduleId == scheduleDaoList[1].scheduleId &&
-                            it[1].startTime == scheduleDaoList[1].startTime &&
-                            it[1].endTime == scheduleDaoList[1].endTime &&
-                            it[1].title == scheduleDaoList[1].title &&
-                            it[1].color == scheduleDaoList[1].color
+                            it[1].scheduleId == fixedScheduleDaoLists[1].scheduleId &&
+                            it[1].startTime == fixedScheduleDaoLists[1].startTime &&
+                            it[1].endTime == fixedScheduleDaoLists[1].endTime &&
+                            it[1].title == fixedScheduleDaoLists[1].title &&
+                            it[1].color == fixedScheduleDaoLists[1].color
                 }.verifyComplete()
         }
 
@@ -502,8 +502,8 @@ class FixedPersonalScheduleServiceImplTest{
         @DisplayName("유효하지 않은 아이디로 스케줄을 수정하려고 시도")
         fun modifyToExistScheduleByInvalidIdReturnException(){
             //given
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoList = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = ObjectId.get(),
                     startTime = 11100,
                     endTime = 11159,
@@ -519,7 +519,7 @@ class FixedPersonalScheduleServiceImplTest{
             val coroutine = mono{
                 fixedPersonalScheduleService.modifySchedule(
                     userId = userId,
-                    scheduleDaoList = scheduleDaoList
+                    fixedScheduleDaoList = fixedScheduleDaoList
                 )
             }
 
@@ -535,8 +535,8 @@ class FixedPersonalScheduleServiceImplTest{
         @DisplayName("스케줄을 만든 적이 없는 유저가 스케줄을 수정하려고 시도")
         fun modifyToNotExistScheduleReturnException(){
             //given
-            val scheduleDaoList = mutableListOf(
-                ScheduleDao(
+            val fixedScheduleDaoList = mutableListOf(
+                FixedScheduleDao(
                     scheduleId = ObjectId.get(),
                     startTime = 11100,
                     endTime = 11159,
@@ -552,7 +552,7 @@ class FixedPersonalScheduleServiceImplTest{
             val coroutine = mono{
                 fixedPersonalScheduleService.modifySchedule(
                     userId = userId,
-                    scheduleDaoList = scheduleDaoList
+                    fixedScheduleDaoList = fixedScheduleDaoList
                 )
             }
 
@@ -566,13 +566,13 @@ class FixedPersonalScheduleServiceImplTest{
     }
 
     @Nested
-    inner class DeleteSchedule{
+    inner class DeleteFixedSchedule{
         private val userId = ObjectId.get()
 
         private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
             id = ObjectId.get(),
             userId = userId,
-            schedules = mutableListOf()
+            fixedSchedules = mutableListOf()
         )
 
         @Test
@@ -581,8 +581,8 @@ class FixedPersonalScheduleServiceImplTest{
             //given
             val scheduleId = ObjectId.get()
 
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = scheduleId,
                     startTime = 11100,
                     endTime = 11159,
@@ -608,7 +608,7 @@ class FixedPersonalScheduleServiceImplTest{
                 .verifyComplete()
 
             Assertions.assertTrue{
-                fixedPersonalScheduleDocument.schedules.find{
+                fixedPersonalScheduleDocument.fixedSchedules.find{
                     it.id == scheduleId
                 } == null
             }
@@ -620,8 +620,8 @@ class FixedPersonalScheduleServiceImplTest{
             //given
             val scheduleIdList = listOf(ObjectId.get(), ObjectId.get())
 
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = scheduleIdList[0],
                     startTime = 11100,
                     endTime = 11159,
@@ -630,8 +630,8 @@ class FixedPersonalScheduleServiceImplTest{
                 )
             )
 
-            fixedPersonalScheduleDocument.schedules.add(
-                Schedule(
+            fixedPersonalScheduleDocument.fixedSchedules.add(
+                FixedSchedule(
                     id = scheduleIdList[1],
                     startTime = 21100,
                     endTime = 21159,
@@ -657,13 +657,13 @@ class FixedPersonalScheduleServiceImplTest{
                 .verifyComplete()
 
             Assertions.assertTrue{
-                fixedPersonalScheduleDocument.schedules.find{
+                fixedPersonalScheduleDocument.fixedSchedules.find{
                     it.id == scheduleIdList[0]
                 } == null
             }
 
             Assertions.assertTrue{
-                fixedPersonalScheduleDocument.schedules.find{
+                fixedPersonalScheduleDocument.fixedSchedules.find{
                     it.id == scheduleIdList[1]
                 } == null
             }

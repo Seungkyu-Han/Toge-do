@@ -2,7 +2,7 @@ package vp.togedo.data.dao
 
 import org.bson.types.ObjectId
 
-data class ScheduleDao(
+data class FixedScheduleDao(
     var scheduleId: ObjectId?,
     val startTime: Int,
     val endTime: Int,

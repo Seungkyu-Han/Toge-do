@@ -10,34 +10,35 @@ import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
 import vp.togedo.util.exception.ScheduleNotFoundException
 
-@Document(collection = "fixed_personal_schedule")
-data class FixedPersonalScheduleDocument(
+@Document(collection = "flexible_personal_schedule")
+data class FlexiblePersonalScheduleDocument(
     @Id
-    var id: ObjectId? = null,
+    var id: ObjectId = ObjectId.get(),
 
     @Indexed(unique = true)
     val userId: ObjectId,
 
-    var fixedSchedules: MutableList<FixedSchedule> = mutableListOf(),
+    var flexibleSchedules: MutableList<FlexibleSchedule> = mutableListOf(),
 ){
-    fun addSchedule(fixedSchedule: FixedSchedule): Mono<FixedPersonalScheduleDocument> {
+
+    fun addSchedule(flexibleSchedule: FlexibleSchedule): Mono<FlexiblePersonalScheduleDocument> {
         return Mono.fromCallable {
 
             //시간 범위 검사
-            this.isValidTime(fixedSchedule)
+            this.isValidTime(flexibleSchedule)
 
             //스케줄 충돌 체크 및 삽입 인덱스 반환
-            val insertedIndex = this.isConflictTime(fixedSchedule)
+            val insertedIndex = this.isConflictTime(flexibleSchedule)
 
             //해당 인덱스로 삽입
-            this.fixedSchedules.add(insertedIndex, fixedSchedule)
+            this.flexibleSchedules.add(insertedIndex, flexibleSchedule)
 
             this
         }
     }
 
     fun deleteScheduleById(id: ObjectId): Mono<Void> {
-        return if(this.fixedSchedules.removeIf { it.id == id })
+        return if(this.flexibleSchedules.removeIf { it.id == id })
             Mono.empty()
         else
             Mono.error(ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다."))
@@ -48,14 +49,15 @@ data class FixedPersonalScheduleDocument(
         startTime: Int,
         endTime: Int,
         title: String,
-        color: String): Mono<FixedPersonalScheduleDocument>{
+        color: String
+    ): Mono<FlexiblePersonalScheduleDocument> {
         return Mono.fromCallable {
-            val index = this.fixedSchedules.indexOfFirst { it.id == id }
+            val index = this.flexibleSchedules.indexOfFirst { it.id == id }
 
             if (index < 0)
                 throw ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다.")
 
-            val newSchedule = this.fixedSchedules[index].copy(
+            val newSchedule = this.flexibleSchedules[index].copy(
                 startTime = startTime,
                 endTime = endTime,
                 title = title,
@@ -66,25 +68,53 @@ data class FixedPersonalScheduleDocument(
 
             this.isConflictTime(newSchedule)
 
-            this.fixedSchedules[index] = newSchedule
+            this.flexibleSchedules[index] = newSchedule
 
             this
         }
     }
 
-    fun isValidTime(fixedSchedule: FixedSchedule): Boolean {
+    fun isConflictTime(flexibleSchedule: FlexibleSchedule): Int{
+
+        if(flexibleSchedules.size == 0)
+            return 0
+
+        val index = this.flexibleSchedules.binarySearch(0){
+                scheduleElement -> scheduleElement.startTime.compareTo(flexibleSchedule.startTime)
+        }
+
+        if(index >= 0)
+            throw ConflictScheduleException("해당 시작시간에 시작하는 스케줄이 있습니다.")
+
+        val insertedIndex = (index + 1) * -1
+
+        //앞의 종료 시간과, 해당 스케줄의 시작 시간을 비교
+        if (insertedIndex > 0){
+            if(this.flexibleSchedules[insertedIndex - 1].endTime >= flexibleSchedule.startTime)
+                throw ConflictScheduleException("전 스케줄이 종료되지 않았습니다.")
+        }
+        //뒤의 시작 시간과, 해당 스케줄의 종료 시간을 비교
+        if (insertedIndex < this.flexibleSchedules.size){
+            if(this.flexibleSchedules[insertedIndex].startTime <= flexibleSchedule.endTime)
+                throw ConflictScheduleException("뒤 스케줄의 시작시간과 충돌합니다.")
+        }
+
+        return insertedIndex
+    }
+
+    fun isValidTime(flexibleSchedule: FlexibleSchedule): Boolean {
         try{
-            validTimeCheck(fixedSchedule.startTime)
+            validTimeCheck(flexibleSchedule.startTime)
         }catch(e: InvalidTimeException){
             throw InvalidTimeException("시작 시간이 ${e.message}")
         }
         try{
-            validTimeCheck(fixedSchedule.endTime)
+            validTimeCheck(flexibleSchedule.endTime)
         }catch(e: InvalidTimeException){
             throw InvalidTimeException("종료 시간이 ${e.message}")
         }
         try{
-            isStartTimeBefore(fixedSchedule)
+            isStartTimeBefore(flexibleSchedule)
         }catch(e: EndTimeBeforeStartTimeException){
             throw e
         }
@@ -103,42 +133,14 @@ data class FixedPersonalScheduleDocument(
         return true
     }
 
-    fun isConflictTime(fixedSchedule: FixedSchedule): Int{
-
-        if(fixedSchedules.size == 0)
-            return 0
-
-        val index = this.fixedSchedules.binarySearch(0){
-            scheduleElement -> scheduleElement.startTime.compareTo(fixedSchedule.startTime)
-        }
-
-        if(index >= 0)
-            throw ConflictScheduleException("해당 시작시간에 시작하는 스케줄이 있습니다.")
-
-        val insertedIndex = (index + 1) * -1
-
-        //앞의 종료 시간과, 해당 스케줄의 시작 시간을 비교
-        if (insertedIndex > 0){
-            if(this.fixedSchedules[insertedIndex - 1].endTime >= fixedSchedule.startTime)
-                throw ConflictScheduleException("전 스케줄이 종료되지 않았습니다.")
-        }
-        //뒤의 시작 시간과, 해당 스케줄의 종료 시간을 비교
-        if (insertedIndex < this.fixedSchedules.size){
-            if(this.fixedSchedules[insertedIndex].startTime <= fixedSchedule.endTime)
-                throw ConflictScheduleException("뒤 스케줄의 시작시간과 충돌합니다.")
-        }
-
-        return insertedIndex
-    }
-
-    private fun isStartTimeBefore(fixedSchedule: FixedSchedule): Boolean {
-        if (fixedSchedule.startTime > fixedSchedule.endTime)
+    fun isStartTimeBefore(flexibleSchedule: FlexibleSchedule): Boolean {
+        if (flexibleSchedule.startTime <= flexibleSchedule.endTime)
             throw EndTimeBeforeStartTimeException("종료시간이 시작시간보다 앞입니다.")
         return true
     }
 }
 
-data class FixedSchedule(
+data class FlexibleSchedule(
     @Id
     var id: ObjectId = ObjectId.get(),
 
@@ -148,5 +150,7 @@ data class FixedSchedule(
 
     var title: String,
 
-    var color: String
+    var color: String,
+
+    var friends: List<ObjectId> = mutableListOf()
 )

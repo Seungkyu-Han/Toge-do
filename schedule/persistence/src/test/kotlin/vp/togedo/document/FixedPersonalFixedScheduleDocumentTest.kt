@@ -20,7 +20,7 @@ class FixedPersonalScheduleDocumentTest{
         private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
             id = ObjectId.get(),
             userId = ObjectId.get(),
-            schedules = mutableListOf()
+            fixedSchedules = mutableListOf()
         )
 
         @Test
@@ -29,7 +29,7 @@ class FixedPersonalScheduleDocumentTest{
             //given
             val startTime = 11111
             val endTime = 22222
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = startTime,
                 endTime = endTime,
@@ -38,7 +38,7 @@ class FixedPersonalScheduleDocumentTest{
             )
 
             //when
-            val result = fixedPersonalScheduleDocument.isValidTime(schedule)
+            val result = fixedPersonalScheduleDocument.isValidTime(fixedSchedule)
 
             //then
             Assertions.assertTrue(result)
@@ -50,7 +50,7 @@ class FixedPersonalScheduleDocumentTest{
             //given
             val startTime = 1111
             val endTime = 22222
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = startTime,
                 endTime = endTime,
@@ -59,7 +59,7 @@ class FixedPersonalScheduleDocumentTest{
             )
 
             //when && then
-            Assertions.assertThrows(InvalidTimeException::class.java) { fixedPersonalScheduleDocument.isValidTime(schedule) }
+            Assertions.assertThrows(InvalidTimeException::class.java) { fixedPersonalScheduleDocument.isValidTime(fixedSchedule) }
         }
 
         @Test
@@ -68,7 +68,7 @@ class FixedPersonalScheduleDocumentTest{
             //given
             val startTime = 11111
             val endTime = 73333
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = startTime,
                 endTime = endTime,
@@ -77,7 +77,7 @@ class FixedPersonalScheduleDocumentTest{
             )
 
             //when && then
-            Assertions.assertThrows(InvalidTimeException::class.java) { fixedPersonalScheduleDocument.isValidTime(schedule) }
+            Assertions.assertThrows(InvalidTimeException::class.java) { fixedPersonalScheduleDocument.isValidTime(fixedSchedule) }
         }
     }
 
@@ -87,7 +87,7 @@ class FixedPersonalScheduleDocumentTest{
         private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
             id = ObjectId.get(),
             userId = ObjectId.get(),
-            schedules = mutableListOf()
+            fixedSchedules = mutableListOf()
         )
         @Test
         @DisplayName("시간이 범위 내")
@@ -160,7 +160,7 @@ class FixedPersonalScheduleDocumentTest{
             fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
                 id = ObjectId.get(),
                 userId = ObjectId.get(),
-                schedules = mutableListOf()
+                fixedSchedules = mutableListOf()
             )
         }
 
@@ -168,7 +168,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("스케줄이 비어있는 경우")
         fun isEmptyScheduleReturn0(){
             //given
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11200,
                 endTime = 11300,
@@ -177,7 +177,7 @@ class FixedPersonalScheduleDocumentTest{
             )
 
             //when
-            val result = fixedPersonalScheduleDocument.isConflictTime(schedule)
+            val result = fixedPersonalScheduleDocument.isConflictTime(fixedSchedule)
 
             //then
             Assertions.assertEquals(0, result)
@@ -187,7 +187,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("충돌하지 않는 스케줄이 뒤에 하나만 존재하는 경우")
         fun scheduleAfterOneElementReturn0(){
             //given
-            val afterSchedule = Schedule(
+            val afterFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11200,
                 endTime = 11259,
@@ -195,17 +195,17 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            fixedPersonalScheduleDocument.schedules.add(afterSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
             //when
-            val result = fixedPersonalScheduleDocument.isConflictTime(schedule)
+            val result = fixedPersonalScheduleDocument.isConflictTime(fixedSchedule)
 
             //then
             Assertions.assertEquals(0, result)
@@ -215,7 +215,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("충돌하지 않는 스케줄이 앞에 하나만 존재하는 경우")
         fun scheduleBeforeOneElementReturn1(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11000,
                 endTime = 11059,
@@ -223,17 +223,17 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
 
             //when
-            val result = fixedPersonalScheduleDocument.isConflictTime(schedule)
+            val result = fixedPersonalScheduleDocument.isConflictTime(fixedSchedule)
 
             //then
             Assertions.assertEquals(1, result)
@@ -243,32 +243,32 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("충돌하지 않는 스케줄이 앞뒤에 하나씩 존재하는 경우")
         fun scheduleBetweenNonConflictReturn1(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            val afterSchedule = Schedule(
+            val afterFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11300,
                 endTime = 11359,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11200,
                 endTime = 11259,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
-            fixedPersonalScheduleDocument.schedules.add(afterSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
             //when
-            val result = fixedPersonalScheduleDocument.isConflictTime(schedule)
+            val result = fixedPersonalScheduleDocument.isConflictTime(fixedSchedule)
 
             //then
             Assertions.assertEquals(1, result)
@@ -278,7 +278,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("앞의 종료 시간이 아직 끝나지 않은 경우")
         fun conflictWithBeforeEndTimeReturnException(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11200,
@@ -286,7 +286,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11200,
                 endTime = 11259,
@@ -294,11 +294,11 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
 
             //when && then
             Assertions.assertThrows(ConflictScheduleException::class.java){
-                fixedPersonalScheduleDocument.isConflictTime(schedule)
+                fixedPersonalScheduleDocument.isConflictTime(fixedSchedule)
             }
         }
 
@@ -306,7 +306,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("뒤의 시작시간과 충돌하는 경우")
         fun conflictWithAfterStartTimeReturnException(){
             //given
-            val afterSchedule = Schedule(
+            val afterFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11300,
                 endTime = 11359,
@@ -314,7 +314,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11200,
                 endTime = 11300,
@@ -322,11 +322,11 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(afterSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
             //when && then
             Assertions.assertThrows(ConflictScheduleException::class.java){
-                fixedPersonalScheduleDocument.isConflictTime(schedule)
+                fixedPersonalScheduleDocument.isConflictTime(fixedSchedule)
             }
         }
 
@@ -334,7 +334,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("시작 시간이 동일한 스케줄이 존재하는 경우")
         fun conflictWithEqualsStartTimeReturnException(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -342,7 +342,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -350,17 +350,17 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
 
             //when && then
             Assertions.assertThrows(ConflictScheduleException::class.java){
-                fixedPersonalScheduleDocument.isConflictTime(schedule)
+                fixedPersonalScheduleDocument.isConflictTime(fixedSchedule)
             }
         }
     }
 
     @Nested
-    inner class AddSchedule{
+    inner class AddFixedSchedule{
         private lateinit var fixedPersonalScheduleDocument: FixedPersonalScheduleDocument
 
         @BeforeEach
@@ -368,7 +368,7 @@ class FixedPersonalScheduleDocumentTest{
             fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
                 id = ObjectId.get(),
                 userId = ObjectId.get(),
-                schedules = mutableListOf()
+                fixedSchedules = mutableListOf()
             )
         }
 
@@ -376,7 +376,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("빈 리스트에 스케줄 삽입")
         fun addScheduleInEmptyScheduleListReturnSuccess(){
             //given
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -385,9 +385,9 @@ class FixedPersonalScheduleDocumentTest{
             )
 
             //when && then
-            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(schedule))
+            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(fixedSchedule))
                 .expectNextMatches {
-                    it.schedules.size == 1
+                    it.fixedSchedules.size == 1
                 }.verifyComplete()
         }
 
@@ -395,14 +395,14 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("리스트 사이에 스케줄 삽입")
         fun addScheduleBetweenScheduleListReturnSuccess(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11000,
                 endTime = 11059,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            val afterSchedule = Schedule(
+            val afterFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11200,
                 endTime = 11259,
@@ -410,7 +410,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -418,17 +418,17 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
-            fixedPersonalScheduleDocument.schedules.add(afterSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
 
             //when && then
-            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(schedule))
+            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(fixedSchedule))
                 .expectNextMatches {
-                    it.schedules.size == 3 &&
-                            it.schedules[0].id == beforeSchedule.id &&
-                            it.schedules[1].id == schedule.id &&
-                            it.schedules[2].id == afterSchedule.id
+                    it.fixedSchedules.size == 3 &&
+                            it.fixedSchedules[0].id == beforeFixedSchedule.id &&
+                            it.fixedSchedules[1].id == fixedSchedule.id &&
+                            it.fixedSchedules[2].id == afterFixedSchedule.id
                 }.verifyComplete()
         }
 
@@ -436,7 +436,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("리스트 앞에 스케줄 삽입")
         fun addScheduleBeforeScheduleListReturnSuccess(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11000,
                 endTime = 11059,
@@ -444,7 +444,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -452,15 +452,15 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
 
 
             //when && then
-            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(schedule))
+            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(fixedSchedule))
                 .expectNextMatches {
-                    it.schedules.size == 2 &&
-                            it.schedules[0].id == beforeSchedule.id &&
-                            it.schedules[1].id == schedule.id
+                    it.fixedSchedules.size == 2 &&
+                            it.fixedSchedules[0].id == beforeFixedSchedule.id &&
+                            it.fixedSchedules[1].id == fixedSchedule.id
                 }.verifyComplete()
         }
 
@@ -468,7 +468,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("리스트 뒤에 스케줄 삽입")
         fun addScheduleAfterScheduleListReturnSuccess(){
             //given
-            val afterSchedule = Schedule(
+            val afterFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11200,
                 endTime = 11259,
@@ -476,7 +476,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -484,15 +484,15 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(afterSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
 
             //when && then
-            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(schedule))
+            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(fixedSchedule))
                 .expectNextMatches {
-                    it.schedules.size == 2 &&
-                            it.schedules[0].id == schedule.id &&
-                            it.schedules[1].id == afterSchedule.id
+                    it.fixedSchedules.size == 2 &&
+                            it.fixedSchedules[0].id == fixedSchedule.id &&
+                            it.fixedSchedules[1].id == afterFixedSchedule.id
                 }.verifyComplete()
         }
 
@@ -500,7 +500,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("앞 스케줄과 충돌")
         fun addScheduleConflictBeforeScheduleReturnException(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11000,
                 endTime = 11100,
@@ -508,7 +508,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -516,11 +516,11 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
 
 
             //when && then
-            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(schedule))
+            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(fixedSchedule))
                 .expectErrorMatches {
                     it is ConflictScheduleException
                 }.verify()
@@ -531,7 +531,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("뒤 스케줄과 충돌")
         fun addScheduleConflictAfterScheduleReturnException(){
             //given
-            val afterSchedule = Schedule(
+            val afterFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11200,
                 endTime = 11259,
@@ -539,7 +539,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11200,
@@ -547,11 +547,11 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(afterSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
 
             //when && then
-            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(schedule))
+            StepVerifier.create(fixedPersonalScheduleDocument.addSchedule(fixedSchedule))
                 .expectErrorMatches {
                     it is ConflictScheduleException
                 }.verify()
@@ -559,19 +559,19 @@ class FixedPersonalScheduleDocumentTest{
     }
 
     @Nested
-    inner class DeleteScheduleById{
+    inner class DeleteFixedScheduleById{
 
         private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
             id = ObjectId.get(),
             userId = ObjectId.get(),
-            schedules = mutableListOf()
+            fixedSchedules = mutableListOf()
         )
 
         @Test
         @DisplayName("하나만 존재하는 리스트에서 존재하는 스케줄을 삭제")
         fun deleteExistScheduleInOneElementScheduleListReturnSuccess(){
             //given
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -579,10 +579,10 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(schedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(fixedSchedule)
 
             //when && then
-            StepVerifier.create(fixedPersonalScheduleDocument.deleteScheduleById(schedule.id))
+            StepVerifier.create(fixedPersonalScheduleDocument.deleteScheduleById(fixedSchedule.id))
                 .verifyComplete()
         }
 
@@ -590,14 +590,14 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("2개 이상 존재하는 리스트에서 존재하는 스케줄을 삭제")
         fun deleteExistScheduleMoreThenTwoElementScheduleListReturnSuccess(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11000,
                 endTime = 11059,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
@@ -605,11 +605,11 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
-            fixedPersonalScheduleDocument.schedules.add(schedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(fixedSchedule)
 
             //when && then
-            StepVerifier.create(fixedPersonalScheduleDocument.deleteScheduleById(schedule.id))
+            StepVerifier.create(fixedPersonalScheduleDocument.deleteScheduleById(fixedSchedule.id))
                 .verifyComplete()
         }
 
@@ -628,25 +628,25 @@ class FixedPersonalScheduleDocumentTest{
     }
 
     @Nested
-    inner class ModifyScheduleById{
+    inner class ModifyFixedScheduleById{
         private val fixedPersonalScheduleDocument = FixedPersonalScheduleDocument(
             id = ObjectId.get(),
             userId = ObjectId.get(),
-            schedules = mutableListOf()
+            fixedSchedules = mutableListOf()
         )
 
         @Test
         @DisplayName("존재하는 스케줄을 수정")
         fun modifyScheduleToExistScheduleReturnSuccess(){
             //given
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 11100,
                 endTime = 11159,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            fixedPersonalScheduleDocument.schedules.add(schedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(fixedSchedule)
 
             val modifiedStartTime = 11200
             val modifiedEndTime = 11259
@@ -656,18 +656,18 @@ class FixedPersonalScheduleDocumentTest{
             //when && then
 
             StepVerifier.create(fixedPersonalScheduleDocument.modifyScheduleById(
-                id = schedule.id,
+                id = fixedSchedule.id,
                 startTime = modifiedStartTime,
                 endTime = modifiedEndTime,
                 title = modifiedTitle,
                 color = modifiedColor
             )).expectNextMatches {
-                it.schedules.size == 1 &&
-                        it.schedules[0].id == schedule.id &&
-                        it.schedules[0].startTime == modifiedStartTime &&
-                        it.schedules[0].endTime == modifiedEndTime &&
-                        it.schedules[0].title == modifiedTitle &&
-                        it.schedules[0].color == modifiedColor
+                it.fixedSchedules.size == 1 &&
+                        it.fixedSchedules[0].id == fixedSchedule.id &&
+                        it.fixedSchedules[0].startTime == modifiedStartTime &&
+                        it.fixedSchedules[0].endTime == modifiedEndTime &&
+                        it.fixedSchedules[0].title == modifiedTitle &&
+                        it.fixedSchedules[0].color == modifiedColor
             }.verifyComplete()
         }
 
@@ -676,7 +676,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("사이에 존재하는 스케줄을 수정")
         fun modifyScheduleToSandwichScheduleReturnSuccess(){
             //given
-            val beforeSchedule = Schedule(
+            val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 21100,
                 endTime = 21159,
@@ -684,7 +684,7 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val afterSchedule = Schedule(
+            val afterFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 31100,
                 endTime = 31159,
@@ -692,16 +692,16 @@ class FixedPersonalScheduleDocumentTest{
                 color = UUID.randomUUID().toString()
             )
 
-            val schedule = Schedule(
+            val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = 21100,
                 endTime = 21159,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
-            fixedPersonalScheduleDocument.schedules.add(beforeSchedule)
-            fixedPersonalScheduleDocument.schedules.add(schedule)
-            fixedPersonalScheduleDocument.schedules.add(afterSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(fixedSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
             val modifiedStartTime = 21200
             val modifiedEndTime = 21259
@@ -711,18 +711,18 @@ class FixedPersonalScheduleDocumentTest{
             //when && then
 
             StepVerifier.create(fixedPersonalScheduleDocument.modifyScheduleById(
-                id = schedule.id,
+                id = fixedSchedule.id,
                 startTime = modifiedStartTime,
                 endTime = modifiedEndTime,
                 title = modifiedTitle,
                 color = modifiedColor
             )).expectNextMatches {
-                it.schedules.size == 3 &&
-                        it.schedules[1].id == schedule.id &&
-                        it.schedules[1].startTime == modifiedStartTime &&
-                        it.schedules[1].endTime == modifiedEndTime &&
-                        it.schedules[1].title == modifiedTitle &&
-                        it.schedules[1].color == modifiedColor
+                it.fixedSchedules.size == 3 &&
+                        it.fixedSchedules[1].id == fixedSchedule.id &&
+                        it.fixedSchedules[1].startTime == modifiedStartTime &&
+                        it.fixedSchedules[1].endTime == modifiedEndTime &&
+                        it.fixedSchedules[1].title == modifiedTitle &&
+                        it.fixedSchedules[1].color == modifiedColor
             }.verifyComplete()
         }
 
