@@ -18,26 +18,26 @@ data class FixedPersonalScheduleDocument(
     @Indexed(unique = true)
     val userId: ObjectId,
 
-    var schedules: MutableList<Schedule> = mutableListOf(),
+    var fixedSchedules: MutableList<FixedSchedule> = mutableListOf(),
 ){
-    fun addSchedule(schedule: Schedule): Mono<FixedPersonalScheduleDocument> {
+    fun addSchedule(fixedSchedule: FixedSchedule): Mono<FixedPersonalScheduleDocument> {
         return Mono.fromCallable {
 
             //시간 범위 검사
-            this.isValidTime(schedule)
+            this.isValidTime(fixedSchedule)
 
             //스케줄 충돌 체크 및 삽입 인덱스 반환
-            val insertedIndex = this.isConflictTime(schedule)
+            val insertedIndex = this.isConflictTime(fixedSchedule)
 
             //해당 인덱스로 삽입
-            this.schedules.add(insertedIndex, schedule)
+            this.fixedSchedules.add(insertedIndex, fixedSchedule)
 
             this
         }
     }
 
     fun deleteScheduleById(id: ObjectId): Mono<Void> {
-        return if(this.schedules.removeIf { it.id == id })
+        return if(this.fixedSchedules.removeIf { it.id == id })
             Mono.empty()
         else
             Mono.error(ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다."))
@@ -50,12 +50,12 @@ data class FixedPersonalScheduleDocument(
         title: String,
         color: String): Mono<FixedPersonalScheduleDocument>{
         return Mono.fromCallable {
-            val index = this.schedules.indexOfFirst { it.id == id }
+            val index = this.fixedSchedules.indexOfFirst { it.id == id }
 
             if (index < 0)
                 throw ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다.")
 
-            val newSchedule = this.schedules[index].copy(
+            val newSchedule = this.fixedSchedules[index].copy(
                 startTime = startTime,
                 endTime = endTime,
                 title = title,
@@ -66,25 +66,25 @@ data class FixedPersonalScheduleDocument(
 
             this.isConflictTime(newSchedule)
 
-            this.schedules[index] = newSchedule
+            this.fixedSchedules[index] = newSchedule
 
             this
         }
     }
 
-    fun isValidTime(schedule: Schedule): Boolean {
+    fun isValidTime(fixedSchedule: FixedSchedule): Boolean {
         try{
-            validTimeCheck(schedule.startTime)
+            validTimeCheck(fixedSchedule.startTime)
         }catch(e: InvalidTimeException){
             throw InvalidTimeException("시작 시간이 ${e.message}")
         }
         try{
-            validTimeCheck(schedule.endTime)
+            validTimeCheck(fixedSchedule.endTime)
         }catch(e: InvalidTimeException){
             throw InvalidTimeException("종료 시간이 ${e.message}")
         }
         try{
-            isStartTimeBefore(schedule)
+            isStartTimeBefore(fixedSchedule)
         }catch(e: EndTimeBeforeStartTimeException){
             throw e
         }
@@ -103,13 +103,13 @@ data class FixedPersonalScheduleDocument(
         return true
     }
 
-    fun isConflictTime(schedule: Schedule): Int{
+    fun isConflictTime(fixedSchedule: FixedSchedule): Int{
 
-        if(schedules.size == 0)
+        if(fixedSchedules.size == 0)
             return 0
 
-        val index = this.schedules.binarySearch(0){
-            scheduleElement -> scheduleElement.startTime.compareTo(schedule.startTime)
+        val index = this.fixedSchedules.binarySearch(0){
+            scheduleElement -> scheduleElement.startTime.compareTo(fixedSchedule.startTime)
         }
 
         if(index >= 0)
@@ -119,26 +119,26 @@ data class FixedPersonalScheduleDocument(
 
         //앞의 종료 시간과, 해당 스케줄의 시작 시간을 비교
         if (insertedIndex > 0){
-            if(this.schedules[insertedIndex - 1].endTime >= schedule.startTime)
+            if(this.fixedSchedules[insertedIndex - 1].endTime >= fixedSchedule.startTime)
                 throw ConflictScheduleException("전 스케줄이 종료되지 않았습니다.")
         }
         //뒤의 시작 시간과, 해당 스케줄의 종료 시간을 비교
-        if (insertedIndex < this.schedules.size){
-            if(this.schedules[insertedIndex].startTime <= schedule.endTime)
+        if (insertedIndex < this.fixedSchedules.size){
+            if(this.fixedSchedules[insertedIndex].startTime <= fixedSchedule.endTime)
                 throw ConflictScheduleException("뒤 스케줄의 시작시간과 충돌합니다.")
         }
 
         return insertedIndex
     }
 
-    private fun isStartTimeBefore(schedule: Schedule): Boolean {
-        if (schedule.startTime > schedule.endTime)
+    private fun isStartTimeBefore(fixedSchedule: FixedSchedule): Boolean {
+        if (fixedSchedule.startTime > fixedSchedule.endTime)
             throw EndTimeBeforeStartTimeException("종료시간이 시작시간보다 앞입니다.")
         return true
     }
 }
 
-data class Schedule(
+data class FixedSchedule(
     @Id
     var id: ObjectId = ObjectId.get(),
 

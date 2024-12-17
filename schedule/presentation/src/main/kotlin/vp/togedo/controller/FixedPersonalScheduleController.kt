@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import vp.togedo.config.IdComponent
 import vp.togedo.connector.FixedPersonalScheduleConnector
-import vp.togedo.data.dao.ScheduleDao
+import vp.togedo.data.dao.FixedScheduleDao
 import vp.togedo.data.dto.fixedPersonalSchedule.*
 
 @RestController
@@ -108,9 +108,9 @@ class FixedPersonalScheduleController(
         return ResponseEntity.ok().build()
     }
 
-    private fun daoToDto(scheduleDaoList: List<ScheduleDao>): FixedPersonalScheduleListDto{
+    private fun daoToDto(fixedScheduleDaoList: List<FixedScheduleDao>): FixedPersonalScheduleListDto{
         return FixedPersonalScheduleListDto(
-            schedules = scheduleDaoList.map{
+            schedules = fixedScheduleDaoList.map{
                 FixedPersonalScheduleDto(
                     id = it.scheduleId!!.toString(),
                     startTime = it.startTime,
