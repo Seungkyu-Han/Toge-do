@@ -128,7 +128,7 @@ data class FlexiblePersonalScheduleDocument(
     }
 
     fun validTimeCheck(time: Int): Boolean{
-        if(time !in 10000..72359)
+        if(time !in 2000_0000..2100_0000)
             throw InvalidTimeException("week 범위 밖입니다.")
         val hour = (time % 10000) / 100
         if (hour !in 0..23)
