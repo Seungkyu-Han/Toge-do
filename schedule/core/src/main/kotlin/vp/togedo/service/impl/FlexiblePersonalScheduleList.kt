@@ -60,4 +60,20 @@ class FlexiblePersonalScheduleList(
             throw ScheduleException(ErrorCode.BAD_SCHEDULE_TIME)
         }
     }
+
+    override suspend fun readSchedule(userId: ObjectId): List<FlexibleScheduleDao> {
+        val flexiblePersonalSchedule = flexiblePersonalScheduleRepository.findByUserId(userId)
+            .awaitSingleOrNull() ?: FlexiblePersonalScheduleDocument(userId = userId)
+
+        return flexiblePersonalSchedule.flexibleSchedules.map{
+            FlexibleScheduleDao(
+                scheduleId = it.id,
+                startTime = it.startTime,
+                endTime = it.endTime,
+                title = it.title,
+                color = it.color,
+                friends = it.friends,
+            )
+        }
+    }
 }

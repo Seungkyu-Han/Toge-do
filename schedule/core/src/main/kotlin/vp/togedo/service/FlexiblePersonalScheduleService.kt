@@ -12,4 +12,11 @@ interface FlexiblePersonalScheduleService {
      * @return id가 추가된 scheduleDaoList
      */
     suspend fun createSchedule(userId: ObjectId, flexibleScheduleDaoList: List<FlexibleScheduleDao>): List<FlexibleScheduleDao>
+
+    /**
+     * 해당 유저의 가변 스케줄을 조회
+     * @param userId 조회할 유저의 objectId
+     * @return scheduleDao 리스트
+     */
+    suspend fun readSchedule(userId: ObjectId): List<FlexibleScheduleDao>
 }
