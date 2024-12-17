@@ -687,8 +687,8 @@ class FixedPersonalScheduleDocumentTest{
             //given
             val beforeFixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
-                startTime = 21100,
-                endTime = 21159,
+                startTime = 11100,
+                endTime = 11159,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
@@ -718,6 +718,8 @@ class FixedPersonalScheduleDocumentTest{
             val modifiedColor = UUID.randomUUID().toString()
 
             //when && then
+
+            println(fixedPersonalScheduleDocument)
 
             StepVerifier.create(fixedPersonalScheduleDocument.modifyScheduleById(
                 id = fixedSchedule.id,
@@ -761,6 +763,77 @@ class FixedPersonalScheduleDocumentTest{
                 .expectErrorMatches {
                     it is ScheduleNotFoundException
                 }.verify()
+        }
+
+        @Test
+        @DisplayName("충돌하는 시간으로 수정")
+        fun modifyScheduleToConflictScheduleReturnException(){
+            //given
+            val beforeFixedSchedule = FixedSchedule(
+                id = ObjectId.get(),
+                startTime = 11100,
+                endTime = 11159,
+                title = "before schedule",
+                color = UUID.randomUUID().toString()
+            )
+
+            val afterFixedSchedule = FixedSchedule(
+                id = ObjectId.get(),
+                startTime = 31100,
+                endTime = 31159,
+                title = "after schedule",
+                color = UUID.randomUUID().toString()
+            )
+
+            val fixedSchedule = FixedSchedule(
+                id = ObjectId.get(),
+                startTime = 21100,
+                endTime = 21159,
+                title = "original schedule",
+                color = UUID.randomUUID().toString()
+            )
+
+            fixedPersonalScheduleDocument.fixedSchedules.add(beforeFixedSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(fixedSchedule)
+            fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
+
+            //when
+            StepVerifier.create(fixedPersonalScheduleDocument.modifyScheduleById(
+                id = fixedSchedule.id,
+                startTime = 11100,
+                endTime = 11159,
+                title = "new schedule",
+                color = UUID.randomUUID().toString()
+            )).expectErrorMatches {
+                it is ConflictScheduleException
+            }.verify()
+
+            //then
+            Assertions.assertEquals(3, fixedPersonalScheduleDocument.fixedSchedules.size)
+
+            Assertions.assertTrue{
+                fixedPersonalScheduleDocument.fixedSchedules[0].id == beforeFixedSchedule.id &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].startTime == beforeFixedSchedule.startTime &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].endTime == beforeFixedSchedule.endTime &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].title == beforeFixedSchedule.title &&
+                        fixedPersonalScheduleDocument.fixedSchedules[0].color == beforeFixedSchedule.color
+            }
+
+            Assertions.assertTrue{
+                fixedPersonalScheduleDocument.fixedSchedules[1].id == fixedSchedule.id &&
+                        fixedPersonalScheduleDocument.fixedSchedules[1].startTime == fixedSchedule.startTime &&
+                        fixedPersonalScheduleDocument.fixedSchedules[1].endTime == fixedSchedule.endTime &&
+                        fixedPersonalScheduleDocument.fixedSchedules[1].title == fixedSchedule.title &&
+                        fixedPersonalScheduleDocument.fixedSchedules[1].color == fixedSchedule.color
+            }
+
+            Assertions.assertTrue{
+                fixedPersonalScheduleDocument.fixedSchedules[2].id == afterFixedSchedule.id &&
+                        fixedPersonalScheduleDocument.fixedSchedules[2].startTime == afterFixedSchedule.startTime &&
+                        fixedPersonalScheduleDocument.fixedSchedules[2].endTime == afterFixedSchedule.endTime &&
+                        fixedPersonalScheduleDocument.fixedSchedules[2].title == afterFixedSchedule.title &&
+                        fixedPersonalScheduleDocument.fixedSchedules[2].color == afterFixedSchedule.color
+            }
         }
     }
 }

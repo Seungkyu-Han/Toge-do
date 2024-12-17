@@ -53,22 +53,27 @@ data class FixedPersonalScheduleDocument(
         val index = this.fixedSchedules.indexOfFirst { it.id == id }
 
         if (index < 0)
-            throw ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다.")
+            return Mono.error(ScheduleNotFoundException("해당 스케줄이 존재하지 않습니다."))
 
-        val newSchedule = FixedSchedule(
-            id = id,
-            startTime = startTime,
-            endTime = endTime,
-            title = title,
-            color = color
-        )
+        val oldSchedule = this.fixedSchedules[index]
 
-        this.isValidTime(newSchedule)
+        deleteScheduleByIndex(index)
 
-        this.isConflictTime(newSchedule)
+        return this.addSchedule(
+            FixedSchedule(
+                id = id,
+                startTime = startTime,
+                endTime = endTime,
+                title = title,
+                color = color
+            )
+        ).doOnError{
+            this.fixedSchedules.add(index, oldSchedule)
+        }
+    }
 
-        return deleteScheduleById(id)
-            .then(addSchedule(newSchedule))
+    private fun deleteScheduleByIndex(index: Int){
+        this.fixedSchedules.removeAt(index)
     }
 
     fun isValidTime(fixedSchedule: FixedSchedule): Boolean {
