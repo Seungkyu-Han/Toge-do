@@ -32,7 +32,7 @@ interface FixedPersonalScheduleConnector {
     /**
      * 사용자의 고정 스케줄 삭제하기
      * @param userId 사용자의 objectId
-     * @param scheduleIdList 스케줄의 objectId의 리스트
+     * @param fixedScheduleIdList 스케줄의 objectId의 리스트
      */
-    suspend fun deleteFixedSchedule(userId: ObjectId, scheduleIdList: List<String>)
+    suspend fun deleteFixedSchedule(userId: ObjectId, fixedScheduleIdList: List<String>)
 }
