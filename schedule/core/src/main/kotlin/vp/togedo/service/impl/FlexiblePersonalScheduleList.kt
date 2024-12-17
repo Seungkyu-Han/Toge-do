@@ -14,6 +14,7 @@ import vp.togedo.util.error.exception.ScheduleException
 import vp.togedo.util.exception.ConflictScheduleException
 import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
+import vp.togedo.util.exception.ScheduleNotFoundException
 
 @Service
 class FlexiblePersonalScheduleList(
@@ -74,6 +75,33 @@ class FlexiblePersonalScheduleList(
                 color = it.color,
                 friends = it.friends,
             )
+        }
+    }
+
+    override suspend fun modifySchedule(
+        userId: ObjectId,
+        flexibleScheduleDaoList: List<FlexibleScheduleDao>
+    ): List<FlexibleScheduleDao> {
+        val flexiblePersonalScheduleDocument = flexiblePersonalScheduleRepository.findByUserId(userId).awaitSingleOrNull() ?:
+        throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+
+        try{
+            flexibleScheduleDaoList.forEach{
+                flexiblePersonalScheduleDocument.modifyScheduleById(
+                    id = it.scheduleId!!,
+                    startTime = it.startTime,
+                    endTime = it.endTime,
+                    title = it.title,
+                    color = it.color,
+                    friends = it.friends,
+                ).awaitSingle()
+            }
+
+            flexiblePersonalScheduleRepository.save(flexiblePersonalScheduleDocument).awaitSingle()
+
+            return flexibleScheduleDaoList
+        }catch(e: ScheduleNotFoundException){
+            throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
         }
     }
 }
