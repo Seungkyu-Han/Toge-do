@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import vp.togedo.connector.FlexiblePersonalScheduleConnector
 import vp.togedo.data.dao.FlexibleScheduleDao
 import vp.togedo.data.dto.flexiblePersonalSchedule.CreateFlexibleReqDto
+import vp.togedo.data.dto.flexiblePersonalSchedule.UpdateFlexibleReqDto
 import vp.togedo.service.FlexiblePersonalScheduleService
 
 class FlexiblePersonalScheduleConnectorImpl(
@@ -36,5 +37,23 @@ class FlexiblePersonalScheduleConnectorImpl(
         return flexiblePersonalScheduleService.readSchedule(id)
     }
 
+    override suspend fun updateFlexibleSchedule(
+        id: ObjectId,
+        updateFlexibleReqDtoList: List<UpdateFlexibleReqDto>
+    ): List<FlexibleScheduleDao> {
+        return flexiblePersonalScheduleService.modifySchedule(
+            userId = id,
+            flexibleScheduleDaoList = updateFlexibleReqDtoList.map{
+                FlexibleScheduleDao(
+                    scheduleId = ObjectId(it.id),
+                    startTime = it.startTime,
+                    endTime = it.endTime,
+                    title = it.title,
+                    color = it.color,
+                    friends = it.friends.map{ friend -> ObjectId(friend)}
+                )
+            }
+        )
+    }
 
 }

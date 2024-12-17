@@ -3,6 +3,7 @@ package vp.togedo.connector
 import org.bson.types.ObjectId
 import vp.togedo.data.dao.FlexibleScheduleDao
 import vp.togedo.data.dto.flexiblePersonalSchedule.CreateFlexibleReqDto
+import vp.togedo.data.dto.flexiblePersonalSchedule.UpdateFlexibleReqDto
 
 interface FlexiblePersonalScheduleConnector {
 
@@ -20,5 +21,11 @@ interface FlexiblePersonalScheduleConnector {
      */
     suspend fun readFlexibleSchedule(id: ObjectId): List<FlexibleScheduleDao>
 
-
+    /**
+     * 사용자의 가변 스케줄 수정하기
+     * @param id 사용자의 objectId
+     * @param updateFlexibleReqDtoList 가변 스케줄 생성 dto 리스트
+     * @return 생성된 스케줄 dao
+     */
+    suspend fun updateFlexibleSchedule(id: ObjectId, updateFlexibleReqDtoList: List<UpdateFlexibleReqDto>): List<FlexibleScheduleDao>
 }
