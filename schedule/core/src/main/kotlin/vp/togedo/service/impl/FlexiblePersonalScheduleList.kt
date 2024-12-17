@@ -104,4 +104,19 @@ class FlexiblePersonalScheduleList(
             throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
         }
     }
+
+    override suspend fun deleteSchedule(userId: ObjectId, scheduleIdList: List<ObjectId>) {
+        val flexiblePersonalScheduleDocument = flexiblePersonalScheduleRepository.findByUserId(userId).awaitSingleOrNull() ?:
+        throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+
+        try{
+            scheduleIdList.forEach{
+                flexiblePersonalScheduleDocument.deleteScheduleById(it).awaitSingle()
+            }
+        }catch(e: ScheduleNotFoundException){
+            throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+        }
+
+        flexiblePersonalScheduleRepository.save(flexiblePersonalScheduleDocument).awaitSingle()
+    }
 }
