@@ -7,4 +7,6 @@ import vp.togedo.document.PersonalScheduleDocument
 interface PersonalScheduleRepository {
 
     fun findByUserId(userId: ObjectId): Mono<PersonalScheduleDocument>
+
+    fun save(personalScheduleDocument: PersonalScheduleDocument): Mono<PersonalScheduleDocument>
 }

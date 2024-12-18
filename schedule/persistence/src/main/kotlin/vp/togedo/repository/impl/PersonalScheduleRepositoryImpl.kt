@@ -37,4 +37,16 @@ class PersonalScheduleRepositoryImpl(
                         ).block()
             }
     }
+
+    override fun save(personalScheduleDocument: PersonalScheduleDocument): Mono<PersonalScheduleDocument> {
+        return personalScheduleMongoRepository.save(personalScheduleDocument)
+            .publishOn(Schedulers.boundedElastic())
+            .doOnSuccess {
+                reactiveRedisTemplate.opsForValue()
+                    .set(
+                        "$redisPrefix${it.userId}",
+                        objectMapper.writeValueAsString(it),
+                    ).block()
+            }
+    }
 }
