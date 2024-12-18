@@ -29,6 +29,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("io.projectreactor:reactor-test")
+
+    //REDIS
+    implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.2")
 }
 
 tasks.test {
