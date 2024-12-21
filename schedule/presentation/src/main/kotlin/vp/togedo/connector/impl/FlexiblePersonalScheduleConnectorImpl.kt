@@ -27,9 +27,6 @@ class FlexiblePersonalScheduleConnectorImpl(
                     endTime = createFlexibleReqDto.endTime,
                     title = createFlexibleReqDto.title,
                     color = createFlexibleReqDto.color,
-                    friends = createFlexibleReqDto.friends.map{friend ->
-                        ObjectId(friend)
-                    }
                 )
             }
         )
@@ -51,8 +48,7 @@ class FlexiblePersonalScheduleConnectorImpl(
                     startTime = it.startTime,
                     endTime = it.endTime,
                     title = it.title,
-                    color = it.color,
-                    friends = it.friends.map{ friend -> ObjectId(friend)}
+                    color = it.color
                 )
             }
         )

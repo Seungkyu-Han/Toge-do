@@ -7,6 +7,5 @@ data class FlexibleScheduleDao(
     val startTime: Int,
     val endTime: Int,
     val title: String,
-    val color: String,
-    val friends: List<ObjectId>
+    val color: String
 )

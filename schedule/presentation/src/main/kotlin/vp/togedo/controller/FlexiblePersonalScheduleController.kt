@@ -122,8 +122,7 @@ class FlexiblePersonalScheduleController(
                     startTime = scheduleDao.startTime,
                     endTime = scheduleDao.endTime,
                     title = scheduleDao.title,
-                    color = scheduleDao.color,
-                    friends = scheduleDao.friends.map{friend -> friend.toString()}
+                    color = scheduleDao.color
                 )
             }
         )
