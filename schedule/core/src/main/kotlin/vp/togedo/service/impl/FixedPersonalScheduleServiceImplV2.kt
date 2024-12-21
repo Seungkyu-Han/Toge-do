@@ -78,7 +78,7 @@ class FixedPersonalScheduleServiceImplV2(
         fixedScheduleDaoList: List<FixedScheduleDao>
     ): List<FixedScheduleDao> {
         val personalSchedule = personalScheduleRepository.findByUserId(userId).awaitSingleOrNull()
-            ?: throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+            ?: throw ScheduleException(ErrorCode.SCHEDULE_INFO_CANT_FIND)
 
         try{
             fixedScheduleDaoList.forEach {

@@ -13,6 +13,7 @@ import vp.togedo.util.error.exception.ScheduleException
 import vp.togedo.util.exception.ConflictScheduleException
 import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
+import vp.togedo.util.exception.ScheduleNotFoundException
 
 class FlexiblePersonalScheduleImplV2(
     private val personalScheduleRepository: PersonalScheduleRepository
@@ -79,10 +80,42 @@ class FlexiblePersonalScheduleImplV2(
         userId: ObjectId,
         flexibleScheduleDaoList: List<FlexibleScheduleDao>
     ): List<FlexibleScheduleDao> {
-        TODO("Not yet implemented")
+        val personalSchedule = personalScheduleRepository.findByUserId(userId).awaitSingleOrNull() ?:
+        throw ScheduleException(ErrorCode.SCHEDULE_INFO_CANT_FIND)
+
+        try{
+            flexibleScheduleDaoList.forEach {
+                personalSchedule.modifyFlexibleSchedule(
+                    Schedule(
+                        id = it.scheduleId!!,
+                        startTime = it.startTime,
+                        endTime = it.endTime,
+                        title = it.title,
+                        color = it.color,
+                    )
+                ).awaitSingle()
+            }
+
+            personalScheduleRepository.save(personalSchedule).awaitSingle()
+
+            return flexibleScheduleDaoList
+        }catch(e: ScheduleNotFoundException){
+            throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+        }
     }
 
     override suspend fun deleteSchedule(userId: ObjectId, scheduleIdList: List<ObjectId>) {
-        TODO("Not yet implemented")
+        val personalSchedule = personalScheduleRepository.findByUserId(userId).awaitSingleOrNull() ?:
+            throw ScheduleException(ErrorCode.SCHEDULE_INFO_CANT_FIND)
+
+        try{
+            scheduleIdList.forEach {
+                personalSchedule.deleteFixedScheduleById(it).awaitSingle()
+            }
+        }catch(e: ScheduleNotFoundException){
+            throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+        }
+
+        personalScheduleRepository.save(personalSchedule).awaitSingle()
     }
 }
