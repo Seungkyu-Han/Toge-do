@@ -60,7 +60,19 @@ class FlexiblePersonalScheduleImplV2(
     }
 
     override suspend fun readSchedule(userId: ObjectId): List<FlexibleScheduleDao> {
-        TODO("Not yet implemented")
+        val personalSchedule = personalScheduleRepository.findByUserId(userId)
+            .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
+
+        return personalSchedule.flexibleSchedules.map{
+            FlexibleScheduleDao(
+                scheduleId = it.id,
+                startTime = it.startTime,
+                endTime = it.endTime,
+                title = it.title,
+                color = it.color,
+                friends = it.friends ?: emptyList()
+            )
+        }
     }
 
     override suspend fun modifySchedule(
