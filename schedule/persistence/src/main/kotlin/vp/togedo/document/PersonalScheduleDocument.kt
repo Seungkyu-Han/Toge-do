@@ -152,10 +152,11 @@ data class PersonalScheduleDocument(
     }
 
     fun checkFlexibleScheduleValidTime(schedule: Schedule): Boolean{
-        return this.checkScheduleValidTime(schedule, 2000_00_00, 2100_23_59)
+        //년(2)_월(2)_일(2)_시(2)_분(2)
+        return this.checkScheduleValidTime(schedule, 10_01_01_00_00, 99_12_31_23_59)
     }
 
-    fun checkScheduleValidTime(schedule: Schedule, startTimeRange: Int, endTimeRange: Int): Boolean {
+    fun checkScheduleValidTime(schedule: Schedule, startTimeRange: Long, endTimeRange: Long): Boolean {
         this.isStartTimeBefore(schedule)
 
         try{
@@ -173,7 +174,7 @@ data class PersonalScheduleDocument(
         return true
     }
 
-    fun isValidTime(time: Int, startTimeRange: Int, endTimeRange: Int): Boolean{
+    fun isValidTime(time: Long, startTimeRange: Long, endTimeRange: Long): Boolean{
         if(time !in startTimeRange .. endTimeRange)
             throw InvalidTimeException("시간 범위 밖입니다.")
 
@@ -196,8 +197,8 @@ data class PersonalScheduleDocument(
 data class Schedule(
     @Id
     val id: ObjectId = ObjectId.get(),
-    val startTime: Int,
-    val endTime: Int,
+    val startTime: Long,
+    val endTime: Long,
     val title: String,
     val color: String
 )

@@ -28,7 +28,7 @@ class FlexiblePersonalScheduleController(
 ) {
 
     @GetMapping("/schedules")
-    @Operation(summary = "개인 고정 스케줄 조회")
+    @Operation(summary = "개인 가변 스케줄 조회")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "스케줄 조회 성공",
             content = [Content(schema = Schema(implementation = FlexiblePersonalScheduleListDto::class),
@@ -39,6 +39,7 @@ class FlexiblePersonalScheduleController(
     suspend fun getSchedules(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String
     ): ResponseEntity<FlexiblePersonalScheduleListDto>{
+        println("HELLO")
         return ResponseEntity.ok(
             daoToDto(
                 flexiblePersonalScheduleConnector.readFlexibleSchedule(id = idComponent.objectIdProvider(userId))
