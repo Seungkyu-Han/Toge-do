@@ -199,6 +199,5 @@ data class Schedule(
     val startTime: Int,
     val endTime: Int,
     val title: String,
-    val color: String,
-    var friends: List<ObjectId>? = null
+    val color: String
 )

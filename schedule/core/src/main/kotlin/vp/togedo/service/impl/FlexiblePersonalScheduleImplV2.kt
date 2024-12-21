@@ -34,8 +34,7 @@ class FlexiblePersonalScheduleImplV2(
                     startTime = flexibleScheduleDao.startTime,
                     endTime = flexibleScheduleDao.endTime,
                     title = flexibleScheduleDao.title,
-                    color = flexibleScheduleDao.color,
-                    friends = flexibleScheduleDao.friends
+                    color = flexibleScheduleDao.color
                 )
 
                 personalSchedule.addFlexibleSchedule(schedule).awaitSingle()
@@ -71,7 +70,7 @@ class FlexiblePersonalScheduleImplV2(
                 endTime = it.endTime,
                 title = it.title,
                 color = it.color,
-                friends = it.friends ?: emptyList()
+                friends = emptyList()
             )
         }
     }
@@ -110,7 +109,7 @@ class FlexiblePersonalScheduleImplV2(
 
         try{
             scheduleIdList.forEach {
-                personalSchedule.deleteFixedScheduleById(it).awaitSingle()
+                personalSchedule.deleteFlexibleScheduleById(it).awaitSingle()
             }
         }catch(e: ScheduleNotFoundException){
             throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
