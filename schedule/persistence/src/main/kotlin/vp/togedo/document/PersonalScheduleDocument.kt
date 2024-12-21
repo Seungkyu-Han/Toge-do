@@ -42,7 +42,7 @@ data class PersonalScheduleDocument(
             }
     }
 
-    fun modifyFixedScheduleById(schedule: Schedule): Mono<PersonalScheduleDocument>{
+    fun modifyFixedSchedule(schedule: Schedule): Mono<PersonalScheduleDocument>{
         val scheduleIndex: Int = findIndexFixedScheduleById(schedule.id)
         return deleteFixedScheduleByIndex(scheduleIndex)
             .flatMap{
@@ -54,7 +54,7 @@ data class PersonalScheduleDocument(
             }
     }
 
-    fun modifyFlexibleScheduleById(schedule: Schedule): Mono<PersonalScheduleDocument>{
+    fun modifyFlexibleSchedule(schedule: Schedule): Mono<PersonalScheduleDocument>{
         val scheduleIndex: Int = findIndexFlexibleScheduleById(schedule.id)
         return deleteFlexibleScheduleByIndex(scheduleIndex)
             .flatMap{

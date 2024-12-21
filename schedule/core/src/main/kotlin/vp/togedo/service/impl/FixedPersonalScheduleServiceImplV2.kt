@@ -13,6 +13,7 @@ import vp.togedo.util.error.exception.ScheduleException
 import vp.togedo.util.exception.ConflictScheduleException
 import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
+import vp.togedo.util.exception.ScheduleNotFoundException
 
 class FixedPersonalScheduleServiceImplV2(
     private val personalScheduleRepository: PersonalScheduleRepository
@@ -76,10 +77,32 @@ class FixedPersonalScheduleServiceImplV2(
         userId: ObjectId,
         fixedScheduleDaoList: List<FixedScheduleDao>
     ): List<FixedScheduleDao> {
-        TODO("Not yet implemented")
+        val personalSchedule = personalScheduleRepository.findByUserId(userId).awaitSingleOrNull()
+            ?: throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+
+        try{
+            fixedScheduleDaoList.forEach {
+                scheduleDao ->
+                personalSchedule.modifyFixedSchedule(
+                    Schedule(
+                        id = scheduleDao.scheduleId!!,
+                        startTime = scheduleDao.startTime,
+                        endTime = scheduleDao.endTime,
+                        title = scheduleDao.title,
+                        color = scheduleDao.color
+                    )
+                ).awaitSingle()
+            }
+            personalScheduleRepository.save(personalSchedule).awaitSingle()
+
+            return fixedScheduleDaoList
+        }
+        catch(e: ScheduleNotFoundException){
+            throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+        }
     }
 
     override suspend fun deleteSchedule(userId: ObjectId, scheduleIdList: List<ObjectId>) {
-        TODO("Not yet implemented")
+
     }
 }
