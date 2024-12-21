@@ -71,8 +71,7 @@ class FlexiblePersonalScheduleImplV2(
                 startTime = it.startTime,
                 endTime = it.endTime,
                 title = it.title,
-                color = it.color,
-                friends = emptyList()
+                color = it.color
             )
         }
     }

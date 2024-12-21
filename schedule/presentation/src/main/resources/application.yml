@@ -16,3 +16,4 @@ springdoc:
 
 SWAGGER:
   URL: ${SWAGGER_URL}
+
