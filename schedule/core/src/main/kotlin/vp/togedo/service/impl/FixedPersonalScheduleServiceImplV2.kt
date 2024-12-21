@@ -103,6 +103,17 @@ class FixedPersonalScheduleServiceImplV2(
     }
 
     override suspend fun deleteSchedule(userId: ObjectId, scheduleIdList: List<ObjectId>) {
+        val personalSchedule = personalScheduleRepository.findByUserId(userId).awaitSingleOrNull()
+            ?: throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
 
+        try{
+            scheduleIdList.forEach {
+                personalSchedule.deleteFixedScheduleById(it).awaitSingleOrNull()
+            }
+        }catch(e: ScheduleNotFoundException){
+            throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
+        }
+
+        personalScheduleRepository.save(personalSchedule).awaitSingle()
     }
 }
