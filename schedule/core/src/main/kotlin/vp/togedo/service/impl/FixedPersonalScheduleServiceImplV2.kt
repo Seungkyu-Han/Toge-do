@@ -22,7 +22,7 @@ class FixedPersonalScheduleServiceImplV2(
         userId: ObjectId,
         fixedScheduleDaoList: List<FixedScheduleDao>
     ): List<FixedScheduleDao> {
-        val fixedPersonalSchedule: PersonalScheduleDocument = personalScheduleRepository.findByUserId(userId)
+        val personalSchedule: PersonalScheduleDocument = personalScheduleRepository.findByUserId(userId)
             .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
 
         try{
@@ -36,14 +36,14 @@ class FixedPersonalScheduleServiceImplV2(
                     color = fixedScheduleDao.color
                 )
 
-                fixedPersonalSchedule.addFixedSchedule(fixedSchedule).awaitSingle()
+                personalSchedule.addFixedSchedule(fixedSchedule).awaitSingle()
 
                 fixedScheduleDao.copy(
                     scheduleId = fixedSchedule.id
                 )
             }
 
-            personalScheduleRepository.save(fixedPersonalSchedule).awaitSingle()
+            personalScheduleRepository.save(personalSchedule).awaitSingle()
             return createdScheduleDaoList
         }
         catch(e: ConflictScheduleException){
@@ -58,7 +58,18 @@ class FixedPersonalScheduleServiceImplV2(
     }
 
     override suspend fun readSchedule(userId: ObjectId): List<FixedScheduleDao> {
-        TODO("Not yet implemented")
+        val personalSchedule = personalScheduleRepository.findByUserId(userId)
+            .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
+
+        return personalSchedule.fixedSchedules.map{
+            FixedScheduleDao(
+                scheduleId = it.id,
+                startTime = it.startTime,
+                endTime = it.endTime,
+                title = it.title,
+                color = it.color
+            )
+        }
     }
 
     override suspend fun modifySchedule(
