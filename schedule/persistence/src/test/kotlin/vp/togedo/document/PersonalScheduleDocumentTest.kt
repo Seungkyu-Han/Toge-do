@@ -2,9 +2,12 @@ package vp.togedo.document
 
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import vp.togedo.enums.ScheduleEnum
+import vp.togedo.util.exception.ConflictScheduleException
 import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
 import java.util.UUID
@@ -314,6 +317,488 @@ class PersonalScheduleDocumentTest{
 
             //then
             Assertions.assertTrue(result)
+        }
+    }
+
+    @Nested
+    inner class GetInsertedIndex{
+
+        private lateinit var personalSchedule: PersonalScheduleDocument
+
+        @BeforeEach
+        fun init(){
+            personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+        }
+
+        @Test
+        @DisplayName("빈 고정 스케줄 리스트에서 인덱스 탐색")
+        fun fixedScheduleInsertIndexToEmptyListReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11000L,
+                endTime = 11059L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FIXED_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(0, result)
+        }
+
+        @Test
+        @DisplayName("빈 유동 스케줄 리스트에서 인덱스 탐색")
+        fun flexibleScheduleInsertIndexToEmptyListReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_22_00L,
+                endTime = 24_12_22_22_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(0, result)
+        }
+
+        @Test
+        @DisplayName("앞에 하나의 고정 스케줄만 있는 경우에 인덱스 탐색")
+        fun fixedScheduleInsertIndexToBeforeOneScheduleReturnSuccess(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 11000L,
+                    endTime = 11059L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 21000L,
+                endTime = 21059L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FIXED_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(1, result)
+        }
+
+        @Test
+        @DisplayName("앞에 하나의 유동 스케줄만 있는 경우에 인덱스 탐색")
+        fun flexibleScheduleInsertIndexToBeforeOneScheduleReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_21_22_00L,
+                    endTime = 24_12_21_22_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_22_00L,
+                endTime = 24_12_22_22_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(1, result)
+        }
+
+        @Test
+        @DisplayName("뒤에 하나의 고정 스케줄만 있는 경우에 인덱스 탐색")
+        fun fixedScheduleInsertIndexToAfterOneScheduleReturnSuccess(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 21000L,
+                    endTime = 21059L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11000L,
+                endTime = 11059L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FIXED_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(0, result)
+        }
+
+        @Test
+        @DisplayName("뒤에 하나의 유동 스케줄만 있는 경우에 인덱스 탐색")
+        fun flexibleScheduleInsertIndexToAfterOneScheduleReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_23_22_00L,
+                    endTime = 24_12_23_22_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_22_00L,
+                endTime = 24_12_22_22_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(0, result)
+        }
+
+        @Test
+        @DisplayName("사이에 하나씩 고정 스케줄만 있는 경우에 인덱스 탐색")
+        fun fixedScheduleInsertIndexBetweenOneScheduleReturnSuccess(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 11000L,
+                    endTime = 11059L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 31000L,
+                    endTime = 31059L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 21000L,
+                endTime = 21059L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FIXED_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(1, result)
+        }
+
+        @Test
+        @DisplayName("사이에 하나씩 유동 스케줄만 있는 경우에 인덱스 탐색")
+        fun flexibleScheduleInsertIndexToBetweenOneScheduleReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_21_22_00L,
+                    endTime = 24_12_21_22_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_23_22_00L,
+                    endTime = 24_12_23_22_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_22_00L,
+                endTime = 24_12_22_22_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(1, result)
+        }
+
+        @Test
+        @DisplayName("앞에 24개, 뒤에 24개의 고정 스케줄이 있는 경우 인덱스 탐색")
+        fun fixedScheduleInsertIndexBetweenManyScheduleReturnSuccess(){
+            //given
+            for (i in 0..48){
+                if (i == 24)
+                    continue
+
+                personalSchedule.fixedSchedules.add(
+                    Schedule(
+                        id = ObjectId.get(),
+                        startTime = 11000L + i,
+                        endTime = 11000L + i,
+                        title = UUID.randomUUID().toString(),
+                        color = UUID.randomUUID().toString()
+                    )
+                )
+
+            }
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11024L,
+                endTime = 11024L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FIXED_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(24, result)
+        }
+
+        @Test
+        @DisplayName("앞에 24개, 뒤에 24개의 유동 스케줄이 있는 경우 인덱스 탐색")
+        fun flexibleScheduleInsertIndexBetweenManyScheduleReturnSuccess(){
+            //given
+            for (i in 0..48){
+                if (i == 24)
+                    continue
+
+                personalSchedule.flexibleSchedules.add(
+                    Schedule(
+                        id = ObjectId.get(),
+                        startTime = 24_12_22_10_00L + i,
+                        endTime = 24_12_22_10_00L + i,
+                        title = UUID.randomUUID().toString(),
+                        color = UUID.randomUUID().toString()
+                    )
+                )
+
+            }
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_10_24L,
+                endTime = 24_12_22_10_24L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+
+            //then
+            Assertions.assertEquals(24, result)
+        }
+
+        @Test
+        @DisplayName("고정 스케줄의 시작 시간이 겹치는 경우에 인덱스 탐색")
+        fun fixedScheduleInsertIndexConflictStartTimeReturnException(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 11000L,
+                    endTime = 11059L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11000L,
+                endTime = 11159L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            Assertions.assertThrows(ConflictScheduleException::class.java){
+                personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FIXED_PERSONAL_SCHEDULE)
+            }
+        }
+
+        @Test
+        @DisplayName("유동 스케줄의 시작 시간이 겹치는 경우에 인덱스 탐색")
+        fun flexibleScheduleInsertIndexConflictStartTimeReturnException(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_21_22_00L,
+                    endTime = 24_12_21_22_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_21_22_00L,
+                endTime = 24_12_21_23_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            Assertions.assertThrows(ConflictScheduleException::class.java){
+                personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+            }
+        }
+
+        @Test
+        @DisplayName("고정 스케줄의 시작 시간이 전 스케줄의 종료시간과 충돌 하는 경우에 인덱스 탐색")
+        fun fixedScheduleInsertIndexConflictStartTimeWithBeforeEndTimeReturnException(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 11000L,
+                    endTime = 11100L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11100L,
+                endTime = 11159L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            Assertions.assertThrows(ConflictScheduleException::class.java){
+                personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FIXED_PERSONAL_SCHEDULE)
+            }
+        }
+
+        @Test
+        @DisplayName("유동 스케줄의 시작 시간이 전 스케줄의 종료시간과 충돌 하는 경우에 인덱스 탐색")
+        fun flexibleScheduleInsertIndexConflictStartTimeWithBeforeEndTimeReturnException(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_21_22_00L,
+                    endTime = 24_12_21_23_00L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_21_23_00L,
+                endTime = 24_12_21_23_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            Assertions.assertThrows(ConflictScheduleException::class.java){
+                personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+            }
+        }
+
+        @Test
+        @DisplayName("고정 스케줄의 종료 시간이 전 스케줄의 시작 시간과 충돌 하는 경우에 인덱스 탐색")
+        fun fixedScheduleInsertIndexConflictEndTimeWithAfterStartTimeReturnException(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 11100L,
+                    endTime = 11159L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11000L,
+                endTime = 11100L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            Assertions.assertThrows(ConflictScheduleException::class.java){
+                personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FIXED_PERSONAL_SCHEDULE)
+            }
+        }
+
+        @Test
+        @DisplayName("유동 스케줄의 종료 시간이 전 스케줄의 시작 시간과 충돌 하는 경우에 인덱스 탐색")
+        fun flexibleScheduleInsertIndexConflictEndTimeWithAfterStartTimeReturnException(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_21_22_00L,
+                    endTime = 24_12_21_22_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_21_21_00L,
+                endTime = 24_12_21_22_00L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            Assertions.assertThrows(ConflictScheduleException::class.java){
+                personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+            }
         }
     }
 
