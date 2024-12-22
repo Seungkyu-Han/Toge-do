@@ -27,8 +27,8 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("시작시간, 종료시간이 모두 범위 내")
         fun startTimeAndEndTimeValidReturnSuccess(){
             //given
-            val startTime = 11111
-            val endTime = 22222
+            val startTime = 11111L
+            val endTime = 22222L
             val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = startTime,
@@ -48,8 +48,8 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("시작 시간이 시간 범위 전")
         fun startTimeBeforeRangeReturnException(){
             //given
-            val startTime = 1111
-            val endTime = 22222
+            val startTime = 1111L
+            val endTime = 22222L
             val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = startTime,
@@ -66,8 +66,8 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("종료 시간이 시간 범위 뒤")
         fun endTimeAfterRangeReturnException(){
             //given
-            val startTime = 11111
-            val endTime = 73333
+            val startTime = 11111L
+            val endTime = 73333L
             val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
                 startTime = startTime,
@@ -93,7 +93,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("시간이 범위 내")
         fun validTimeReturnSuccess(){
             //given
-            val time = 11111
+            val time = 11111L
 
             //when
             val result = fixedPersonalScheduleDocument.validTimeCheck(time)
@@ -106,7 +106,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("시간이 주 범위 전")
         fun timeBeforeWeekReturnException(){
             //given
-            val time = 1111
+            val time = 1111L
 
             //when && then
             Assertions.assertThrows(InvalidTimeException::class.java){
@@ -118,7 +118,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("시간이 주 범위 후")
         fun timeAfterWeekReturnException(){
             //given
-            val time = 81111
+            val time = 81111L
 
             //when && then
             Assertions.assertThrows(InvalidTimeException::class.java){
@@ -130,7 +130,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("시간이 hour 범위 후")
         fun timeAfterHourReturnException(){
             //given
-            val time = 12411
+            val time = 12411L
 
             //when && then
             Assertions.assertThrows(InvalidTimeException::class.java){
@@ -142,7 +142,7 @@ class FixedPersonalScheduleDocumentTest{
         @DisplayName("시간이 minute 범위 후")
         fun timeAfterMinuteReturnException(){
             //given
-            val time = 12360
+            val time = 12360L
 
             //when && then
             Assertions.assertThrows(InvalidTimeException::class.java){
@@ -641,15 +641,15 @@ class FixedPersonalScheduleDocumentTest{
             //given
             val fixedSchedule = FixedSchedule(
                 id = ObjectId.get(),
-                startTime = 11100,
-                endTime = 11159,
+                startTime = 11100L,
+                endTime = 11159L,
                 title = UUID.randomUUID().toString(),
                 color = UUID.randomUUID().toString()
             )
             fixedPersonalScheduleDocument.fixedSchedules.add(fixedSchedule)
 
-            val modifiedStartTime = 11200
-            val modifiedEndTime = 11259
+            val modifiedStartTime = 11200L
+            val modifiedEndTime = 11259L
             val modifiedTitle = UUID.randomUUID().toString()
             val modifiedColor = UUID.randomUUID().toString()
 
@@ -712,8 +712,8 @@ class FixedPersonalScheduleDocumentTest{
             fixedPersonalScheduleDocument.fixedSchedules.add(fixedSchedule)
             fixedPersonalScheduleDocument.fixedSchedules.add(afterFixedSchedule)
 
-            val modifiedStartTime = 41200
-            val modifiedEndTime = 41259
+            val modifiedStartTime = 41200L
+            val modifiedEndTime = 41259L
             val modifiedTitle = UUID.randomUUID().toString()
             val modifiedColor = UUID.randomUUID().toString()
 
