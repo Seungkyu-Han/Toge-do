@@ -126,7 +126,7 @@ data class PersonalScheduleDocument(
             return 0
 
         val index = schedules.binarySearch(0){
-            scheduleElement -> scheduleElement.startTime.compareTo(scheduleElement.startTime)
+            scheduleElement -> scheduleElement.startTime.compareTo(schedule.startTime)
         }
 
         if (index >= 0)
