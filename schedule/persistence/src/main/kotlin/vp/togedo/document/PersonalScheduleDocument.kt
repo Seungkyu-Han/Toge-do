@@ -188,7 +188,7 @@ data class PersonalScheduleDocument(
     }
 
     fun isStartTimeBefore(schedule: Schedule): Boolean{
-        if (schedule.startTime < schedule.endTime)
+        if (schedule.startTime > schedule.endTime)
             throw EndTimeBeforeStartTimeException("종료 시간이 시작시간보다 앞입니다.")
         return true
     }
