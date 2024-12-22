@@ -115,7 +115,7 @@ class FlexiblePersonalScheduleController(
 
     private fun daoToDto(flexibleScheduleDaoList: List<FlexibleScheduleDao>): FlexiblePersonalScheduleListDto {
         return FlexiblePersonalScheduleListDto(
-            schedules = flexibleScheduleDaoList.map{
+            flexibleSchedules = flexibleScheduleDaoList.map{
                 scheduleDao ->
                 FlexiblePersonalScheduleDto(
                     id = scheduleDao.scheduleId!!.toString(),
