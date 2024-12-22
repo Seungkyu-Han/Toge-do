@@ -11,6 +11,12 @@ import java.util.UUID
 
 class PersonalScheduleDocumentTest{
 
+    private val fixedScheduleStartTime = 1_00_00L
+    private val fixedScheduleEndTime = 7_23_59L
+
+    private val flexibleScheduleStartTime = 10_01_01_00_00L
+    private val flexibleScheduleEndTime = 99_12_31_23_59L
+
     @Nested
     @DisplayName("시작시간이 종료시간보다 앞인지 확인하는 메서드 테스트")
     inner class  IsStartTimeBefore{
@@ -136,12 +142,6 @@ class PersonalScheduleDocumentTest{
     @Nested
     @DisplayName("해당 스케줄에 시간 범위를 체크하는 메서드")
     inner class IsValidTime{
-
-        private val fixedScheduleStartTime = 1_00_00L
-        private val fixedScheduleEndTime = 7_23_59L
-
-        private val flexibleScheduleStartTime = 10_01_01_00_00L
-        private val flexibleScheduleEndTime = 99_12_31_23_59L
 
         private val personalSchedule = PersonalScheduleDocument(
             userId = ObjectId.get()
@@ -269,8 +269,52 @@ class PersonalScheduleDocumentTest{
                 personalSchedule.isValidTime(time, flexibleScheduleStartTime, flexibleScheduleEndTime)
             }
         }
+    }
 
+    @Nested
+    inner class CheckScheduleValidTime{
 
+        private val personalSchedule = PersonalScheduleDocument(
+            userId = ObjectId.get()
+        )
+
+        @Test
+        @DisplayName("고정 스케줄이 모두 유효한 시간인 경우")
+        fun fixedScheduleValidTimeReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 11000L,
+                endTime = 11059L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.checkScheduleValidTime(schedule, fixedScheduleStartTime, fixedScheduleEndTime)
+
+            //then
+            Assertions.assertTrue(result)
+        }
+
+        @Test
+        @DisplayName("유동 스케줄이 모두 유효한 시간인 경우")
+        fun flexibleScheduleValidTimeReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_22_00L,
+                endTime = 24_12_22_22_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            val result = personalSchedule.checkScheduleValidTime(schedule, flexibleScheduleStartTime, flexibleScheduleEndTime)
+
+            //then
+            Assertions.assertTrue(result)
+        }
     }
 
 }
