@@ -110,7 +110,7 @@ class FixedPersonalScheduleController(
 
     private fun daoToDto(fixedScheduleDaoList: List<FixedScheduleDao>): FixedPersonalScheduleListDto{
         return FixedPersonalScheduleListDto(
-            schedules = fixedScheduleDaoList.map{
+            fixedSchedules = fixedScheduleDaoList.map{
                 FixedPersonalScheduleDto(
                     id = it.scheduleId!!.toString(),
                     startTime = it.startTime,
