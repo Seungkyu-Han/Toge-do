@@ -1,9 +1,8 @@
 package vp.togedo.data.dto.flexiblePersonalSchedule
 
 data class CreateFlexibleReqDto(
-    val startTime: Int,
-    val endTime: Int,
+    val startTime: Long,
+    val endTime: Long,
     val title: String,
-    val color: String,
-    val friends: List<String>,
+    val color: String
 )

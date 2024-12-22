@@ -45,8 +45,8 @@ data class FixedPersonalScheduleDocument(
 
     fun modifyScheduleById(
         id: ObjectId,
-        startTime: Int,
-        endTime: Int,
+        startTime: Long,
+        endTime: Long,
         title: String,
         color: String): Mono<FixedPersonalScheduleDocument>{
 
@@ -95,7 +95,7 @@ data class FixedPersonalScheduleDocument(
         return true
     }
 
-    fun validTimeCheck(time: Int): Boolean{
+    fun validTimeCheck(time: Long): Boolean{
         if(time !in 10000..72359)
             throw InvalidTimeException("week 범위 밖입니다.")
         val hour = (time % 10000) / 100
@@ -146,9 +146,9 @@ data class FixedSchedule(
     @Id
     var id: ObjectId = ObjectId.get(),
 
-    var startTime: Int,
+    var startTime: Long,
 
-    var endTime: Int,
+    var endTime: Long,
 
     var title: String,
 

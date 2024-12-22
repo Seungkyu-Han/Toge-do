@@ -28,7 +28,7 @@ class FlexiblePersonalScheduleController(
 ) {
 
     @GetMapping("/schedules")
-    @Operation(summary = "개인 고정 스케줄 조회")
+    @Operation(summary = "개인 가변 스케줄 조회")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "스케줄 조회 성공",
             content = [Content(schema = Schema(implementation = FlexiblePersonalScheduleListDto::class),
@@ -122,8 +122,7 @@ class FlexiblePersonalScheduleController(
                     startTime = scheduleDao.startTime,
                     endTime = scheduleDao.endTime,
                     title = scheduleDao.title,
-                    color = scheduleDao.color,
-                    friends = scheduleDao.friends.map{friend -> friend.toString()}
+                    color = scheduleDao.color
                 )
             }
         )

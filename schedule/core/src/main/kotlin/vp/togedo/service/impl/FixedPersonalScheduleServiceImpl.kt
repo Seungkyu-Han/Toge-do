@@ -3,7 +3,6 @@ package vp.togedo.service.impl
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
-import org.springframework.stereotype.Service
 import vp.togedo.data.dao.FixedScheduleDao
 import vp.togedo.document.FixedPersonalScheduleDocument
 import vp.togedo.document.FixedSchedule
@@ -16,7 +15,6 @@ import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
 import vp.togedo.util.exception.ScheduleNotFoundException
 
-@Service
 class FixedPersonalScheduleServiceImpl(
     private val fixedPersonalScheduleRepository: FixedPersonalScheduleRepository
 ): FixedPersonalScheduleService {
