@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import reactor.test.StepVerifier
 import vp.togedo.enums.ScheduleEnum
 import vp.togedo.util.exception.ConflictScheduleException
 import vp.togedo.util.exception.EndTimeBeforeStartTimeException
@@ -799,6 +800,138 @@ class PersonalScheduleDocumentTest{
             Assertions.assertThrows(ConflictScheduleException::class.java){
                 personalSchedule.getInsertedIndex(schedule, ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
             }
+        }
+    }
+
+    @Nested
+    inner class AddFixedSchedule{
+        private lateinit var personalSchedule: PersonalScheduleDocument
+
+        @BeforeEach
+        fun init(){
+            personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+        }
+
+        @Test
+        @DisplayName("빈 고정 스케줄 리스트에 삽입")
+        fun addFixedScheduleToEmptyListReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_11_00L,
+                endTime = 1_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            StepVerifier.create(personalSchedule.addFixedSchedule(schedule))
+                .expectNextMatches {
+                    it.fixedSchedules.size == 1 &&
+                            it.fixedSchedules[0].id == schedule.id
+                }.verifyComplete()
+        }
+
+        @Test
+        @DisplayName("앞에 하나의 요소가 있는 고정 스케줄 리스트에 삽입")
+        fun addFixedScheduleToBeforeOneElementReturnSuccess(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 1_10_00L,
+                    endTime = 1_10_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_11_00L,
+                endTime = 1_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            StepVerifier.create(personalSchedule.addFixedSchedule(schedule))
+                .expectNextMatches {
+                    it.fixedSchedules.size == 2 &&
+                            it.fixedSchedules[1].id == schedule.id
+                }.verifyComplete()
+        }
+
+        @Test
+        @DisplayName("뒤에 하나의 요소가 있는 고정 스케줄 리스트에 삽입")
+        fun addFixedScheduleToAfterOneElementReturnSuccess(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 1_12_00L,
+                    endTime = 1_12_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_11_00L,
+                endTime = 1_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            StepVerifier.create(personalSchedule.addFixedSchedule(schedule))
+                .expectNextMatches {
+                    it.fixedSchedules.size == 2 &&
+                            it.fixedSchedules[0].id == schedule.id
+                }.verifyComplete()
+        }
+
+        @Test
+        @DisplayName("사이에 하나씩의 요소가 있는 고정 스케줄 리스트에 삽입")
+        fun addFixedScheduleToBetweenOneElementReturnSuccess(){
+            //given
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 1_10_00L,
+                    endTime = 1_10_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            personalSchedule.fixedSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 1_12_00L,
+                    endTime = 1_12_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_11_00L,
+                endTime = 1_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            StepVerifier.create(personalSchedule.addFixedSchedule(schedule))
+                .expectNextMatches {
+                    it.fixedSchedules.size == 3 &&
+                            it.fixedSchedules[1].id == schedule.id
+                }.verifyComplete()
         }
     }
 
