@@ -88,7 +88,7 @@ data class PersonalScheduleDocument(
 
     private fun deleteFlexibleScheduleByIndex(index: Int): Mono<Schedule>{
         return Mono.fromCallable {
-            fixedSchedules.removeAt(index)
+            flexibleSchedules.removeAt(index)
         }
     }
 
