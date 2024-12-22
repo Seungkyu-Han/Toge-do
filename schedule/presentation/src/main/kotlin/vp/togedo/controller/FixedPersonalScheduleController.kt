@@ -99,11 +99,11 @@ class FixedPersonalScheduleController(
     )
     suspend fun deleteSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
-        @RequestParam fixedScheduleId: List<String>
+        @RequestParam fixedScheduleIdList: List<String>
     ): ResponseEntity<HttpStatus>{
         fixedPersonalScheduleConnector.deleteFixedSchedule(
             userId = idComponent.objectIdProvider(userId),
-            fixedScheduleIdList = fixedScheduleId
+            fixedScheduleIdList = fixedScheduleIdList
         )
         return ResponseEntity.ok().build()
     }
