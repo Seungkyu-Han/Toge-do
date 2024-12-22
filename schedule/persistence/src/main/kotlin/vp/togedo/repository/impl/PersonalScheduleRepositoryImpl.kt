@@ -10,6 +10,7 @@ import reactor.core.scheduler.Schedulers
 import vp.togedo.document.PersonalScheduleDocument
 import vp.togedo.repository.PersonalScheduleRepository
 import vp.togedo.repository.mongo.PersonalScheduleMongoRepository
+import java.time.Duration
 
 @Repository
 class PersonalScheduleRepositoryImpl(
@@ -17,6 +18,8 @@ class PersonalScheduleRepositoryImpl(
     private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>,
     private val objectMapper: ObjectMapper,
 ): PersonalScheduleRepository {
+
+    private val personalScheduleRedisTime = Duration.ofHours(2)
 
     init{
         class ObjectIdSerializer : com.fasterxml.jackson.databind.JsonSerializer<ObjectId>() {
@@ -59,6 +62,7 @@ class PersonalScheduleRepositoryImpl(
                         .set(
                             "$redisPrefix$userId",
                             objectMapper.writeValueAsString(it),
+                            personalScheduleRedisTime
                             ).block()
             }
     }
@@ -71,6 +75,7 @@ class PersonalScheduleRepositoryImpl(
                     .set(
                         "$redisPrefix${it.userId}",
                         objectMapper.writeValueAsString(it),
+                        personalScheduleRedisTime
                     ).block()
             }
     }
