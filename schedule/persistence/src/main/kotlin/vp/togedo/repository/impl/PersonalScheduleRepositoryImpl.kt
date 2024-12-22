@@ -30,11 +30,12 @@ class PersonalScheduleRepositoryImpl(
             )
             .publishOn(Schedulers.boundedElastic())
             .doOnSuccess {
-                reactiveRedisTemplate.opsForValue()
-                    .set(
-                        "$redisPrefix$userId",
-                        objectMapper.writeValueAsString(it),
-                        ).block()
+                if (it != null)
+                    reactiveRedisTemplate.opsForValue()
+                        .set(
+                            "$redisPrefix$userId",
+                            objectMapper.writeValueAsString(it),
+                            ).block()
             }
     }
 
