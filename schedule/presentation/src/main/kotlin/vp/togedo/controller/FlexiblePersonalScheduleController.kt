@@ -39,7 +39,6 @@ class FlexiblePersonalScheduleController(
     suspend fun getSchedules(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String
     ): ResponseEntity<FlexiblePersonalScheduleListDto>{
-        println("HELLO")
         return ResponseEntity.ok(
             daoToDto(
                 flexiblePersonalScheduleConnector.readFlexibleSchedule(id = idComponent.objectIdProvider(userId))

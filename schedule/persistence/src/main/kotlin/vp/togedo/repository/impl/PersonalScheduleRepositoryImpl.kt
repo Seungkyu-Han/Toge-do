@@ -1,6 +1,7 @@
 package vp.togedo.repository.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
 import org.bson.types.ObjectId
 import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Repository
@@ -16,6 +17,29 @@ class PersonalScheduleRepositoryImpl(
     private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>,
     private val objectMapper: ObjectMapper,
 ): PersonalScheduleRepository {
+
+    init{
+        class ObjectIdSerializer : com.fasterxml.jackson.databind.JsonSerializer<ObjectId>() {
+            override fun serialize(value: ObjectId, gen: com.fasterxml.jackson.core.JsonGenerator, serializers: com.fasterxml.jackson.databind.SerializerProvider) {
+                gen.writeString(value.toHexString())
+            }
+        }
+
+        class ObjectIdDeserializer : com.fasterxml.jackson.databind.JsonDeserializer<ObjectId>() {
+            override fun deserialize(p: com.fasterxml.jackson.core.JsonParser, ctxt: com.fasterxml.jackson.databind.DeserializationContext): ObjectId {
+                return ObjectId(p.valueAsString)
+            }
+        }
+
+        class ObjectIdModule : SimpleModule() {
+            init {
+                addSerializer(ObjectId::class.java, ObjectIdSerializer())
+                addDeserializer(ObjectId::class.java, ObjectIdDeserializer())
+            }
+        }
+
+        this.objectMapper.registerModule(ObjectIdModule())
+    }
 
     private val redisPrefix = "personalSchedule:document:"
 

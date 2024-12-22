@@ -195,8 +195,7 @@ data class PersonalScheduleDocument(
 }
 
 data class Schedule(
-    @Id
-    val id: ObjectId = ObjectId.get(),
+    val id: ObjectId,
     val startTime: Long,
     val endTime: Long,
     val title: String,

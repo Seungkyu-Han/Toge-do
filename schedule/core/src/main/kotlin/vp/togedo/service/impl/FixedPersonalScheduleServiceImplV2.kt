@@ -33,6 +33,7 @@ class FixedPersonalScheduleServiceImplV2(
                 fixedScheduleDao ->
 
                 val fixedSchedule = Schedule(
+                    id = ObjectId.get(),
                     startTime = fixedScheduleDao.startTime,
                     endTime = fixedScheduleDao.endTime,
                     title = fixedScheduleDao.title,

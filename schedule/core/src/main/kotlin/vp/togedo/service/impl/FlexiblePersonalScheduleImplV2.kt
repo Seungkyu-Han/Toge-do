@@ -25,6 +25,7 @@ class FlexiblePersonalScheduleImplV2(
         userId: ObjectId,
         flexibleScheduleDaoList: List<FlexibleScheduleDao>
     ): List<FlexibleScheduleDao> {
+        println(userId)
         val personalSchedule = personalScheduleRepository.findByUserId(userId)
             .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
 
@@ -62,6 +63,7 @@ class FlexiblePersonalScheduleImplV2(
     }
 
     override suspend fun readSchedule(userId: ObjectId): List<FlexibleScheduleDao> {
+        println(userId)
         val personalSchedule = personalScheduleRepository.findByUserId(userId)
             .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
 
