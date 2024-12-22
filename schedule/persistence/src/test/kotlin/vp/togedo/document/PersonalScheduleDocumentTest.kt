@@ -935,4 +935,136 @@ class PersonalScheduleDocumentTest{
         }
     }
 
+    @Nested
+    inner class AddFlexibleSchedule{
+        private lateinit var personalSchedule: PersonalScheduleDocument
+
+        @BeforeEach
+        fun init(){
+            personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+        }
+
+        @Test
+        @DisplayName("빈 유동 스케줄 리스트에 삽입")
+        fun addFlexibleScheduleToEmptyListReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_22_00L,
+                endTime = 24_12_22_22_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            StepVerifier.create(personalSchedule.addFlexibleSchedule(schedule))
+                .expectNextMatches {
+                    it.flexibleSchedules.size == 1 &&
+                            it.flexibleSchedules[0].id == schedule.id
+                }.verifyComplete()
+        }
+
+        @Test
+        @DisplayName("앞에 하나의 요소가 있는 유동 스케줄 리스트에 삽입")
+        fun addFlexibleScheduleToBeforeOneElementReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_22_22_00L,
+                    endTime = 24_12_22_22_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_23_00L,
+                endTime = 24_12_22_23_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            StepVerifier.create(personalSchedule.addFlexibleSchedule(schedule))
+                .expectNextMatches {
+                    it.flexibleSchedules.size == 2 &&
+                            it.flexibleSchedules[1].id == schedule.id
+                }.verifyComplete()
+        }
+
+        @Test
+        @DisplayName("뒤에 하나의 요소가 있는 유동 스케줄 리스트에 삽입")
+        fun addFlexibleScheduleToAfterOneElementReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_22_23_00L,
+                    endTime = 24_12_22_23_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_22_00L,
+                endTime = 24_12_22_22_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            StepVerifier.create(personalSchedule.addFlexibleSchedule(schedule))
+                .expectNextMatches {
+                    it.flexibleSchedules.size == 2 &&
+                            it.flexibleSchedules[0].id == schedule.id
+                }.verifyComplete()
+        }
+
+        @Test
+        @DisplayName("사이에 하나씩의 요소가 있는 고정 스케줄 리스트에 삽입")
+        fun addFixedScheduleToBetweenOneElementReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_22_21_00L,
+                    endTime = 24_12_22_21_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_22_23_00L,
+                    endTime = 24_12_22_23_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_22_22_00L,
+                endTime = 24_12_22_22_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when && then
+            StepVerifier.create(personalSchedule.addFlexibleSchedule(schedule))
+                .expectNextMatches {
+                    it.flexibleSchedules.size == 3 &&
+                            it.flexibleSchedules[1].id == schedule.id
+                }.verifyComplete()
+        }
+    }
+
 }
