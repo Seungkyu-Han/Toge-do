@@ -25,21 +25,23 @@ data class PersonalScheduleDocument(
 ){
 
     fun deleteFixedScheduleById(scheduleId: ObjectId): Mono<PersonalScheduleDocument> {
-        val index = findIndexFixedScheduleById(scheduleId)
-
-        return deleteFixedScheduleByIndex(index)
-            .map{
-                this
-            }
+        return Mono.fromCallable {
+            findIndexFixedScheduleById(scheduleId)
+        }.map{
+            fixedSchedules.removeAt(it)
+        }.map{
+            this
+        }
     }
 
     fun deleteFlexibleScheduleById(scheduleId: ObjectId): Mono<PersonalScheduleDocument> {
-        val index = findIndexFlexibleScheduleById(scheduleId)
-
-        return deleteFlexibleScheduleByIndex(index)
-            .map{
-                this
-            }
+        return Mono.fromCallable {
+            findIndexFlexibleScheduleById(scheduleId)
+        }.map{
+            flexibleSchedules.removeAt(it)
+        }.map{
+            this
+        }
     }
 
     fun modifyFixedSchedule(schedule: Schedule): Mono<PersonalScheduleDocument>{

@@ -11,6 +11,7 @@ import vp.togedo.enums.ScheduleEnum
 import vp.togedo.util.exception.ConflictScheduleException
 import vp.togedo.util.exception.EndTimeBeforeStartTimeException
 import vp.togedo.util.exception.InvalidTimeException
+import vp.togedo.util.exception.ScheduleNotFoundException
 import java.util.UUID
 
 class PersonalScheduleDocumentTest{
@@ -1067,4 +1068,136 @@ class PersonalScheduleDocumentTest{
         }
     }
 
+    @Nested
+    inner class DeleteFixedScheduleById{
+
+        private lateinit var personalSchedule: PersonalScheduleDocument
+
+        @BeforeEach
+        fun init(){
+            personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+        }
+
+        @Test
+        @DisplayName("하나의 요소가 있는 스케줄에서 고정 스케줄을 삭제")
+        fun deleteFixedScheduleFromOneElementScheduleReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_11_00L,
+                endTime = 1_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            personalSchedule.fixedSchedules.add(schedule)
+
+            //when && then
+            StepVerifier.create(personalSchedule.deleteFixedScheduleById(schedule.id))
+                .expectNextCount(1)
+                .verifyComplete()
+
+            Assertions.assertTrue{
+                personalSchedule.flexibleSchedules.size == 0
+            }
+        }
+
+        @Test
+        @DisplayName("빈 스케줄에서 고정 스케줄을 삭제")
+        fun deleteFixedScheduleFromEmptyScheduleReturnException(){
+            //given
+
+            //when && then
+            StepVerifier.create(personalSchedule.deleteFixedScheduleById(ObjectId.get()))
+                .expectErrorMatches {
+                    it is ScheduleNotFoundException
+                }.verify()
+
+            Assertions.assertTrue{
+                personalSchedule.flexibleSchedules.size == 0
+            }
+        }
+
+        @Test
+        @DisplayName("여러개의 요소가 있는 스케줄에서 고정 스케줄을 삭제")
+        fun deleteFixedScheduleFromManyElementScheduleReturnSuccess(){
+            //given
+            val beforeSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_10_00L,
+                endTime = 1_10_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_11_00L,
+                endTime = 1_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val afterSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_12_00L,
+                endTime = 1_12_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.fixedSchedules.add(beforeSchedule)
+            personalSchedule.fixedSchedules.add(schedule)
+            personalSchedule.fixedSchedules.add(afterSchedule)
+
+            //when && then
+            StepVerifier.create(personalSchedule.deleteFixedScheduleById(schedule.id))
+                .expectNextCount(1)
+                .verifyComplete()
+
+            Assertions.assertEquals(2, personalSchedule.fixedSchedules.size)
+        }
+
+        @Test
+        @DisplayName("여러개의 요소가 있는 스케줄에서 없는 고정 스케줄을 삭제")
+        fun deleteNotExistFixedScheduleFromManyElementScheduleReturnSuccess(){
+            //given
+            val beforeSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_10_00L,
+                endTime = 1_10_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_11_00L,
+                endTime = 1_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val afterSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 1_12_00L,
+                endTime = 1_12_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.fixedSchedules.add(beforeSchedule)
+            personalSchedule.fixedSchedules.add(schedule)
+            personalSchedule.fixedSchedules.add(afterSchedule)
+
+            //when && then
+            StepVerifier.create(personalSchedule.deleteFixedScheduleById(ObjectId.get()))
+                .expectErrorMatches {
+                    it is ScheduleNotFoundException
+                }
+                .verify()
+
+            Assertions.assertEquals(3, personalSchedule.fixedSchedules.size)
+        }
+    }
 }
