@@ -1100,7 +1100,7 @@ class PersonalScheduleDocumentTest{
                 .verifyComplete()
 
             Assertions.assertTrue{
-                personalSchedule.flexibleSchedules.size == 0
+                personalSchedule.fixedSchedules.size == 0
             }
         }
 
@@ -1116,7 +1116,7 @@ class PersonalScheduleDocumentTest{
                 }.verify()
 
             Assertions.assertTrue{
-                personalSchedule.flexibleSchedules.size == 0
+                personalSchedule.fixedSchedules.size == 0
             }
         }
 
@@ -1200,4 +1200,139 @@ class PersonalScheduleDocumentTest{
             Assertions.assertEquals(3, personalSchedule.fixedSchedules.size)
         }
     }
+
+    @Nested
+    inner class DeleteFlexibleScheduleById{
+
+        private lateinit var personalSchedule: PersonalScheduleDocument
+
+        @BeforeEach
+        fun init(){
+            personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+        }
+
+        @Test
+        @DisplayName("하나의 요소가 있는 스케줄에서 유동 스케줄을 삭제")
+        fun deleteFlexibleScheduleFromOneElementScheduleReturnSuccess(){
+            //given
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_23_11_00L,
+                endTime = 24_12_23_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            personalSchedule.flexibleSchedules.add(schedule)
+
+            //when && then
+            StepVerifier.create(personalSchedule.deleteFlexibleScheduleById(schedule.id))
+                .expectNextCount(1)
+                .verifyComplete()
+
+            Assertions.assertTrue{
+                personalSchedule.flexibleSchedules.size == 0
+            }
+        }
+
+        @Test
+        @DisplayName("빈 스케줄에서 유동 스케줄을 삭제")
+        fun deleteFixedScheduleFromEmptyScheduleReturnException(){
+            //given
+
+            //when && then
+            StepVerifier.create(personalSchedule.deleteFlexibleScheduleById(ObjectId.get()))
+                .expectErrorMatches {
+                    it is ScheduleNotFoundException
+                }.verify()
+
+            Assertions.assertTrue{
+                personalSchedule.flexibleSchedules.size == 0
+            }
+        }
+
+        @Test
+        @DisplayName("여러개의 요소가 있는 스케줄에서 유동 스케줄을 삭제")
+        fun deleteFixedScheduleFromManyElementScheduleReturnSuccess(){
+            //given
+            val beforeSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_23_11_00L,
+                endTime = 24_12_23_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_23_12_00L,
+                endTime = 24_12_23_12_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val afterSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_23_13_00L,
+                endTime = 24_12_23_13_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.flexibleSchedules.add(beforeSchedule)
+            personalSchedule.flexibleSchedules.add(schedule)
+            personalSchedule.flexibleSchedules.add(afterSchedule)
+
+            //when && then
+            StepVerifier.create(personalSchedule.deleteFlexibleScheduleById(schedule.id))
+                .expectNextCount(1)
+                .verifyComplete()
+
+            Assertions.assertEquals(2, personalSchedule.flexibleSchedules.size)
+        }
+
+        @Test
+        @DisplayName("여러개의 요소가 있는 스케줄에서 없는 고정 스케줄을 삭제")
+        fun deleteNotExistFixedScheduleFromManyElementScheduleReturnSuccess(){
+            //given
+            val beforeSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_23_11_00L,
+                endTime = 24_12_23_11_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val schedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_23_12_00L,
+                endTime = 24_12_23_12_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val afterSchedule = Schedule(
+                id = ObjectId.get(),
+                startTime = 24_12_23_13_00L,
+                endTime = 24_12_23_13_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.flexibleSchedules.add(beforeSchedule)
+            personalSchedule.flexibleSchedules.add(schedule)
+            personalSchedule.flexibleSchedules.add(afterSchedule)
+
+            //when && then
+            StepVerifier.create(personalSchedule.deleteFlexibleScheduleById(ObjectId.get()))
+                .expectErrorMatches {
+                    it is ScheduleNotFoundException
+                }
+                .verify()
+
+            Assertions.assertEquals(3, personalSchedule.flexibleSchedules.size)
+        }
+    }
+
+
 }
