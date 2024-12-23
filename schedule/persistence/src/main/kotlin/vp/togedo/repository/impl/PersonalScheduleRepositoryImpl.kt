@@ -53,7 +53,7 @@ class PersonalScheduleRepositoryImpl(
                 objectMapper.readValue(it, PersonalScheduleDocument::class.java)
             }
             .switchIfEmpty(
-                personalScheduleMongoRepository.findByUserId(userId)
+                Mono.defer{personalScheduleMongoRepository.findByUserId(userId) }
             )
             .publishOn(Schedulers.boundedElastic())
             .doOnSuccess {

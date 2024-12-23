@@ -1,5 +1,6 @@
 package vp.togedo.document
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
@@ -14,13 +15,17 @@ import vp.togedo.util.exception.ScheduleNotFoundException
 @Document(collection = "personal_schedule")
 data class PersonalScheduleDocument(
     @Id
+    @JsonProperty("id")
     val id: ObjectId = ObjectId.get(),
 
     @Indexed(unique = true)
+    @JsonProperty("userId")
     val userId: ObjectId,
 
+    @JsonProperty("fixedSchedules")
     val fixedSchedules: MutableList<Schedule> = mutableListOf(),
 
+    @JsonProperty("flexibleSchedules")
     val flexibleSchedules: MutableList<Schedule> = mutableListOf()
 ){
 
