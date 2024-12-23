@@ -45,25 +45,27 @@ data class PersonalScheduleDocument(
     }
 
     fun modifyFixedSchedule(schedule: Schedule): Mono<PersonalScheduleDocument>{
-        val scheduleIndex: Int = findIndexFixedScheduleById(schedule.id)
-        return deleteFixedScheduleByIndex(scheduleIndex)
-            .flatMap{
-                originalSchedule ->
-                addFixedSchedule(schedule)
-                    .doOnError{
-                        fixedSchedules.add(scheduleIndex, originalSchedule)
+        return Mono.fromCallable{findIndexFixedScheduleById(schedule.id)}
+            .flatMap { scheduleIndex ->
+                deleteFixedScheduleByIndex(scheduleIndex)
+                    .flatMap { originalSchedule ->
+                        addFixedSchedule(schedule)
+                            .doOnError {
+                                fixedSchedules.add(scheduleIndex, originalSchedule)
+                            }
                     }
             }
     }
 
     fun modifyFlexibleSchedule(schedule: Schedule): Mono<PersonalScheduleDocument>{
-        val scheduleIndex: Int = findIndexFlexibleScheduleById(schedule.id)
-        return deleteFlexibleScheduleByIndex(scheduleIndex)
-            .flatMap{
-                    originalSchedule ->
-                addFlexibleSchedule(schedule)
-                    .doOnError{
-                        flexibleSchedules.add(scheduleIndex, originalSchedule)
+        return Mono.fromCallable{findIndexFlexibleScheduleById(schedule.id)}
+            .flatMap { scheduleIndex ->
+                deleteFlexibleScheduleByIndex(scheduleIndex)
+                    .flatMap { originalSchedule ->
+                        addFlexibleSchedule(schedule)
+                            .doOnError {
+                                flexibleSchedules.add(scheduleIndex, originalSchedule)
+                            }
                     }
             }
     }
