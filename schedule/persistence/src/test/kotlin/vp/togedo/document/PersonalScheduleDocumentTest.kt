@@ -1534,4 +1534,205 @@ class PersonalScheduleDocumentTest{
             Assertions.assertEquals(3, personalSchedule.fixedSchedules.size)
         }
     }
+
+    @Nested
+    inner class ModifyFlexibleSchedule{
+
+        private lateinit var personalSchedule: PersonalScheduleDocument
+
+        @BeforeEach
+        fun init(){
+            personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+        }
+
+        @Test
+        @DisplayName("하나의 존재하는 유동 스케줄을 수정")
+        fun modifyFlexibleScheduleFromOneScheduleReturnSuccess(){
+            //given
+            val scheduleId = ObjectId.get()
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = scheduleId,
+                    startTime = 24_12_23_11_00L,
+                    endTime = 24_12_23_11_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            //when
+            val modifiedStartTime = 24_12_23_12_00L
+            val modifiedEndTime = 24_12_23_12_59L
+            val modifiedTitle = UUID.randomUUID().toString()
+            val modifiedColor = UUID.randomUUID().toString()
+
+            val schedule = Schedule(
+                id = scheduleId,
+                startTime = modifiedStartTime,
+                endTime = modifiedEndTime,
+                title = modifiedTitle,
+                color = modifiedColor
+            )
+            StepVerifier.create(personalSchedule.modifyFlexibleSchedule(schedule))
+                .expectNextCount(1)
+                .verifyComplete()
+
+
+            //then
+            Assertions.assertEquals(schedule, personalSchedule.flexibleSchedules[0])
+
+        }
+
+        @Test
+        @DisplayName("빈 리스트에서 수정을 시도")
+        fun modifyFlexibleScheduleFromEmptyScheduleReturnSuccess(){
+            //given
+            val scheduleId = ObjectId.get()
+
+            //when
+            val modifiedStartTime = 24_12_23_12_00L
+            val modifiedEndTime = 24_12_23_12_59L
+            val modifiedTitle = UUID.randomUUID().toString()
+            val modifiedColor = UUID.randomUUID().toString()
+
+            val schedule = Schedule(
+                id = scheduleId,
+                startTime = modifiedStartTime,
+                endTime = modifiedEndTime,
+                title = modifiedTitle,
+                color = modifiedColor
+            )
+            StepVerifier.create(personalSchedule.modifyFlexibleSchedule(schedule))
+                .expectErrorMatches {
+                    it is ScheduleNotFoundException
+                }.verify()
+
+
+            //then
+            Assertions.assertEquals(0, personalSchedule.flexibleSchedules.size)
+        }
+
+        @Test
+        @DisplayName("여러개의 유동 스케줄 중 하나를 수정, 순서가 2번째에서 3번째로 이동")
+        fun modifyFixedScheduleFromManyScheduleReturnSuccess(){
+            //given
+            val scheduleId = ObjectId.get()
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_23_12_00L,
+                    endTime = 24_12_23_12_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = scheduleId,
+                    startTime = 24_12_24_12_00L,
+                    endTime = 24_12_24_12_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_25_12_00L,
+                    endTime = 24_12_25_12_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            //when
+            val modifiedStartTime = 24_12_26_12_00L
+            val modifiedEndTime = 24_12_26_12_59L
+            val modifiedTitle = UUID.randomUUID().toString()
+            val modifiedColor = UUID.randomUUID().toString()
+
+            val schedule = Schedule(
+                id = scheduleId,
+                startTime = modifiedStartTime,
+                endTime = modifiedEndTime,
+                title = modifiedTitle,
+                color = modifiedColor
+            )
+            StepVerifier.create(personalSchedule.modifyFlexibleSchedule(schedule))
+                .expectNextCount(1)
+                .verifyComplete()
+
+
+            //then
+            Assertions.assertEquals(schedule, personalSchedule.flexibleSchedules[2])
+            Assertions.assertEquals(3, personalSchedule.flexibleSchedules.size)
+        }
+
+        @Test
+        @DisplayName("여러개의 유동 스케줄 중 하나를 수정, 수정 중 에러가 발생하면 Rollback")
+        fun modifyFixedScheduleToConflictFromManyScheduleReturnExceptionAndRollback(){
+            //given
+            val scheduleId = ObjectId.get()
+            val originalSchedule = Schedule(
+                id = scheduleId,
+                startTime = 24_12_24_12_00L,
+                endTime = 24_12_24_12_59L,
+                title = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_23_12_00L,
+                    endTime = 24_12_23_12_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            personalSchedule.flexibleSchedules.add(
+                originalSchedule
+            )
+
+            personalSchedule.flexibleSchedules.add(
+                Schedule(
+                    id = ObjectId.get(),
+                    startTime = 24_12_25_12_00L,
+                    endTime = 24_12_25_12_59L,
+                    title = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+
+            //when
+            val modifiedStartTime = 24_12_25_12_00L
+            val modifiedEndTime = 24_12_25_12_59L
+            val modifiedTitle = UUID.randomUUID().toString()
+            val modifiedColor = UUID.randomUUID().toString()
+
+            val schedule = Schedule(
+                id = scheduleId,
+                startTime = modifiedStartTime,
+                endTime = modifiedEndTime,
+                title = modifiedTitle,
+                color = modifiedColor
+            )
+
+            StepVerifier.create(personalSchedule.modifyFlexibleSchedule(schedule))
+                .expectErrorMatches {
+                    it is ConflictScheduleException
+                }
+                .verify()
+
+
+            //then
+            Assertions.assertEquals(originalSchedule, personalSchedule.flexibleSchedules[1])
+            Assertions.assertEquals(3, personalSchedule.flexibleSchedules.size)
+        }
+    }
 }
