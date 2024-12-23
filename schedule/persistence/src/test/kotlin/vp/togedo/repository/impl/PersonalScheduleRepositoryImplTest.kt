@@ -215,5 +215,83 @@ class PersonalScheduleRepositoryImplTest{
         }
     }
 
+    @Nested
+    inner class Save{
 
+        private var personalSchedule = PersonalScheduleDocument(
+            userId = ObjectId.get()
+        )
+
+        @BeforeEach
+        fun setUp() {
+            personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+        }
+
+        @Test
+        @DisplayName("데이터베이스와 Redis에 모두 저장")
+        fun saveToBothMongoAndRedisReturnSuccess(){
+            //given
+            val personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+            val personalScheduleToString = objectMapper.writeValueAsString(personalSchedule)
+
+            `when`(personalScheduleMongoRepository.save(personalSchedule))
+                .thenReturn(Mono.just(personalSchedule))
+
+            `when`(reactiveRedisTemplate.opsForValue())
+                .thenReturn(reactiveValueOperations)
+
+            `when`(reactiveValueOperations.set("$redisPrefix${personalSchedule.userId}", personalScheduleToString, personalScheduleRedisTime))
+                .thenReturn(Mono.just(true))
+
+            //when
+            StepVerifier.create(personalScheduleRepositoryImpl.save(personalSchedule))
+                .expectNextMatches { it == personalSchedule }
+                .verifyComplete()
+
+            //then
+            verify(personalScheduleMongoRepository, times(1)).save(personalSchedule)
+            verify(reactiveValueOperations, times(1)).set(
+                "$redisPrefix${personalSchedule.userId}",
+                personalScheduleToString,
+                personalScheduleRedisTime
+            )
+        }
+
+        @Test
+        @DisplayName("데이터베이스 저장에 실패하면, Redis에 저장을 시도하지 않음")
+        fun saveFailToBothMongoAndRedisReturnSuccess(){
+            //given
+            val personalSchedule = PersonalScheduleDocument(
+                userId = ObjectId.get()
+            )
+            val personalScheduleToString = objectMapper.writeValueAsString(personalSchedule)
+
+            `when`(personalScheduleMongoRepository.save(personalSchedule))
+                .thenReturn(Mono.error(NullPointerException()))
+
+            `when`(reactiveRedisTemplate.opsForValue())
+                .thenReturn(reactiveValueOperations)
+
+            `when`(reactiveValueOperations.set("$redisPrefix${personalSchedule.userId}", personalScheduleToString, personalScheduleRedisTime))
+                .thenReturn(Mono.just(true))
+
+            //when
+            StepVerifier.create(personalScheduleRepositoryImpl.save(personalSchedule))
+                .expectErrorMatches {
+                    it is NullPointerException
+                }.verify()
+
+            //then
+            verify(personalScheduleMongoRepository, times(1)).save(personalSchedule)
+            verify(reactiveValueOperations, times(0)).set(
+                "$redisPrefix${personalSchedule.userId}",
+                personalScheduleToString,
+                personalScheduleRedisTime
+            )
+        }
+    }
 }
