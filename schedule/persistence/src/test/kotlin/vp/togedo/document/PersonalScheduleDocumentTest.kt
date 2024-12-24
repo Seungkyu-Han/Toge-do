@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import reactor.test.StepVerifier
 import vp.togedo.enums.ScheduleEnum
-import vp.togedo.util.exception.ConflictScheduleException
-import vp.togedo.util.exception.EndTimeBeforeStartTimeException
-import vp.togedo.util.exception.InvalidTimeException
-import vp.togedo.util.exception.ScheduleNotFoundException
+import vp.togedo.util.exception.schedule.ConflictScheduleException
+import vp.togedo.util.exception.schedule.EndTimeBeforeStartTimeException
+import vp.togedo.util.exception.schedule.InvalidTimeException
+import vp.togedo.util.exception.schedule.ScheduleNotFoundException
 import java.util.UUID
 
 class PersonalScheduleDocumentTest{

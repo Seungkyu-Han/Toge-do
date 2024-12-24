@@ -3,6 +3,7 @@ package vp.togedo.controller.exceptionHandler
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import vp.togedo.util.error.exception.GroupException
 import vp.togedo.util.error.exception.ScheduleException
 import vp.togedo.util.error.exception.UserException
 import java.util.regex.PatternSyntaxException
@@ -22,6 +23,13 @@ class ExceptionHandlerAdvice {
         return ResponseEntity
             .status(scheduleException.errorCode.status)
             .body(scheduleException.errorCode.message)
+    }
+
+    @ExceptionHandler(GroupException::class)
+    fun groupExceptionHandler(groupException: GroupException): ResponseEntity<String> {
+        return ResponseEntity
+            .status(groupException.errorCode.status)
+            .body(groupException.errorCode.message)
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
