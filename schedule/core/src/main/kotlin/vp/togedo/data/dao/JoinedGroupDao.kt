@@ -2,8 +2,7 @@ package vp.togedo.data.dao
 
 import org.bson.types.ObjectId
 
-data class GroupDao(
+data class JoinedGroupDao(
     val id: ObjectId,
-    val name: String,
-    val members: List<ObjectId>
+    val groups: MutableSet<ObjectId>
 )

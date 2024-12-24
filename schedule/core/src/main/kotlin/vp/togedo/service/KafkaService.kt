@@ -2,10 +2,9 @@ package vp.togedo.service
 
 import org.bson.types.ObjectId
 import reactor.core.publisher.Mono
-import reactor.kafka.sender.SenderResult
-import vp.togedo.document.GroupDocument
+import vp.togedo.data.dao.GroupDao
 
 interface KafkaService {
 
-    fun publishInviteGroupEvent(receiverId: ObjectId, group: GroupDocument): Mono<SenderResult<Void>>
+    fun publishInviteGroupEvent(receiverId: ObjectId, group: GroupDao): Mono<Void>
 }

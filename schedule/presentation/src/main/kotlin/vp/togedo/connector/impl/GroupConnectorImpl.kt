@@ -3,10 +3,12 @@ package vp.togedo.connector.impl
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.GroupConnector
 import vp.togedo.data.dto.group.CreateGroupReqDto
+import vp.togedo.data.dto.group.GroupDto
 import vp.togedo.service.GroupService
 import vp.togedo.service.KafkaService
 
@@ -40,6 +42,18 @@ class GroupConnectorImpl(
             }
         }.then()
     }
+
+    override fun readGroups(userId: ObjectId): Flux<GroupDto> =
+        groupService.readGroups(userId)
+            .map{
+                groupDao ->
+                GroupDto(
+                    id = groupDao.id.toString(),
+                    name = groupDao.name,
+                    members = groupDao.members.map{it.toString()}
+                )
+            }
+
 
     @Transactional
     override fun addUserToGroup(addedId: String, groupId: String): Mono<Void> {
