@@ -1,5 +1,7 @@
 package vp.togedo.connector.impl
 
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.reactor.mono
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,6 +22,7 @@ class GroupConnectorImpl(
     private val kafkaService: KafkaService
 ): GroupConnector {
 
+    @Transactional
     override fun createGroup(userId: ObjectId, createGroupReqDto: CreateGroupReqDto): Mono<Void> {
         val userIdList = createGroupReqDto.members.map{
             ObjectId(it)
@@ -28,19 +31,23 @@ class GroupConnectorImpl(
         return groupService.createGroup(
             name = createGroupReqDto.name,
             members = userIdList + userId
-        ).map{
+        ).
+        publishOn(Schedulers.boundedElastic())
+            .map{
             group ->
             group.members.forEach{
                 userId ->
-                groupService.addGroupToJoinedGroup(
-                    userId = userId,
-                    groupId = group.id,
-                ).publishOn(Schedulers.boundedElastic())
-                    .doOnSuccess {
-                        kafkaService.publishInviteGroupEvent(
-                            receiverId = userId,
-                            group = group).block()
-                    }.block()
+                mono{
+                    kafkaService.publishInviteGroupEvent(
+                        receiverId = userId,
+                        group = group)
+                        .awaitSingleOrNull()
+
+                    groupService.addGroupToJoinedGroup(
+                        userId = userId,
+                        groupId = group.id,
+                    ).awaitSingleOrNull()
+                }.subscribe()
             }
         }.then()
     }
