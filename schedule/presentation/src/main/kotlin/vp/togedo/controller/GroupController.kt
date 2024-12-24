@@ -18,6 +18,7 @@ import vp.togedo.connector.GroupConnector
 import vp.togedo.data.dto.group.CreateGroupReqDto
 import vp.togedo.data.dto.group.GroupDto
 import vp.togedo.data.dto.group.InviteGroupDto
+import vp.togedo.data.dto.group.UpdateGroupReqDto
 
 @RestController
 @RequestMapping("/api/v1/group")
@@ -78,5 +79,23 @@ class GroupController(
             addedId = inviteGroupDto.userId,
             groupId = inviteGroupDto.groupId
             ).then(Mono.just(ResponseEntity.ok().build()))
+    }
+
+    @PutMapping("/update")
+    @Operation(summary = "그룹을 수정")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "OK",
+            content = [Content(schema = Schema(implementation = HttpStatus::class))]),
+        ApiResponse(responseCode = "403", description = "권한 에러",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun updateGroup(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody updateGroupReqDto: UpdateGroupReqDto
+    ): Mono<ResponseEntity<HttpStatus>> {
+        idComponent.objectIdProvider(userId)
+        return groupConnector.modifyGroup(
+            updateGroupReqDto = updateGroupReqDto
+        ).then(Mono.just(ResponseEntity.ok().build()))
     }
 }
