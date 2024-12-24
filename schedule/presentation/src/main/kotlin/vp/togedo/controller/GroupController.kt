@@ -17,6 +17,7 @@ import vp.togedo.config.IdComponent
 import vp.togedo.connector.GroupConnector
 import vp.togedo.data.dto.group.CreateGroupReqDto
 import vp.togedo.data.dto.group.GroupDto
+import vp.togedo.data.dto.group.InviteGroupDto
 
 @RestController
 @RequestMapping("/api/v1/group")
@@ -60,5 +61,22 @@ class GroupController(
         ).then(Mono.just(ResponseEntity.status(201).build()))
     }
 
-
+    @PatchMapping("/invite")
+    @Operation(summary = "그룹에 사용자를 초대")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "OK",
+            content = [Content(schema = Schema(implementation = HttpStatus::class))]),
+        ApiResponse(responseCode = "403", description = "권한 에러",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun inviteGroup(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody inviteGroupDto: InviteGroupDto
+    ): Mono<ResponseEntity<HttpStatus>> {
+        idComponent.objectIdProvider(userId)
+        return groupConnector.addUserToGroup(
+            addedId = inviteGroupDto.userId,
+            groupId = inviteGroupDto.groupId
+            ).then(Mono.just(ResponseEntity.ok().build()))
+    }
 }
