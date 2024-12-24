@@ -12,8 +12,10 @@ data class GroupDocument(
     @JsonProperty("id")
     val id: ObjectId = ObjectId.get(),
 
+    @JsonProperty("name")
     var name: String,
 
+    @JsonProperty("members")
     val members: MutableList<ObjectId> = mutableListOf(),
 ){
     fun changeName(name: String): Mono<GroupDocument> {
