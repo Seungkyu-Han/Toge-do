@@ -69,4 +69,19 @@ class GroupConnectorImpl(
             )
         }.then()
     }
+
+    @Transactional
+    override fun exitGroup(userId: ObjectId, groupId: String): Mono<Void> {
+        val groupObjectId = ObjectId(groupId)
+
+        return groupService.removeUserFromGroup(
+            userId = userId,
+            groupId = groupObjectId
+        ).map{
+            groupService.removeGroupFromJoinedGroup(
+                userId = userId,
+                groupId = groupObjectId
+            )
+        }.then()
+    }
 }
