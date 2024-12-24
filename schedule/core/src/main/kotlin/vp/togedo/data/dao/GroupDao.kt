@@ -1,8 +1,6 @@
 package vp.togedo.data.dao
 
-import org.bson.types.ObjectId
-
 data class GroupDao(
     val name: String,
-    val members: List<ObjectId>?
+    val members: List<String>?
 )
