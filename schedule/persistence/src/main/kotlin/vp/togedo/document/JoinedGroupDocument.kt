@@ -12,6 +12,7 @@ data class JoinedGroupDocument(
     @JsonProperty("id")
     val id: ObjectId,
 
+    @JsonProperty("groups")
     val groups: MutableList<ObjectId> = mutableListOf()
 ){
     fun addGroup(id: ObjectId): Mono<JoinedGroupDocument> {
