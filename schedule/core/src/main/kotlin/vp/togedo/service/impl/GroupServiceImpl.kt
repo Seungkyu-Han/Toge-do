@@ -3,6 +3,7 @@ package vp.togedo.service.impl
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import vp.togedo.data.dao.GroupDao
 import vp.togedo.document.GroupDocument
 import vp.togedo.document.JoinedGroupDocument
 import vp.togedo.repository.GroupRepository
@@ -67,6 +68,16 @@ class GroupServiceImpl(
             }
             .flatMap {
                 joinedGroupRepository.save(it)
+            }
+    }
+
+    override fun updateGroup(groupId: ObjectId, groupDao: GroupDao): Mono<GroupDocument> {
+        return groupRepository.findById(groupId)
+            .flatMap{
+                it.changeName(groupDao.name)
+            }
+            .flatMap {
+                groupRepository.save(it)
             }
     }
 }

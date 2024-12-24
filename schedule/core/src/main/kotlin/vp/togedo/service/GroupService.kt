@@ -2,6 +2,7 @@ package vp.togedo.service
 
 import org.bson.types.ObjectId
 import reactor.core.publisher.Mono
+import vp.togedo.data.dao.GroupDao
 import vp.togedo.document.GroupDocument
 import vp.togedo.document.JoinedGroupDocument
 
@@ -16,4 +17,6 @@ interface GroupService {
     fun addGroupToJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument>
 
     fun removeGroupFromJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument>
+
+    fun updateGroup(groupId: ObjectId, groupDao: GroupDao): Mono<GroupDocument>
 }
