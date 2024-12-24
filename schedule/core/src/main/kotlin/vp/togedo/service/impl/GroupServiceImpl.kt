@@ -90,6 +90,7 @@ class GroupServiceImpl(
                         groupRepository.findById(groupId)
                             .map { group ->
                                 GroupDao(
+                                    id = group.id,
                                     name = group.name,
                                     members = group.members.toList()
                                 )

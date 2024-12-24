@@ -7,4 +7,6 @@ import vp.togedo.data.dto.group.CreateGroupReqDto
 interface GroupConnector {
 
     fun createGroup(userId: ObjectId, createGroupReqDto: CreateGroupReqDto): Mono<Void>
+
+    fun addUserToGroup(addedId: String, groupId: String): Mono<Void>
 }
