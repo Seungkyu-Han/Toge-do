@@ -59,4 +59,14 @@ class GroupServiceImpl(
                 }
             }
     }
+
+    override fun removeGroupFromJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument> {
+        return joinedGroupRepository.findById(userId)
+            .flatMap {
+                it.removeGroup(groupId)
+            }
+            .flatMap {
+                joinedGroupRepository.save(it)
+            }
+    }
 }
