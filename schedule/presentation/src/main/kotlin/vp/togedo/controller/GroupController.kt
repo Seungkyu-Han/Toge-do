@@ -98,4 +98,20 @@ class GroupController(
             updateGroupReqDto = updateGroupReqDto
         ).then(Mono.just(ResponseEntity.ok().build()))
     }
+
+    @PatchMapping("/exit")
+    @Operation(summary = "해당 그룹에서 탈퇴")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "OK",
+            content = [Content(schema = Schema(implementation = HttpStatus::class))]),
+        ApiResponse(responseCode = "403", description = "권한 에러",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun exitGroup(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestParam groupId: String
+    ):Mono<ResponseEntity<HttpStatus>> = groupConnector.exitGroup(
+        userId = idComponent.objectIdProvider(userId),
+        groupId = groupId,
+    ).then(Mono.just(ResponseEntity.ok().build()))
 }
