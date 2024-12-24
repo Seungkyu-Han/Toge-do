@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono
 import vp.togedo.data.dao.GroupDao
 import vp.togedo.data.dao.JoinedGroupDao
 import vp.togedo.document.GroupDocument
+import vp.togedo.document.JoinedGroupDocument
 import vp.togedo.repository.GroupRepository
 import vp.togedo.repository.JoinedGroupRepository
 import vp.togedo.service.GroupService
@@ -67,6 +68,9 @@ class GroupServiceImpl(
 
         override fun addGroupToJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDao> {
         return joinedGroupRepository.findById(userId)
+            .switchIfEmpty(
+                Mono.defer{joinedGroupRepository.save(JoinedGroupDocument(id = userId))}
+            )
             .flatMap{
                 it.addGroup(groupId)
             }.flatMap{
@@ -118,6 +122,9 @@ class GroupServiceImpl(
 
     override fun readGroups(userId: ObjectId): Flux<GroupDao> =
         joinedGroupRepository.findById(userId)
+            .switchIfEmpty(
+                Mono.defer{joinedGroupRepository.save(JoinedGroupDocument(id = userId))}
+            )
             .flatMapMany { joinedGroup ->
                 Flux.fromIterable(joinedGroup.groups)
                     .flatMap { groupId ->
