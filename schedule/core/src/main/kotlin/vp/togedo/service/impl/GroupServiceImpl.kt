@@ -2,6 +2,7 @@ package vp.togedo.service.impl
 
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.data.dao.GroupDao
 import vp.togedo.document.GroupDocument
@@ -80,4 +81,20 @@ class GroupServiceImpl(
                 groupRepository.save(it)
             }
     }
+
+    override fun readGroups(userId: ObjectId): Flux<GroupDao> =
+        joinedGroupRepository.findById(userId)
+            .flatMapMany { joinedGroup ->
+                Flux.fromIterable(joinedGroup.groups)
+                    .flatMap { groupId ->
+                        groupRepository.findById(groupId)
+                            .map { group ->
+                                GroupDao(
+                                    name = group.name,
+                                    members = group.members.toList()
+                                )
+                            }
+                    }
+            }
+
 }

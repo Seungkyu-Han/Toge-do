@@ -4,5 +4,5 @@ import org.bson.types.ObjectId
 
 data class GroupDao(
     val name: String,
-    val members: HashSet<ObjectId>?
+    val members: List<ObjectId>?
 )

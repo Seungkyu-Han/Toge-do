@@ -1,6 +1,7 @@
 package vp.togedo.service
 
 import org.bson.types.ObjectId
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.data.dao.GroupDao
 import vp.togedo.document.GroupDocument
@@ -19,4 +20,6 @@ interface GroupService {
     fun removeGroupFromJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument>
 
     fun updateGroup(groupId: ObjectId, groupDao: GroupDao): Mono<GroupDocument>
+
+    fun readGroups(userId: ObjectId): Flux<GroupDao>
 }
