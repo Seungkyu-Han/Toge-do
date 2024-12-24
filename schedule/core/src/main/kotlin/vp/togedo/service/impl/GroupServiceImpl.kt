@@ -4,9 +4,13 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import vp.togedo.document.GroupDocument
+import vp.togedo.document.JoinedGroupDocument
 import vp.togedo.repository.GroupRepository
 import vp.togedo.repository.JoinedGroupRepository
 import vp.togedo.service.GroupService
+import vp.togedo.util.error.errorCode.ErrorCode
+import vp.togedo.util.error.exception.GroupException
+import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 
 @Service
 class GroupServiceImpl(
@@ -20,5 +24,20 @@ class GroupServiceImpl(
             members = members.toMutableList()
         )
         return groupRepository.save(group)
+    }
+
+    override fun inviteUserToGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument> {
+        return joinedGroupRepository.findById(userId)
+            .flatMap{
+                it.addGroup(groupId)
+            }.flatMap{
+                joinedGroupRepository.save(it)
+            }
+            .onErrorMap{
+                when(it){
+                    is AlreadyJoinedGroupException -> GroupException(ErrorCode.ALREADY_JOINED_GROUP)
+                    else -> it
+                }
+            }
     }
 }

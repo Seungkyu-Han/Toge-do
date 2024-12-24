@@ -7,10 +7,10 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import reactor.core.publisher.Mono
 import vp.togedo.enums.ScheduleEnum
-import vp.togedo.util.exception.ConflictScheduleException
-import vp.togedo.util.exception.EndTimeBeforeStartTimeException
-import vp.togedo.util.exception.InvalidTimeException
-import vp.togedo.util.exception.ScheduleNotFoundException
+import vp.togedo.util.exception.schedule.ConflictScheduleException
+import vp.togedo.util.exception.schedule.EndTimeBeforeStartTimeException
+import vp.togedo.util.exception.schedule.InvalidTimeException
+import vp.togedo.util.exception.schedule.ScheduleNotFoundException
 
 @Document(collection = "personal_schedule")
 data class PersonalScheduleDocument(

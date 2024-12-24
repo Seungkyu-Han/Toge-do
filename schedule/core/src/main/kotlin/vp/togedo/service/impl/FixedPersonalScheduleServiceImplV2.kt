@@ -11,10 +11,10 @@ import vp.togedo.repository.PersonalScheduleRepository
 import vp.togedo.service.FixedPersonalScheduleService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.ScheduleException
-import vp.togedo.util.exception.ConflictScheduleException
-import vp.togedo.util.exception.EndTimeBeforeStartTimeException
-import vp.togedo.util.exception.InvalidTimeException
-import vp.togedo.util.exception.ScheduleNotFoundException
+import vp.togedo.util.exception.schedule.ConflictScheduleException
+import vp.togedo.util.exception.schedule.EndTimeBeforeStartTimeException
+import vp.togedo.util.exception.schedule.InvalidTimeException
+import vp.togedo.util.exception.schedule.ScheduleNotFoundException
 
 @Service
 class FixedPersonalScheduleServiceImplV2(
