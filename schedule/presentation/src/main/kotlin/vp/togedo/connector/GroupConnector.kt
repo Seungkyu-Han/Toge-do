@@ -5,6 +5,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.data.dto.group.CreateGroupReqDto
 import vp.togedo.data.dto.group.GroupDto
+import vp.togedo.data.dto.group.UpdateGroupReqDto
 
 interface GroupConnector {
 
@@ -15,4 +16,6 @@ interface GroupConnector {
     fun addUserToGroup(addedId: String, groupId: String): Mono<Void>
 
     fun exitGroup(userId: ObjectId, groupId: String): Mono<Void>
+
+    fun modifyGroup(updateGroupReqDto: UpdateGroupReqDto): Mono<Void>
 }

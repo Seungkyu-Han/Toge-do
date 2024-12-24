@@ -18,7 +18,7 @@ interface GroupService {
 
     fun removeGroupFromJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDao>
 
-    fun updateGroup(groupId: ObjectId, groupDao: GroupDao): Mono<GroupDao>
+    fun updateGroup(groupDao: GroupDao): Mono<GroupDao>
 
     fun readGroups(userId: ObjectId): Flux<GroupDao>
 }

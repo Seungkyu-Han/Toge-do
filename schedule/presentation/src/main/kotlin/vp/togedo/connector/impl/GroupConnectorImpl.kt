@@ -7,8 +7,10 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.GroupConnector
+import vp.togedo.data.dao.GroupDao
 import vp.togedo.data.dto.group.CreateGroupReqDto
 import vp.togedo.data.dto.group.GroupDto
+import vp.togedo.data.dto.group.UpdateGroupReqDto
 import vp.togedo.service.GroupService
 import vp.togedo.service.KafkaService
 
@@ -83,5 +85,16 @@ class GroupConnectorImpl(
                 groupId = groupObjectId
             )
         }.then()
+    }
+
+    override fun modifyGroup(updateGroupReqDto: UpdateGroupReqDto): Mono<Void> {
+        val objectId = ObjectId(updateGroupReqDto.id)
+        return groupService.updateGroup(
+            GroupDao(
+                id = objectId,
+                name = updateGroupReqDto.name,
+                members = emptyList()
+            )
+        ).then()
     }
 }

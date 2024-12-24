@@ -100,8 +100,8 @@ class GroupServiceImpl(
             }
     }
 
-    override fun updateGroup(groupId: ObjectId, groupDao: GroupDao): Mono<GroupDao> {
-        return groupRepository.findById(groupId)
+    override fun updateGroup(groupDao: GroupDao): Mono<GroupDao> {
+        return groupRepository.findById(groupDao.id)
             .flatMap{
                 it.changeName(groupDao.name)
             }
