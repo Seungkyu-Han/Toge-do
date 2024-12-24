@@ -9,5 +9,7 @@ interface GroupService {
 
     fun createGroup(name: String, members: List<ObjectId>): Mono<GroupDocument>
 
-    fun inviteUserToGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument>
+    fun addUserToGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDocument>
+
+    fun addGroupToJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument>
 }

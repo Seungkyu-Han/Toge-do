@@ -26,7 +26,16 @@ class GroupServiceImpl(
         return groupRepository.save(group)
     }
 
-    override fun inviteUserToGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument> {
+    override fun addUserToGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDocument> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                it.addMember(userId)
+            }.flatMap {
+                groupRepository.save(it)
+            }
+    }
+
+    override fun addGroupToJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument> {
         return joinedGroupRepository.findById(userId)
             .flatMap{
                 it.addGroup(groupId)
