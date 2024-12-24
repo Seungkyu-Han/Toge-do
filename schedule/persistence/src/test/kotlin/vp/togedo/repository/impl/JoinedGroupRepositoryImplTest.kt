@@ -216,4 +216,78 @@ class JoinedGroupRepositoryImplTest{
             )
         }
     }
+
+    @Nested
+    inner class Save{
+
+        private var joinedGroup = JoinedGroupDocument(
+            id = ObjectId.get()
+        )
+
+        @BeforeEach
+        fun setUp() {
+            joinedGroup = JoinedGroupDocument(
+                id = ObjectId.get()
+            )
+        }
+
+        @Test
+        @DisplayName("데이터베이스와 Redis에 모두 저장")
+        fun saveToBothMongoAndRedisReturnSuccess(){
+            //given
+            val joinedGroupToString = objectMapper.writeValueAsString(joinedGroup)
+
+            `when`(joinedGroupMongoRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(reactiveRedisTemplate.opsForValue())
+                .thenReturn(reactiveValueOperations)
+
+            `when`(reactiveValueOperations.set("$redisPrefix${joinedGroup.id}", joinedGroupToString, joinedGroupRedisTime))
+                .thenReturn(Mono.just(true))
+
+            //when
+            StepVerifier.create(joinedGroupRepositoryImpl.save(joinedGroup))
+                .expectNextMatches { it == joinedGroup }
+                .verifyComplete()
+
+            //then
+            verify(joinedGroupMongoRepository, times(1)).save(joinedGroup)
+            verify(reactiveValueOperations, times(1)).set(
+                "$redisPrefix${joinedGroup.id}",
+                joinedGroupToString,
+                joinedGroupRedisTime
+            )
+        }
+
+        @Test
+        @DisplayName("데이터베이스 저장에 실패하면, Redis에 저장을 시도하지 않음")
+        fun saveFailToBothMongoAndRedisReturnSuccess(){
+            //given
+            val joinedGroupToString = objectMapper.writeValueAsString(joinedGroup)
+
+            `when`(joinedGroupMongoRepository.save(joinedGroup))
+                .thenReturn(Mono.error(NullPointerException()))
+
+            `when`(reactiveRedisTemplate.opsForValue())
+                .thenReturn(reactiveValueOperations)
+
+            `when`(reactiveValueOperations.set("$redisPrefix${joinedGroup.id}", joinedGroupToString, joinedGroupRedisTime))
+                .thenReturn(Mono.just(true))
+
+            //when
+            StepVerifier.create(joinedGroupRepositoryImpl.save(joinedGroup))
+                .expectErrorMatches {
+                    it is NullPointerException
+                }.verify()
+
+            //then
+            verify(joinedGroupMongoRepository, times(1)).save(joinedGroup)
+            verify(reactiveValueOperations, times(0)).set(
+                "$redisPrefix${joinedGroup.id}",
+                joinedGroupToString,
+                joinedGroupRedisTime
+            )
+        }
+    }
 }
