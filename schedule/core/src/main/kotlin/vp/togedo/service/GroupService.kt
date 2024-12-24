@@ -11,5 +11,7 @@ interface GroupService {
 
     fun addUserToGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDocument>
 
+    fun removeUserFromGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDocument>
+
     fun addGroupToJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDocument>
 }

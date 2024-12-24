@@ -5,6 +5,7 @@ import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import reactor.core.publisher.Mono
+import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 
 @Document(collection = "groups")
 data class GroupDocument(
@@ -16,7 +17,7 @@ data class GroupDocument(
     var name: String,
 
     @JsonProperty("members")
-    val members: MutableList<ObjectId> = mutableListOf(),
+    val members: MutableSet<ObjectId> = mutableSetOf()
 ){
     fun changeName(name: String): Mono<GroupDocument> {
         return Mono.fromCallable {
@@ -27,6 +28,8 @@ data class GroupDocument(
 
     fun addMember(id: ObjectId): Mono<GroupDocument>{
         return Mono.fromCallable {
+            if (this.members.contains(id))
+                throw AlreadyJoinedGroupException("이미 포함된 그룹입니다.")
             this.members.add(id)
             this
         }

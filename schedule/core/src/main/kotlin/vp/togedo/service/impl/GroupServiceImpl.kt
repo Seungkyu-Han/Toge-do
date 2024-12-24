@@ -21,7 +21,7 @@ class GroupServiceImpl(
     override fun createGroup(name: String, members: List<ObjectId>): Mono<GroupDocument> {
         val group = GroupDocument(
             name = name,
-            members = members.toMutableList()
+            members = members.toMutableSet()
         )
         return groupRepository.save(group)
     }
@@ -31,6 +31,16 @@ class GroupServiceImpl(
             .flatMap {
                 it.addMember(userId)
             }.flatMap {
+                groupRepository.save(it)
+            }
+    }
+
+    override fun removeUserFromGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDocument> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                it.removeMember(userId)
+            }
+            .flatMap {
                 groupRepository.save(it)
             }
     }
