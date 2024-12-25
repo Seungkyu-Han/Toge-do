@@ -111,7 +111,7 @@ class GroupServiceImplTest{
 
         @Test
         @DisplayName("0명의 사용자로 그룹을 생성")
-        fun createGroupByNoMemberReturnSuccess(){
+        fun createGroupByNoMemberReturnException(){
             //given
             val members = mutableListOf<ObjectId>()
 
@@ -133,7 +133,7 @@ class GroupServiceImplTest{
 
         @Test
         @DisplayName("1명의 사용자로 그룹을 생성")
-        fun createGroupByOneMemberReturnSuccess(){
+        fun createGroupByOneMemberReturnException(){
             //given
             val members = mutableListOf(userId)
 
@@ -151,6 +151,28 @@ class GroupServiceImplTest{
                 .expectErrorMatches {
                     it is ScheduleException && it.errorCode == ErrorCode.REQUIRE_MORE_MEMBER
                 }.verify()
+        }
+
+        @Test
+        @DisplayName("중복된 아이디로 2명이 그룹을 생성")
+        fun createGroupByDuplicatedIdReturnException(){
+            //given
+            val members = mutableListOf(userId, userId)
+            val group = GroupDocument(
+                id = ObjectId.get(),
+                name = name,
+                members = members.toMutableSet()
+            )
+
+            `when`(groupRepository.save(any()))
+                .thenReturn(Mono.just(group))
+
+            //when && then
+            StepVerifier.create(groupServiceImpl.createGroup(name, members))
+                .expectErrorMatches {
+                    it is ScheduleException && it.errorCode == ErrorCode.REQUIRE_MORE_MEMBER
+                }.verify()
+
         }
     }
 }
