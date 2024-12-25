@@ -70,7 +70,6 @@ class FriendServiceImpl(
                 FriendRequestEventDto(
                     receiverId = receiver.id.toString(),
                     sender = sender.name,
-                    deviceToken = receiver.deviceToken,
                     image = sender.profileImageUrl
                 ))
         )
@@ -109,7 +108,6 @@ class FriendServiceImpl(
                 FriendApproveEventDto(
                     receiverId = receiver.id.toString(),
                     sender = sender.name,
-                    deviceToken = receiver.deviceToken,
                     image = sender.profileImageUrl
                     )))
     }
