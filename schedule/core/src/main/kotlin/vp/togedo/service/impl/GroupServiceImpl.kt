@@ -54,7 +54,12 @@ class GroupServiceImpl(
                 name = it.name,
                 members = it.members.toList()
             )
-        }
+        }.onErrorMap {
+                when (it) {
+                    is AlreadyJoinedGroupException -> GroupException(ErrorCode.ALREADY_JOINED_GROUP)
+                    else -> it
+                }
+            }
     }
 
     override fun removeUserFromGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDao> {
