@@ -26,7 +26,7 @@ class GroupEventListener(
         )
         if(!isSSE){
             fcmService.pushNotification(
-                deviceToken = "",
+                userId = inviteGroupEventDto.receiverId,
                 title = event.eventTitle,
                 content = "${inviteGroupEventDto.name}${event.eventContent}",
                 image = null

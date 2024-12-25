@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Service
 import vp.togedo.service.FCMService
 import java.io.FileInputStream
@@ -17,8 +18,11 @@ import java.io.FileInputStream
 @Service
 class FCMServiceImpl(
     @Value("\${FCM.CREDENTIALS}")
-    private val credentials: String
+    private val credentials: String,
+    private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
 ): FCMService {
+
+    private val deviceTokenPrefix = "deviceToken:"
 
     init{
         val serviceAccount = FileInputStream(credentials)
@@ -29,19 +33,25 @@ class FCMServiceImpl(
         FirebaseApp.initializeApp(options)
     }
 
-    override fun pushNotification(deviceToken: String, title: String, content: String, image: String?) {
+    override fun pushNotification(userId: String, title: String, content: String, image: String?) {
+
+        val deviceToken = reactiveRedisTemplate.opsForValue().get("$deviceTokenPrefix$userId")
+
         CoroutineScope(Dispatchers.IO).launch {
             val notification = Notification.builder()
                 .setTitle(title)
                 .setBody(content)
                 .build()
 
-            val message = Message.builder()
-                .setNotification(notification)
-                .setToken(deviceToken)
-                .putData("image", image)
-                .build()
-            FirebaseMessaging.getInstance().send(message)
+            deviceToken.map{
+                Message.builder()
+                    .setNotification(notification)
+                    .setToken(it)
+                    .putData("image", image)
+                    .build()
+            }.doOnSuccess {
+                message -> FirebaseMessaging.getInstance().send(message)
+            }.subscribe()
         }
     }
 }

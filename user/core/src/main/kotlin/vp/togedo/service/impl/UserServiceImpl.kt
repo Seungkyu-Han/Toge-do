@@ -3,6 +3,7 @@ package vp.togedo.service.impl
 import io.jsonwebtoken.MalformedJwtException
 import org.bson.types.ObjectId
 import org.springframework.dao.DuplicateKeyException
+import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
@@ -19,7 +20,10 @@ import vp.togedo.util.error.exception.UserException
 class UserServiceImpl(
     private val jwtTokenProvider: JwtTokenProvider,
     private val userRepository: UserRepository,
+    private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
 ): UserService {
+
+    private val deviceTokenPrefix = "deviceToken:"
 
     /**
      * 유저의 objectId를 사용하여 access token 생성
@@ -184,5 +188,18 @@ class UserServiceImpl(
             .switchIfEmpty(
                 Mono.error(UserException(ErrorCode.USER_NOT_FOUND))
             )
+    }
+
+    override fun saveDeviceTokenToRedis(userDocument: UserDocument): Mono<UserDocument> {
+        val redisKey = "$deviceTokenPrefix${userDocument.id}"
+        val deviceToken = userDocument.deviceToken
+        return if(deviceToken != null){
+            reactiveRedisTemplate.opsForValue().set(redisKey, deviceToken)
+        }
+        else{
+            reactiveRedisTemplate.opsForValue().delete(redisKey)
+        }.map{
+            userDocument
+        }
     }
 }

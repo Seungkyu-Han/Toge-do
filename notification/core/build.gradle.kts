@@ -26,6 +26,9 @@ dependencies {
     //FCM
     implementation("com.google.firebase:firebase-admin:9.4.2")
 
+    //REDIS
+    implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.2")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
 }
 
