@@ -13,6 +13,7 @@ import vp.togedo.repository.JoinedGroupRepository
 import vp.togedo.service.GroupService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.GroupException
+import vp.togedo.util.error.exception.ScheduleException
 import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 
 @Service
@@ -22,9 +23,15 @@ class GroupServiceImpl(
 ): GroupService {
 
     override fun createGroup(name: String, members: List<ObjectId>): Mono<GroupDao> {
+
+        val memberSet = members.toMutableSet()
+
+        if (memberSet.size < 2)
+            return Mono.error(ScheduleException(ErrorCode.REQUIRE_MORE_MEMBER))
+
         val group = GroupDocument(
             name = name,
-            members = members.toMutableSet()
+            members = memberSet
         )
         return groupRepository.save(group).map{
             GroupDao(
