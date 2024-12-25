@@ -14,5 +14,6 @@ enum class ErrorCode(
     BAD_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "스케줄의 종료시간이 시작시간보다 빠릅니다."),
     SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 스케줄이 존재하지 않습니다"),
 
-    ALREADY_JOINED_GROUP(HttpStatus.CONFLICT, "이미 포함된 그룹입니다.")
+    ALREADY_JOINED_GROUP(HttpStatus.CONFLICT, "이미 포함된 그룹입니다."),
+    REQUIRE_MORE_MEMBER(HttpStatus.BAD_REQUEST, "멤버가 더 필요합니다")
 }
