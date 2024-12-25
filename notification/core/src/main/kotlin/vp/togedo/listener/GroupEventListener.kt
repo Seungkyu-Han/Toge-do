@@ -24,5 +24,13 @@ class GroupEventListener(
             id = inviteGroupEventDto.receiverId,
             sseDao = SSEDao(event, inviteGroupEventDto.name, null)
         )
+        if(!isSSE){
+            fcmService.pushNotification(
+                deviceToken = "",
+                title = event.eventTitle,
+                content = "${inviteGroupEventDto.name}${event.eventContent}",
+                image = null
+            )
+        }
     }
 }
