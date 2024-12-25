@@ -39,4 +39,5 @@ interface UserService {
 
     fun saveUser(userDocument: UserDocument): Mono<UserDocument>
 
+    fun saveDeviceTokenToRedis(userDocument: UserDocument): Mono<UserDocument>
 }
