@@ -25,9 +25,9 @@ class FriendEventListener(
             id = friendRequestEventDto.receiverId,
             sseDao = SSEDao(event, friendRequestEventDto.sender, friendRequestEventDto.image)
         )
-        if (!isSSE && friendRequestEventDto.deviceToken != null){
+        if (!isSSE){
             fcmService.pushNotification(
-                deviceToken = friendRequestEventDto.deviceToken,
+                userId = friendRequestEventDto.receiverId,
                 title = event.eventTitle,
                 content = "${friendRequestEventDto.sender}${event.eventContent}",
                 image = friendRequestEventDto.image
@@ -43,9 +43,9 @@ class FriendEventListener(
             id = friendApproveEventDto.receiverId,
             sseDao = SSEDao(event, friendApproveEventDto.sender, friendApproveEventDto.image)
         )
-        if (!isSSE && friendApproveEventDto.deviceToken != null){
+        if (!isSSE){
             fcmService.pushNotification(
-                deviceToken = friendApproveEventDto.deviceToken,
+                userId = friendApproveEventDto.receiverId,
                 title = event.eventTitle,
                 content = "${friendApproveEventDto.sender}${event.eventContent}",
                 image = friendApproveEventDto.image

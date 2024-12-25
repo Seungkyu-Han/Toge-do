@@ -7,6 +7,7 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.UserConnector
 import vp.togedo.document.UserDocument
 import vp.togedo.dto.user.LoginRes
@@ -162,6 +163,9 @@ class UserConnectorImpl(
                 it
             }.flatMap{
                 userService.saveUser(it)
+            }.publishOn(Schedulers.boundedElastic())
+            .doOnSuccess {
+                userService.saveDeviceTokenToRedis(it).subscribe()
             }
     }
 }
