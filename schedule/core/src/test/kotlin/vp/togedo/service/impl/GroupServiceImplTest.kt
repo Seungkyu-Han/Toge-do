@@ -847,5 +847,20 @@ class GroupServiceImplTest{
             StepVerifier.create(groupServiceImpl.readGroup(group.id))
                 .expectNext(expectedGroupDao).verifyComplete()
         }
+
+        @Test
+        @DisplayName("존재하지 않는 그룹을 조회")
+        fun readGroupByNotExistGroupReturnException(){
+            //given
+            `when`(groupRepository.findById(group.id))
+                .thenReturn(Mono.empty())
+
+            //when && then
+            StepVerifier.create(groupServiceImpl.readGroup(group.id))
+                .expectErrorMatches {
+                    it is GroupException && it.errorCode == ErrorCode.NOT_EXIST_GROUP
+                }
+                .verify()
+        }
     }
 }
