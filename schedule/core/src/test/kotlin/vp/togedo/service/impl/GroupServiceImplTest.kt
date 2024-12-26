@@ -13,7 +13,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import vp.togedo.data.dao.GroupDao
+import vp.togedo.data.dao.JoinedGroupDao
 import vp.togedo.document.GroupDocument
+import vp.togedo.document.JoinedGroupDocument
 import vp.togedo.repository.GroupRepository
 import vp.togedo.repository.JoinedGroupRepository
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -386,6 +388,134 @@ class GroupServiceImplTest{
 
             verify(groupRepository, times(1)).findById(group.id)
             verify(groupRepository, times(1)).save(group)
+        }
+    }
+
+    @Nested
+    inner class AddGroupToJoinedGroup{
+
+        private lateinit var groupId: ObjectId
+
+        private lateinit var userId: ObjectId
+
+        private lateinit var joinedGroup: JoinedGroupDocument
+
+        @BeforeEach
+        fun setUp() {
+            groupId = ObjectId.get()
+            userId = ObjectId.get()
+            joinedGroup = JoinedGroupDocument(
+                id = userId
+            )
+        }
+
+        @Test
+        @DisplayName("해당 유저의 joined group이 존재하고 다른 그룹이 속해있는 경우")
+        fun addGroupToJoinedGroupAlreadyExistUserReturnSuccess(){
+            //given
+            joinedGroup.groups.add(ObjectId.get())
+
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            val expectedJoinedGroupDao = JoinedGroupDao(
+                id = userId,
+                groups = (joinedGroup.groups + groupId).toMutableSet()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.addGroupToJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectNext(expectedJoinedGroupDao).verifyComplete()
+
+            //then
+            Assertions.assertTrue(joinedGroup.groups.contains(groupId))
+            Assertions.assertEquals(2, joinedGroup.groups.size)
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+
+        @Test
+        @DisplayName("해당 유저의 joined group이 존재하고 그룹은 존재하지 않는 경우")
+        fun addGroupToJoinedGroupAlreadyEmptyJoinedGroupReturnSuccess(){
+            //given
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            val expectedJoinedGroupDao = JoinedGroupDao(
+                id = userId,
+                groups = (joinedGroup.groups + groupId).toMutableSet()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.addGroupToJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectNext(expectedJoinedGroupDao).verifyComplete()
+
+            //then
+            Assertions.assertTrue(joinedGroup.groups.contains(groupId))
+            Assertions.assertEquals(1, joinedGroup.groups.size)
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+
+        @Test
+        @DisplayName("joined group이 없는 유저에게 그룹을 추가")
+        fun addGroupToJoinedGroupNotExistReturnSuccess(){
+            //given
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            `when`(joinedGroupRepository.save(any()))
+                .thenReturn(Mono.just(joinedGroup))
+
+            val expectedJoinedGroupDao = JoinedGroupDao(
+                id = userId,
+                groups = mutableSetOf(groupId)
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.addGroupToJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectNext(expectedJoinedGroupDao).verifyComplete()
+
+            //then
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+
+        @Test
+        @DisplayName("이미 가입되어 있는 그룹을 추가 시도")
+        fun addGroupToAlreadyJoinedReturnException(){
+            //given
+            joinedGroup.groups.add(groupId)
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            //when
+            StepVerifier.create(groupServiceImpl.addGroupToJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectErrorMatches {
+                it is GroupException && it.errorCode == ErrorCode.ALREADY_JOINED_GROUP
+            }.verify()
+
+            //then
+            Assertions.assertTrue(joinedGroup.groups.contains(groupId))
+            Assertions.assertEquals(1, joinedGroup.groups.size)
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(0)).save(joinedGroup)
         }
     }
 }
