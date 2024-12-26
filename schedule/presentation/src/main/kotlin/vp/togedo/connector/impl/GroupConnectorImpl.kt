@@ -35,7 +35,7 @@ class GroupConnectorImpl(
         publishOn(Schedulers.boundedElastic())
             .map{
             group ->
-            group.members.forEach{
+            userIdList.forEach{
                 userId ->
                 mono{
                     kafkaService.publishInviteGroupEvent(
