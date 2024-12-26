@@ -566,5 +566,38 @@ class GroupServiceImplTest{
             verify(joinedGroupRepository, times(1)).findById(userId)
             verify(joinedGroupRepository, times(1)).save(joinedGroup)
         }
+
+        @Test
+        @DisplayName("10개의 group이 있는 joined group에서 원하는 group을 삭제")
+        fun removeGroupFromTenGroupJoinedGroupReturnSuccess(){
+            //given
+            joinedGroup.groups.add(groupId)
+
+            for (i in 1..9)
+                joinedGroup.groups.add(ObjectId.get())
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            val expectedJoinedGroupDao = JoinedGroupDao(
+                id = userId,
+                groups = (joinedGroup.groups - groupId).toMutableSet()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeGroupFromJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectNext(expectedJoinedGroupDao).verifyComplete()
+
+            //then
+            Assertions.assertEquals(9, joinedGroup.groups.size)
+            Assertions.assertFalse(joinedGroup.groups.contains(groupId))
+
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
     }
 }
