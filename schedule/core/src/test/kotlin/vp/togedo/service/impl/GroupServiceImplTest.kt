@@ -1,11 +1,7 @@
 package vp.togedo.service.impl
 
-import com.mongodb.assertions.Assertions
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -301,6 +297,7 @@ class GroupServiceImplTest{
 
             //then
             Assertions.assertFalse(group.members.contains(userId))
+            Assertions.assertEquals(1, group.members.size)
 
             verify(groupRepository, times(1)).findById(group.id)
             verify(groupRepository, times(1)).save(group)
@@ -356,6 +353,39 @@ class GroupServiceImplTest{
             Assertions.assertFalse(group.members.contains(userId))
 
             verify(groupRepository, times(1)).findById(group.id)
+        }
+
+        @Test
+        @DisplayName("10명의 그룹에서 유효한 사용자가 탈퇴")
+        fun removeUserFrom10MemberGroupReturnSuccess(){
+            //given
+            group.members.add(userId)
+            for (i in 1..9)
+                group.members.add(ObjectId.get())
+
+
+            `when`(groupRepository.findById(group.id)).thenReturn(Mono.just(group))
+            `when`(groupRepository.save(group)).thenReturn(Mono.just(group))
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = (group.members - userId).toList()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeUserFromGroup(
+                groupId = group.id, userId = userId
+            )).expectNextMatches {
+                it == expectedGroupDao
+            }.verifyComplete()
+
+            //then
+            Assertions.assertFalse(group.members.contains(userId))
+            Assertions.assertEquals(9, group.members.size)
+
+            verify(groupRepository, times(1)).findById(group.id)
+            verify(groupRepository, times(1)).save(group)
         }
     }
 }
