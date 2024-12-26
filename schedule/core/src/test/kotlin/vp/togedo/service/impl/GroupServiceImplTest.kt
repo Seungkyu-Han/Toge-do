@@ -259,4 +259,52 @@ class GroupServiceImplTest{
             verify(groupRepository, times(0)).save(group)
         }
     }
+
+    @Nested
+    inner class RemoveUserFromGroup{
+
+        private lateinit var group: GroupDocument
+
+        private lateinit var userId: ObjectId
+
+        @BeforeEach
+        fun setUp() {
+            group = GroupDocument(
+                name = UUID.randomUUID().toString()
+            )
+
+            userId = ObjectId.get()
+        }
+
+        @Test
+        @DisplayName("2명 이상의 그룹에서 유저를 성공적으로 삭제하는 경우")
+        fun removeUserFromTwoMemberGroupReturnSuccess(){
+            //given
+            group.members.add(userId)
+            group.members.add(ObjectId.get())
+
+            `when`(groupRepository.findById(group.id)).thenReturn(Mono.just(group))
+            `when`(groupRepository.save(group)).thenReturn(Mono.just(group))
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = (group.members - userId).toList()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeUserFromGroup(
+                groupId = group.id, userId = userId
+            )).expectNextMatches {
+                it == expectedGroupDao
+            }.verifyComplete()
+
+            //then
+            Assertions.assertFalse(group.members.contains(userId))
+
+            verify(groupRepository, times(1)).findById(group.id)
+            verify(groupRepository, times(1)).save(group)
+        }
+
+    }
 }
