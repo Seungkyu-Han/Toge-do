@@ -13,6 +13,8 @@ interface GroupConnector {
 
     fun readGroups(userId: ObjectId): Flux<GroupDto>
 
+    fun readGroup(groupId: ObjectId): Mono<GroupDto>
+
     fun addUserToGroup(addedId: String, groupId: String): Mono<Void>
 
     fun exitGroup(userId: ObjectId, groupId: String): Mono<Void>
