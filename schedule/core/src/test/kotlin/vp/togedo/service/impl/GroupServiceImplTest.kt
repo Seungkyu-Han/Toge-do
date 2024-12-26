@@ -754,7 +754,44 @@ class GroupServiceImplTest{
                 .expectNext(expectedGroupDao).verifyComplete()
 
             //then
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(groupRepository, times(0)).save(any())
+        }
 
+        @Test
+        @DisplayName("열개의 그룹에 속한 유저가 그룹을 조회")
+        fun readGroupByTenGroupUserReturnSuccess(){
+            //given
+            val groupList = mutableListOf<GroupDocument>()
+            val expectedGroupDaoList = mutableListOf<GroupDao>()
+            for (i in 1..10){
+                groupList.add(GroupDocument(
+                    name = UUID.randomUUID().toString(),
+                    members = mutableSetOf(userId)
+                ))
+
+                `when`(groupRepository.findById(groupList.last().id))
+                    .thenReturn(Mono.just(groupList.last()))
+
+                expectedGroupDaoList.add(
+                    GroupDao(
+                        id = groupList.last().id,
+                        name = groupList.last().name,
+                        members = mutableListOf(userId)
+                    )
+                )
+
+                joinedGroup.groups.add(groupList.last().id)
+            }
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            //when
+            StepVerifier.create(groupServiceImpl.readGroups(userId))
+                .expectNextSequence(expectedGroupDaoList).verifyComplete()
+
+            //then
             verify(joinedGroupRepository, times(1)).findById(userId)
             verify(groupRepository, times(0)).save(any())
         }
