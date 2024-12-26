@@ -187,6 +187,9 @@ class GroupServiceImpl(
                     members = group.members.toList()
                 )
             }
+            .switchIfEmpty(
+                Mono.defer { Mono.error(GroupException(ErrorCode.NOT_EXIST_GROUP)) }
+            )
 
 
 }
