@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import vp.togedo.data.dao.GroupDao
 import vp.togedo.data.dao.JoinedGroupDao
 import vp.togedo.document.GroupDocument
@@ -65,11 +66,18 @@ class GroupServiceImpl(
     override fun removeUserFromGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDao> {
         return groupRepository.findById(groupId)
             .flatMap {
-                it.removeMember(userId)
+                group ->
+                group.removeMember(userId)
+                    .publishOn(Schedulers.boundedElastic())
+                    .doOnNext{
+                        removedGroup ->
+                        (if(removedGroup.members.isNotEmpty())
+                            groupRepository.save(removedGroup)
+                        else
+                            groupRepository.delete(removedGroup)).subscribe()
+                    }
             }
-            .flatMap {
-                groupRepository.save(it)
-            }.map {
+            .map {
                 GroupDao(
                     id = it.id,
                     name = it.name,
