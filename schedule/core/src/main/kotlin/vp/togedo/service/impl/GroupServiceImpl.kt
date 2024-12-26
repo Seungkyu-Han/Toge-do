@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import vp.togedo.data.dao.GroupDao
 import vp.togedo.data.dao.JoinedGroupDao
 import vp.togedo.document.GroupDocument
@@ -15,6 +16,7 @@ import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.GroupException
 import vp.togedo.util.error.exception.ScheduleException
 import vp.togedo.util.exception.group.AlreadyJoinedGroupException
+import vp.togedo.util.exception.group.NotJoinedGroupException
 
 @Service
 class GroupServiceImpl(
@@ -65,11 +67,24 @@ class GroupServiceImpl(
     override fun removeUserFromGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDao> {
         return groupRepository.findById(groupId)
             .flatMap {
-                it.removeMember(userId)
+                group ->
+                group.removeMember(userId)
+                    .publishOn(Schedulers.boundedElastic())
+                    .doOnNext{
+                        removedGroup ->
+                        (if(removedGroup.members.isNotEmpty())
+                            groupRepository.save(removedGroup)
+                        else
+                            groupRepository.delete(removedGroup)).subscribe()
+                    }
             }
-            .flatMap {
-                groupRepository.save(it)
-            }.map {
+            .onErrorMap{
+                when(it){
+                    is NotJoinedGroupException -> GroupException(ErrorCode.NOT_JOINED_GROUP)
+                    else -> it
+                }
+            }
+            .map {
                 GroupDao(
                     id = it.id,
                     name = it.name,

@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import reactor.core.publisher.Mono
 import vp.togedo.util.exception.group.AlreadyJoinedGroupException
+import vp.togedo.util.exception.group.NotJoinedGroupException
 
 @Document(collection = "groups")
 data class GroupDocument(
@@ -37,7 +38,8 @@ data class GroupDocument(
 
     fun removeMember(id: ObjectId): Mono<GroupDocument>{
         return Mono.fromCallable {
-            this.members.remove(id)
+            if(!this.members.remove(id))
+                throw NotJoinedGroupException("포함되지 않은 그룹입니다.")
             this
         }
     }

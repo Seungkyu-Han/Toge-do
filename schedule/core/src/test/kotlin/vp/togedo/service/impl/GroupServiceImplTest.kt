@@ -1,11 +1,7 @@
 package vp.togedo.service.impl
 
-import com.mongodb.assertions.Assertions
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -257,6 +253,139 @@ class GroupServiceImplTest{
 
             verify(groupRepository, times(1)).findById(group.id)
             verify(groupRepository, times(0)).save(group)
+        }
+    }
+
+    @Nested
+    inner class RemoveUserFromGroup{
+
+        private lateinit var group: GroupDocument
+
+        private lateinit var userId: ObjectId
+
+        @BeforeEach
+        fun setUp() {
+            group = GroupDocument(
+                name = UUID.randomUUID().toString()
+            )
+
+            userId = ObjectId.get()
+        }
+
+        @Test
+        @DisplayName("2명 이상의 그룹에서 유저를 성공적으로 삭제하는 경우")
+        fun removeUserFromTwoMemberGroupReturnSuccess(){
+            //given
+            group.members.add(userId)
+            group.members.add(ObjectId.get())
+
+            `when`(groupRepository.findById(group.id)).thenReturn(Mono.just(group))
+            `when`(groupRepository.save(group)).thenReturn(Mono.just(group))
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = (group.members - userId).toList()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeUserFromGroup(
+                groupId = group.id, userId = userId
+            )).expectNextMatches {
+                it == expectedGroupDao
+            }.verifyComplete()
+
+            //then
+            Assertions.assertFalse(group.members.contains(userId))
+            Assertions.assertEquals(1, group.members.size)
+
+            verify(groupRepository, times(1)).findById(group.id)
+            verify(groupRepository, times(1)).save(group)
+        }
+
+        @Test
+        @DisplayName("1명인 그룹에서 유저가 탈퇴하여 그룹이 제거되는 경우")
+        fun removeUserFromOneMemberGroupReturnSuccess(){
+            //given
+            group.members.add(userId)
+
+            `when`(groupRepository.findById(group.id)).thenReturn(Mono.just(group))
+            `when`(groupRepository.delete(group)).thenReturn(Mono.empty())
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = (group.members - userId).toList()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeUserFromGroup(
+                groupId = group.id, userId = userId
+            )).expectNextMatches {
+                it == expectedGroupDao
+            }.verifyComplete()
+
+            //then
+            Assertions.assertFalse(group.members.contains(userId))
+
+            verify(groupRepository, times(1)).findById(group.id)
+            verify(groupRepository, times(1)).delete(group)
+        }
+
+        @Test
+        @DisplayName("유저가 속하지 않은 그룹에서 탈퇴를 시도")
+        fun removeUserFromNotJoinedGroupReturnException(){
+            //given
+            group.members.add(ObjectId.get())
+            group.members.add(ObjectId.get())
+
+            `when`(groupRepository.findById(group.id)).thenReturn(Mono.just(group))
+            `when`(groupRepository.delete(group)).thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeUserFromGroup(
+                groupId = group.id, userId = userId
+            )).expectErrorMatches {
+                it is GroupException && it.errorCode == ErrorCode.NOT_JOINED_GROUP
+            }.verify()
+
+            //then
+            Assertions.assertFalse(group.members.contains(userId))
+
+            verify(groupRepository, times(1)).findById(group.id)
+        }
+
+        @Test
+        @DisplayName("10명의 그룹에서 유효한 사용자가 탈퇴")
+        fun removeUserFrom10MemberGroupReturnSuccess(){
+            //given
+            group.members.add(userId)
+            for (i in 1..9)
+                group.members.add(ObjectId.get())
+
+
+            `when`(groupRepository.findById(group.id)).thenReturn(Mono.just(group))
+            `when`(groupRepository.save(group)).thenReturn(Mono.just(group))
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = (group.members - userId).toList()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeUserFromGroup(
+                groupId = group.id, userId = userId
+            )).expectNextMatches {
+                it == expectedGroupDao
+            }.verifyComplete()
+
+            //then
+            Assertions.assertFalse(group.members.contains(userId))
+            Assertions.assertEquals(9, group.members.size)
+
+            verify(groupRepository, times(1)).findById(group.id)
+            verify(groupRepository, times(1)).save(group)
         }
     }
 }
