@@ -142,6 +142,9 @@ class GroupServiceImpl(
 
     override fun updateGroup(groupDao: GroupDao): Mono<GroupDao> {
         return groupRepository.findById(groupDao.id)
+            .switchIfEmpty(
+                Mono.defer{Mono.error(GroupException(ErrorCode.NOT_EXIST_GROUP))}
+            )
             .flatMap{
                 it.changeName(groupDao.name)
             }
