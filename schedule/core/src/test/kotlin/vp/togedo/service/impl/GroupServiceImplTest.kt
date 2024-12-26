@@ -710,4 +710,109 @@ class GroupServiceImplTest{
             verify(groupRepository, times(0)).save(groupDocument)
         }
     }
+
+    @Nested
+    inner class ReadGroup{
+
+        private lateinit var userId: ObjectId
+
+        private lateinit var joinedGroup: JoinedGroupDocument
+
+        @BeforeEach
+        fun setUp() {
+            userId = ObjectId.get()
+            joinedGroup = JoinedGroupDocument(
+                id = userId,
+            )
+        }
+
+        @Test
+        @DisplayName("하나의 그룹에 속한 유저가 그룹을 조회")
+        fun readGroupByOneGroupUserReturnSuccess(){
+            //given
+            val group = GroupDocument(
+                name = UUID.randomUUID().toString(),
+                members = mutableSetOf(userId)
+            )
+
+            joinedGroup.groups.add(group.id)
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(groupRepository.findById(group.id))
+                .thenReturn(Mono.just(group))
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = mutableListOf(userId)
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.readGroups(userId))
+                .expectNext(expectedGroupDao).verifyComplete()
+
+            //then
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(0)).save(any())
+        }
+
+        @Test
+        @DisplayName("열개의 그룹에 속한 유저가 그룹을 조회")
+        fun readGroupByTenGroupUserReturnSuccess(){
+            //given
+            val groupList = mutableListOf<GroupDocument>()
+            val expectedGroupDaoList = mutableListOf<GroupDao>()
+            for (i in 1..10){
+                groupList.add(GroupDocument(
+                    name = UUID.randomUUID().toString(),
+                    members = mutableSetOf(userId)
+                ))
+
+                `when`(groupRepository.findById(groupList.last().id))
+                    .thenReturn(Mono.just(groupList.last()))
+
+                expectedGroupDaoList.add(
+                    GroupDao(
+                        id = groupList.last().id,
+                        name = groupList.last().name,
+                        members = mutableListOf(userId)
+                    )
+                )
+
+                joinedGroup.groups.add(groupList.last().id)
+            }
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            //when
+            StepVerifier.create(groupServiceImpl.readGroups(userId))
+                .expectNextSequence(expectedGroupDaoList).verifyComplete()
+
+            //then
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(0)).save(any())
+        }
+
+        @Test
+        @DisplayName("joined group이 없는 유저가 그룹을 조회")
+        fun readGroupByNotExistJoinedGroupReturnSuccess(){
+            //given
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            //when
+            StepVerifier.create(groupServiceImpl.readGroups(userId))
+                .verifyComplete()
+
+            //then
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+    }
 }
