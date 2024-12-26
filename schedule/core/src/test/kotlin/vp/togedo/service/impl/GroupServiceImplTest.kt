@@ -518,4 +518,53 @@ class GroupServiceImplTest{
             verify(joinedGroupRepository, times(0)).save(joinedGroup)
         }
     }
+
+    @Nested
+    inner class RemoveGroupFromJoinedGroup{
+
+        private lateinit var userId: ObjectId
+
+        private lateinit var joinedGroup: JoinedGroupDocument
+
+        private lateinit var groupId: ObjectId
+
+        @BeforeEach
+        fun setUp() {
+            groupId = ObjectId.get()
+            userId = ObjectId.get()
+            joinedGroup = JoinedGroupDocument(
+                id = userId
+            )
+        }
+
+        @Test
+        @DisplayName("하나의 group만 있는 joined group에서 group을 삭제")
+        fun removeGroupFromOneGroupJoinedGroupReturnSuccess(){
+            //given
+            joinedGroup.groups.add(groupId)
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            val expectedJoinedGroupDao = JoinedGroupDao(
+                id = userId,
+                groups = mutableSetOf()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeGroupFromJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectNext(expectedJoinedGroupDao).verifyComplete()
+
+            //then
+            Assertions.assertEquals(0, joinedGroup.groups.size)
+            Assertions.assertFalse(joinedGroup.groups.contains(groupId))
+
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+    }
 }
