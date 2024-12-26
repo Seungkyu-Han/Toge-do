@@ -16,6 +16,7 @@ import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.GroupException
 import vp.togedo.util.error.exception.ScheduleException
 import vp.togedo.util.exception.group.AlreadyJoinedGroupException
+import vp.togedo.util.exception.group.NotJoinedGroupException
 
 @Service
 class GroupServiceImpl(
@@ -76,6 +77,12 @@ class GroupServiceImpl(
                         else
                             groupRepository.delete(removedGroup)).subscribe()
                     }
+            }
+            .onErrorMap{
+                when(it){
+                    is NotJoinedGroupException -> GroupException(ErrorCode.NOT_JOINED_GROUP)
+                    else -> it
+                }
             }
             .map {
                 GroupDao(
