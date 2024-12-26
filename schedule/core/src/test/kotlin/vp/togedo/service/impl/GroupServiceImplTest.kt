@@ -491,5 +491,31 @@ class GroupServiceImplTest{
             verify(joinedGroupRepository, times(1)).findById(userId)
             verify(joinedGroupRepository, times(1)).save(joinedGroup)
         }
+
+        @Test
+        @DisplayName("이미 가입되어 있는 그룹을 추가 시도")
+        fun addGroupToAlreadyJoinedReturnException(){
+            //given
+            joinedGroup.groups.add(groupId)
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            //when
+            StepVerifier.create(groupServiceImpl.addGroupToJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectErrorMatches {
+                it is GroupException && it.errorCode == ErrorCode.ALREADY_JOINED_GROUP
+            }.verify()
+
+            //then
+            Assertions.assertTrue(joinedGroup.groups.contains(groupId))
+            Assertions.assertEquals(1, joinedGroup.groups.size)
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(0)).save(joinedGroup)
+        }
     }
 }
