@@ -35,7 +35,7 @@ class GroupConnectorImpl(
         publishOn(Schedulers.boundedElastic())
             .map{
             group ->
-            group.members.forEach{
+            userIdList.forEach{
                 userId ->
                 mono{
                     kafkaService.publishInviteGroupEvent(
@@ -81,11 +81,18 @@ class GroupConnectorImpl(
         return groupService.addUserToGroup(
             userId = userObjectId,
             groupId = groupObjectId
-        ).map{
+        ).flatMap{
+            groupDocument ->
             groupService.addGroupToJoinedGroup(
                 userId = userObjectId,
                 groupId = groupObjectId
-            )
+            ).map{
+                groupDocument
+            }
+        }.publishOn(Schedulers.boundedElastic()).doOnNext {
+            kafkaService.publishInviteGroupEvent(
+                receiverId = userObjectId,
+                group = it).subscribe()
         }.then()
     }
 
