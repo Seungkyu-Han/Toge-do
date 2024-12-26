@@ -755,7 +755,7 @@ class GroupServiceImplTest{
 
             //then
             verify(joinedGroupRepository, times(1)).findById(userId)
-            verify(groupRepository, times(0)).save(any())
+            verify(joinedGroupRepository, times(0)).save(any())
         }
 
         @Test
@@ -793,7 +793,26 @@ class GroupServiceImplTest{
 
             //then
             verify(joinedGroupRepository, times(1)).findById(userId)
-            verify(groupRepository, times(0)).save(any())
+            verify(joinedGroupRepository, times(0)).save(any())
+        }
+
+        @Test
+        @DisplayName("joined group이 없는 유저가 그룹을 조회")
+        fun readGroupByNotExistJoinedGroupReturnSuccess(){
+            //given
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            //when
+            StepVerifier.create(groupServiceImpl.readGroups(userId))
+                .verifyComplete()
+
+            //then
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
         }
     }
 }
