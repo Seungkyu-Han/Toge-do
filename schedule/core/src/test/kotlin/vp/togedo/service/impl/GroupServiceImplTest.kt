@@ -407,8 +407,6 @@ class GroupServiceImplTest{
             joinedGroup = JoinedGroupDocument(
                 id = userId
             )
-
-            `when`(joinedGroupRepository.findById(userId)).thenReturn(Mono.just(joinedGroup))
         }
 
         @Test
@@ -419,6 +417,9 @@ class GroupServiceImplTest{
 
 
             `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.findById(userId))
                 .thenReturn(Mono.just(joinedGroup))
 
             val expectedJoinedGroupDao = JoinedGroupDao(
@@ -443,6 +444,9 @@ class GroupServiceImplTest{
         fun addGroupToJoinedGroupAlreadyEmptyJoinedGroupReturnSuccess(){
             //given
 
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
             `when`(joinedGroupRepository.save(joinedGroup))
                 .thenReturn(Mono.just(joinedGroup))
 
@@ -459,6 +463,31 @@ class GroupServiceImplTest{
             //then
             Assertions.assertTrue(joinedGroup.groups.contains(groupId))
             Assertions.assertEquals(1, joinedGroup.groups.size)
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+
+        @Test
+        @DisplayName("joined group이 없는 유저에게 그룹을 추가")
+        fun addGroupToJoinedGroupNotExistReturnSuccess(){
+            //given
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            `when`(joinedGroupRepository.save(any()))
+                .thenReturn(Mono.just(joinedGroup))
+
+            val expectedJoinedGroupDao = JoinedGroupDao(
+                id = userId,
+                groups = mutableSetOf(groupId)
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.addGroupToJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectNext(expectedJoinedGroupDao).verifyComplete()
+
+            //then
             verify(joinedGroupRepository, times(1)).findById(userId)
             verify(joinedGroupRepository, times(1)).save(joinedGroup)
         }
