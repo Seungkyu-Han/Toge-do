@@ -17,5 +17,6 @@ enum class ErrorCode(
     ALREADY_JOINED_GROUP(HttpStatus.CONFLICT, "이미 포함된 그룹입니다."),
     REQUIRE_MORE_MEMBER(HttpStatus.BAD_REQUEST, "멤버가 더 필요합니다."),
     NOT_JOINED_GROUP(HttpStatus.BAD_REQUEST, "포함되지 않은 그룹입니다."),
+    NOT_EXIST_GROUP(HttpStatus.NOT_FOUND, "존재하지 않는 그룹입니다."),
 
 }

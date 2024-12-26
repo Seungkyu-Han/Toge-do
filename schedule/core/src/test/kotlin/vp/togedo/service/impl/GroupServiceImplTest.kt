@@ -644,4 +644,70 @@ class GroupServiceImplTest{
             verify(joinedGroupRepository, times(0)).save(any())
         }
     }
+
+    @Nested
+    inner class UpdateGroup{
+        private lateinit var groupDocument: GroupDocument
+
+        @BeforeEach
+        fun setUp() {
+            groupDocument = GroupDocument(
+                name = UUID.randomUUID().toString()
+            )
+        }
+
+        @Test
+        @DisplayName("존재하는 그룹의 이름을 수정")
+        fun updateGroupFromExistGroupReturnSuccess(){
+            //given
+            val originalName = groupDocument.name
+            val groupDao = GroupDao(
+                id = groupDocument.id,
+                name = UUID.randomUUID().toString(),
+                members = mutableListOf()
+            )
+
+            `when`(groupRepository.findById(groupDocument.id))
+                .thenReturn(Mono.just(groupDocument))
+
+            `when`(groupRepository.save(groupDocument))
+                .thenReturn(Mono.just(groupDocument))
+
+            //when
+            StepVerifier.create(groupServiceImpl.updateGroup(groupDao))
+                .expectNext(groupDao).verifyComplete()
+
+            //then
+            Assertions.assertEquals(groupDao.name, groupDocument.name)
+            Assertions.assertNotEquals(originalName, groupDocument.name)
+
+            verify(groupRepository, times(1)).findById(groupDocument.id)
+            verify(groupRepository, times(1)).save(groupDocument)
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 그룹의 이름을 수정")
+        fun updateGroupFromNotExistGroupReturnException(){
+            //given
+            val groupDao = GroupDao(
+                id = groupDocument.id,
+                name = UUID.randomUUID().toString(),
+                members = mutableListOf()
+            )
+
+            `when`(groupRepository.findById(groupDocument.id))
+                .thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(groupServiceImpl.updateGroup(groupDao))
+                .expectErrorMatches {
+                    it is GroupException && it.errorCode == ErrorCode.NOT_EXIST_GROUP
+                }
+                .verify()
+
+            //then
+            verify(groupRepository, times(1)).findById(groupDocument.id)
+            verify(groupRepository, times(0)).save(groupDocument)
+        }
+    }
 }
