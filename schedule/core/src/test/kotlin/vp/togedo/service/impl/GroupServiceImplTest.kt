@@ -306,5 +306,34 @@ class GroupServiceImplTest{
             verify(groupRepository, times(1)).save(group)
         }
 
+        @Test
+        @DisplayName("1명인 그룹에서 유저가 탈퇴하여 그룹이 제거되는 경우")
+        fun removeUserFromOneMemberGroupReturnSuccess(){
+            //given
+            group.members.add(userId)
+
+            `when`(groupRepository.findById(group.id)).thenReturn(Mono.just(group))
+            `when`(groupRepository.delete(group)).thenReturn(Mono.empty())
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = (group.members - userId).toList()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeUserFromGroup(
+                groupId = group.id, userId = userId
+            )).expectNextMatches {
+                it == expectedGroupDao
+            }.verifyComplete()
+
+            //then
+            Assertions.assertFalse(group.members.contains(userId))
+
+            verify(groupRepository, times(1)).findById(group.id)
+            verify(groupRepository, times(1)).delete(group)
+        }
+
     }
 }
