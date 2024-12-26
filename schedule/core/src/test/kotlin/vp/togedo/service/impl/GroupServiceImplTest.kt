@@ -710,4 +710,53 @@ class GroupServiceImplTest{
             verify(groupRepository, times(0)).save(groupDocument)
         }
     }
+
+    @Nested
+    inner class ReadGroup{
+
+        private lateinit var userId: ObjectId
+
+        private lateinit var joinedGroup: JoinedGroupDocument
+
+        @BeforeEach
+        fun setUp() {
+            userId = ObjectId.get()
+            joinedGroup = JoinedGroupDocument(
+                id = userId,
+            )
+        }
+
+        @Test
+        @DisplayName("하나의 그룹에 속한 유저가 그룹을 조회")
+        fun readGroupByOneGroupUserReturnSuccess(){
+            //given
+            val group = GroupDocument(
+                name = UUID.randomUUID().toString(),
+                members = mutableSetOf(userId)
+            )
+
+            joinedGroup.groups.add(group.id)
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(groupRepository.findById(group.id))
+                .thenReturn(Mono.just(group))
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = mutableListOf(userId)
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.readGroups(userId))
+                .expectNext(expectedGroupDao).verifyComplete()
+
+            //then
+
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(groupRepository, times(0)).save(any())
+        }
+    }
 }
