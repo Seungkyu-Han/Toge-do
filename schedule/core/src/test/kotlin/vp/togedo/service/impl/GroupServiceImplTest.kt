@@ -624,5 +624,24 @@ class GroupServiceImplTest{
             verify(joinedGroupRepository, times(1)).findById(userId)
             verify(joinedGroupRepository, times(0)).save(joinedGroup)
         }
+
+        @Test
+        @DisplayName("해당 유저의 joined group이 없는 상황에서 그룹 삭제를 시도")
+        fun removeGroupFromNotExistJoinedGroupReturnException(){
+            //given
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeGroupFromJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectErrorMatches {
+                it is GroupException && it.errorCode == ErrorCode.NOT_JOINED_GROUP
+            }.verify()
+
+            //then
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(0)).save(any())
+        }
     }
 }
