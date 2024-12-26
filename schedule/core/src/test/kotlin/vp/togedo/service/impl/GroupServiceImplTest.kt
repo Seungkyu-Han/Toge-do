@@ -712,7 +712,7 @@ class GroupServiceImplTest{
     }
 
     @Nested
-    inner class ReadGroup{
+    inner class ReadGroups{
 
         private lateinit var userId: ObjectId
 
@@ -813,6 +813,54 @@ class GroupServiceImplTest{
             //then
             verify(joinedGroupRepository, times(1)).findById(userId)
             verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+    }
+
+    @Nested
+    inner class ReadGroup{
+        private lateinit var group: GroupDocument
+
+        private lateinit var userId: ObjectId
+
+        @BeforeEach
+        fun setUp() {
+            userId = ObjectId.get()
+            group = GroupDocument(
+                name = UUID.randomUUID().toString(),
+            )
+        }
+
+        @Test
+        @DisplayName("존재하는 그룹을 조회")
+        fun readGroupByExistGroupReturnSuccess(){
+            //given
+            `when`(groupRepository.findById(group.id))
+                .thenReturn(Mono.just(group))
+
+            val expectedGroupDao = GroupDao(
+                id = group.id,
+                name = group.name,
+                members = group.members.toList()
+            )
+
+            //when && then
+            StepVerifier.create(groupServiceImpl.readGroup(group.id))
+                .expectNext(expectedGroupDao).verifyComplete()
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 그룹을 조회")
+        fun readGroupByNotExistGroupReturnException(){
+            //given
+            `when`(groupRepository.findById(group.id))
+                .thenReturn(Mono.empty())
+
+            //when && then
+            StepVerifier.create(groupServiceImpl.readGroup(group.id))
+                .expectErrorMatches {
+                    it is GroupException && it.errorCode == ErrorCode.NOT_EXIST_GROUP
+                }
+                .verify()
         }
     }
 }

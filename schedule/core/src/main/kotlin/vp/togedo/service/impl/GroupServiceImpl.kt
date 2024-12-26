@@ -178,4 +178,18 @@ class GroupServiceImpl(
                     }
             }
 
+    override fun readGroup(groupId: ObjectId): Mono<GroupDao> =
+        groupRepository.findById(groupId)
+            .map { group ->
+                GroupDao(
+                    id = group.id,
+                    name = group.name,
+                    members = group.members.toList()
+                )
+            }
+            .switchIfEmpty(
+                Mono.defer { Mono.error(GroupException(ErrorCode.NOT_EXIST_GROUP)) }
+            )
+
+
 }

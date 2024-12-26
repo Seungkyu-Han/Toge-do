@@ -63,6 +63,16 @@ class GroupConnectorImpl(
                 )
             }
 
+    override fun readGroup(groupId: ObjectId): Mono<GroupDto> =
+        groupService.readGroup(groupId)
+            .map{
+                groupDao ->
+                GroupDto(
+                    id = groupDao.id.toString(),
+                    name = groupDao.name,
+                    members = groupDao.members.map{it.toString()}
+                )
+            }
 
     @Transactional
     override fun addUserToGroup(addedId: String, groupId: String): Mono<Void> {

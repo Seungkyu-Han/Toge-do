@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.bson.types.ObjectId
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -42,6 +43,26 @@ class GroupController(
         return ResponseEntity.ok().body(groupConnector.readGroups(
             userId = idComponent.objectIdProvider(userId)
         ))
+    }
+
+    @GetMapping("/group")
+    @Operation(summary = "하나의 그룹을 조회")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "OK",
+            content = [Content(schema = Schema(implementation = GroupDto::class))]),
+        ApiResponse(responseCode = "403", description = "권한 에러",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun getGroup(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestParam groupId: String
+    ): Mono<ResponseEntity<GroupDto>>{
+        idComponent.objectIdProvider(userId)
+        return groupConnector.readGroup(
+            groupId = ObjectId(groupId)
+        ).map{
+            ResponseEntity.ok().body(it)
+        }
     }
 
     @PostMapping("/create")
