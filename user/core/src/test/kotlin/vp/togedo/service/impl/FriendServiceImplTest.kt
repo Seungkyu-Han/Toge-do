@@ -151,7 +151,6 @@ class FriendServiceImplTest{
                 FriendRequestEventDto(
                     receiverId = friendId.toString(),
                     sender = userId.toString(),
-                    deviceToken = null,
                     image = UUID.randomUUID().toString()
                 ))
 
