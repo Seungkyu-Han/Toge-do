@@ -21,4 +21,6 @@ interface GroupService {
     fun updateGroup(groupDao: GroupDao): Mono<GroupDao>
 
     fun readGroups(userId: ObjectId): Flux<GroupDao>
+
+    fun readGroup(groupId: ObjectId): Mono<GroupDao>
 }
