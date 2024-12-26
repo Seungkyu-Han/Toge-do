@@ -518,4 +518,130 @@ class GroupServiceImplTest{
             verify(joinedGroupRepository, times(0)).save(joinedGroup)
         }
     }
+
+    @Nested
+    inner class RemoveGroupFromJoinedGroup{
+
+        private lateinit var userId: ObjectId
+
+        private lateinit var joinedGroup: JoinedGroupDocument
+
+        private lateinit var groupId: ObjectId
+
+        @BeforeEach
+        fun setUp() {
+            groupId = ObjectId.get()
+            userId = ObjectId.get()
+            joinedGroup = JoinedGroupDocument(
+                id = userId
+            )
+        }
+
+        @Test
+        @DisplayName("하나의 group만 있는 joined group에서 group을 삭제")
+        fun removeGroupFromOneGroupJoinedGroupReturnSuccess(){
+            //given
+            joinedGroup.groups.add(groupId)
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            val expectedJoinedGroupDao = JoinedGroupDao(
+                id = userId,
+                groups = mutableSetOf()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeGroupFromJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectNext(expectedJoinedGroupDao).verifyComplete()
+
+            //then
+            Assertions.assertEquals(0, joinedGroup.groups.size)
+            Assertions.assertFalse(joinedGroup.groups.contains(groupId))
+
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+
+        @Test
+        @DisplayName("10개의 group이 있는 joined group에서 원하는 group을 삭제")
+        fun removeGroupFromTenGroupJoinedGroupReturnSuccess(){
+            //given
+            joinedGroup.groups.add(groupId)
+
+            for (i in 1..9)
+                joinedGroup.groups.add(ObjectId.get())
+
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            val expectedJoinedGroupDao = JoinedGroupDao(
+                id = userId,
+                groups = (joinedGroup.groups - groupId).toMutableSet()
+            )
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeGroupFromJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectNext(expectedJoinedGroupDao).verifyComplete()
+
+            //then
+            Assertions.assertEquals(9, joinedGroup.groups.size)
+            Assertions.assertFalse(joinedGroup.groups.contains(groupId))
+
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(1)).save(joinedGroup)
+        }
+
+        @Test
+        @DisplayName("joined group에 해당 그룹이 없는 상황에서 그룹 삭제를 시도")
+        fun removeGroupFromEmptyJoinedGroupReturnException(){
+            //given
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeGroupFromJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectErrorMatches {
+                it is GroupException && it.errorCode == ErrorCode.NOT_JOINED_GROUP
+            }.verify()
+
+            //then
+            Assertions.assertEquals(0, joinedGroup.groups.size)
+            Assertions.assertFalse(joinedGroup.groups.contains(groupId))
+
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(0)).save(joinedGroup)
+        }
+
+        @Test
+        @DisplayName("해당 유저의 joined group이 없는 상황에서 그룹 삭제를 시도")
+        fun removeGroupFromNotExistJoinedGroupReturnException(){
+            //given
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeGroupFromJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectErrorMatches {
+                it is GroupException && it.errorCode == ErrorCode.NOT_JOINED_GROUP
+            }.verify()
+
+            //then
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(0)).save(any())
+        }
+    }
 }

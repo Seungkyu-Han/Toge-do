@@ -121,6 +121,15 @@ class GroupServiceImpl(
             .flatMap {
                 it.removeGroup(groupId)
             }
+            .switchIfEmpty(
+                Mono.defer{Mono.error(GroupException(ErrorCode.NOT_JOINED_GROUP))}
+            )
+            .onErrorMap {
+                when(it){
+                    is NotJoinedGroupException -> GroupException(ErrorCode.NOT_JOINED_GROUP)
+                    else -> it
+                }
+            }
             .flatMap {
                 joinedGroupRepository.save(it)
             }.map{
