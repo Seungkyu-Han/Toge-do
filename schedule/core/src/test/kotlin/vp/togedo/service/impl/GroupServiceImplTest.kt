@@ -599,5 +599,30 @@ class GroupServiceImplTest{
             verify(joinedGroupRepository, times(1)).findById(userId)
             verify(joinedGroupRepository, times(1)).save(joinedGroup)
         }
+
+        @Test
+        @DisplayName("joined group에 해당 그룹이 없는 상황에서 그룹 삭제를 시도")
+        fun removeGroupFromEmptyJoinedGroupReturnException(){
+            //given
+            `when`(joinedGroupRepository.findById(userId))
+                .thenReturn(Mono.just(joinedGroup))
+
+            `when`(joinedGroupRepository.save(joinedGroup))
+                .thenReturn(Mono.just(joinedGroup))
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeGroupFromJoinedGroup(
+                groupId = groupId, userId = userId
+            )).expectErrorMatches {
+                it is GroupException && it.errorCode == ErrorCode.NOT_JOINED_GROUP
+            }.verify()
+
+            //then
+            Assertions.assertEquals(0, joinedGroup.groups.size)
+            Assertions.assertFalse(joinedGroup.groups.contains(groupId))
+
+            verify(joinedGroupRepository, times(1)).findById(userId)
+            verify(joinedGroupRepository, times(0)).save(joinedGroup)
+        }
     }
 }
