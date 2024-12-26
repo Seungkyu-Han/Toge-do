@@ -121,6 +121,12 @@ class GroupServiceImpl(
             .flatMap {
                 it.removeGroup(groupId)
             }
+            .onErrorMap {
+                when(it){
+                    is NotJoinedGroupException -> GroupException(ErrorCode.NOT_JOINED_GROUP)
+                    else -> it
+                }
+            }
             .flatMap {
                 joinedGroupRepository.save(it)
             }.map{
