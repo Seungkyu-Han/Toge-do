@@ -335,5 +335,27 @@ class GroupServiceImplTest{
             verify(groupRepository, times(1)).delete(group)
         }
 
+        @Test
+        @DisplayName("유저가 속하지 않은 그룹에서 탈퇴를 시도")
+        fun removeUserFromNotJoinedGroupReturnException(){
+            //given
+            group.members.add(ObjectId.get())
+            group.members.add(ObjectId.get())
+
+            `when`(groupRepository.findById(group.id)).thenReturn(Mono.just(group))
+            `when`(groupRepository.delete(group)).thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(groupServiceImpl.removeUserFromGroup(
+                groupId = group.id, userId = userId
+            )).expectErrorMatches {
+                it is GroupException && it.errorCode == ErrorCode.NOT_JOINED_GROUP
+            }.verify()
+
+            //then
+            Assertions.assertFalse(group.members.contains(userId))
+
+            verify(groupRepository, times(1)).findById(group.id)
+        }
     }
 }
