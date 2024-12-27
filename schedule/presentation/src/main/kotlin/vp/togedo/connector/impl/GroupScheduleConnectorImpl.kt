@@ -9,11 +9,13 @@ import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
 import vp.togedo.data.dto.groupSchedule.PersonalScheduleDto
 import vp.togedo.data.dto.groupSchedule.PersonalSchedulesDto
 import vp.togedo.service.GroupScheduleService
+import vp.togedo.service.KafkaService
 import java.time.LocalDate
 
 @Service
 class GroupScheduleConnectorImpl(
-    private val groupScheduleService: GroupScheduleService
+    private val groupScheduleService: GroupScheduleService,
+    private val kafkaService: KafkaService
 ): GroupScheduleConnector {
 
     override fun createGroupSchedule(
@@ -28,7 +30,16 @@ class GroupScheduleConnectorImpl(
             name = name,
             startDate = startDate,
             endDate = endDate
-        ).map{groupScheduleDaoToDto(it) }
+        ).doOnNext{
+            groupScheduleDao ->
+            groupScheduleDao.personalScheduleMap.keys.forEach {
+                key ->
+                if (key != userId){
+                    kafkaService.publishCreateGroupScheduleEvent(key, groupScheduleDao).subscribe()
+                }
+            }
+        }.map{groupScheduleDaoToDto(it) }
+
     }
 
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
