@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.GroupConnector
-import vp.togedo.data.dao.GroupDao
+import vp.togedo.data.dao.group.GroupDao
 import vp.togedo.data.dto.group.CreateGroupReqDto
 import vp.togedo.data.dto.group.GroupDto
 import vp.togedo.data.dto.group.UpdateGroupReqDto

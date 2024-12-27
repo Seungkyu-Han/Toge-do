@@ -1,7 +1,7 @@
 package vp.togedo.service
 
 import org.bson.types.ObjectId
-import vp.togedo.data.dao.FlexibleScheduleDao
+import vp.togedo.data.dao.personalSchedule.FlexibleScheduleDao
 
 interface FlexiblePersonalScheduleService {
 

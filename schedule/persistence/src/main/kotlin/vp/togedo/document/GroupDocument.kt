@@ -7,9 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 import reactor.core.publisher.Mono
 import vp.togedo.enums.GroupScheduleStateEnum
 import vp.togedo.util.exception.group.AlreadyJoinedGroupException
-import vp.togedo.util.exception.group.CantCreateMoreScheduleException
+import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
 import vp.togedo.util.exception.group.NotJoinedGroupException
-import java.time.LocalDate
+import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
 
 @Document(collection = "groups")
 data class GroupDocument(
@@ -58,8 +58,8 @@ data class GroupDocument(
      */
     fun createGroupSchedule(
         name: String,
-        startDate: LocalDate,
-        endDate: LocalDate,
+        startDate: Long,
+        endDate: Long,
     ): Mono<GroupDocument>{
         return Mono.fromCallable {
 
@@ -78,6 +78,20 @@ data class GroupDocument(
             this
         }
     }
+
+    /**
+     * 해당 object id를 가지는 공유 일정을 찾는 메서드
+     * @param scheduleId 찾을 공유 일정의 object id
+     * @return 찾으려는 공유 일정
+     * @throws NotFoundGroupScheduleException 해당 공유일정을 찾을 수 없음
+     */
+    fun findGroupScheduleById(
+        scheduleId: ObjectId
+    ): Mono<GroupSchedule>{
+        return Mono.fromCallable {
+            groupSchedules.find { it.id == scheduleId } ?: throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
+        }
+    }
 }
 
 data class GroupSchedule(
@@ -88,10 +102,10 @@ data class GroupSchedule(
     var name: String,
 
     @JsonProperty("startDate")
-    var startDate: LocalDate,
+    var startDate: Long,
 
     @JsonProperty("endDate")
-    var endDate: LocalDate,
+    var endDate: Long,
 
     @JsonProperty("personalSchedules")
     val personalScheduleMap: MutableMap<ObjectId, PersonalSchedules>,

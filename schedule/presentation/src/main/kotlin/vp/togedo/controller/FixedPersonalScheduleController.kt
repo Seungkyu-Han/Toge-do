@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import vp.togedo.config.IdComponent
 import vp.togedo.connector.FixedPersonalScheduleConnector
-import vp.togedo.data.dao.FixedScheduleDao
+import vp.togedo.data.dao.personalSchedule.FixedScheduleDao
 import vp.togedo.data.dto.fixedPersonalSchedule.*
 
 @RestController

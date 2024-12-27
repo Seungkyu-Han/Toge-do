@@ -1,9 +1,9 @@
 package vp.togedo.service
 
 import org.bson.types.ObjectId
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import vp.togedo.data.dao.GroupScheduleDao
-import java.time.LocalDate
+import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 
 interface GroupScheduleService {
 
@@ -15,5 +15,20 @@ interface GroupScheduleService {
      * @param endDate 희망 공유 일정일의 종료일
      * @return 생성된 공유 일정의 dao
      */
-    fun createGroupSchedule(groupId: ObjectId, name: String, startDate: LocalDate, endDate: LocalDate): Mono<GroupScheduleDao>
+    fun createGroupSchedule(groupId: ObjectId, name: String, startDate: Long, endDate: Long): Mono<GroupScheduleDao>
+
+    /**
+     * 해당 그룹의 공유 일정 목록을 가져오는 메서드
+     * @param groupId 일정 목록을 가져올 그룹의 object id
+     * @return 해당 그룹의 공유 일정 목록(멤버들의 스케줄 제외)
+     */
+    fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDao>
+
+    /**
+     * 해당 공유 일정의 자세한 정보를 조회하는 메서드
+     * @param groupId 일정 목록을 가져올 그룹의 object id
+     * @param scheduleId 해당 일정에서 정보를 가져올 공유 일정의 object id
+     * @return 해당 그룹의 공유 일정 목록(멤버들의 스케줄 제외)
+     */
+    fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDao>
 }

@@ -1,14 +1,13 @@
-package vp.togedo.data.dao
+package vp.togedo.data.dao.groupSchedule
 
 import org.bson.types.ObjectId
-import java.time.LocalDate
 
 data class GroupScheduleDao(
     val id: ObjectId?,
     val name: String,
-    val startDate: LocalDate,
-    val endDate: LocalDate,
-    val personalScheduleMap: Map<ObjectId, PersonalSchedulesDao>
+    val startDate: Long,
+    val endDate: Long,
+    val personalScheduleMap: Map<ObjectId, PersonalSchedulesDao>?
 )
 
 data class PersonalSchedulesDao(

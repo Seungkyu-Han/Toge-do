@@ -3,7 +3,7 @@ package vp.togedo.connector.impl
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import vp.togedo.connector.FixedPersonalScheduleConnector
-import vp.togedo.data.dao.FixedScheduleDao
+import vp.togedo.data.dao.personalSchedule.FixedScheduleDao
 import vp.togedo.data.dto.fixedPersonalSchedule.CreateFixedReqDto
 import vp.togedo.data.dto.fixedPersonalSchedule.UpdateFixedReqDto
 import vp.togedo.service.FixedPersonalScheduleService

@@ -20,4 +20,6 @@ enum class ErrorCode(
     NOT_EXIST_GROUP(HttpStatus.NOT_FOUND, "존재하지 않는 그룹입니다."),
     CANT_CREATE_MORE_SCHEDULE(HttpStatus.BAD_REQUEST, "생성 가능한 공유일정 개수를 초과합니다."),
 
+    GROUP_SCHEDULE_CANT_FIND(HttpStatus.NOT_FOUND, "해당 공유 일정이 존재하지 않습니다."),
+
 }

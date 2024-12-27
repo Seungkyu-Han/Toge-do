@@ -1,9 +1,10 @@
 package vp.togedo.connector
 
 import org.bson.types.ObjectId
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
-import java.time.LocalDate
+import vp.togedo.data.dto.groupSchedule.GroupScheduleDto
 
 interface GroupScheduleConnector {
 
@@ -11,7 +12,11 @@ interface GroupScheduleConnector {
         userId: ObjectId,
         groupId: ObjectId,
         name: String,
-        startDate: LocalDate,
-        endDate: LocalDate,
+        startDate: Long,
+        endDate: Long,
     ): Mono<GroupScheduleDetailDto>
+
+    fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDto>
+
+    fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDetailDto>
 }
