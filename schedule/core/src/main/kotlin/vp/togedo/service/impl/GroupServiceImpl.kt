@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
-import vp.togedo.data.dao.GroupDao
-import vp.togedo.data.dao.JoinedGroupDao
+import vp.togedo.data.dao.GroupSchedule.GroupDao
+import vp.togedo.data.dao.GroupSchedule.JoinedGroupDao
 import vp.togedo.document.GroupDocument
 import vp.togedo.document.JoinedGroupDocument
 import vp.togedo.repository.GroupRepository

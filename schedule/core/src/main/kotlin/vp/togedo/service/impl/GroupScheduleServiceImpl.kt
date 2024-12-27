@@ -3,9 +3,9 @@ package vp.togedo.service.impl
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import vp.togedo.data.dao.GroupScheduleDao
-import vp.togedo.data.dao.PersonalScheduleDao
-import vp.togedo.data.dao.PersonalSchedulesDao
+import vp.togedo.data.dao.Group.GroupScheduleDao
+import vp.togedo.data.dao.Group.PersonalScheduleDao
+import vp.togedo.data.dao.Group.PersonalSchedulesDao
 import vp.togedo.document.GroupSchedule
 import vp.togedo.repository.GroupRepository
 import vp.togedo.service.GroupScheduleService

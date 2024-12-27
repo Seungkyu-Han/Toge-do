@@ -2,7 +2,7 @@ package vp.togedo.service
 
 import org.bson.types.ObjectId
 import reactor.core.publisher.Mono
-import vp.togedo.data.dao.GroupScheduleDao
+import vp.togedo.data.dao.Group.GroupScheduleDao
 
 interface GroupScheduleService {
 

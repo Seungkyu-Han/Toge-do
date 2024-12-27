@@ -3,8 +3,8 @@ package vp.togedo.service
 import org.bson.types.ObjectId
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import vp.togedo.data.dao.GroupDao
-import vp.togedo.data.dao.JoinedGroupDao
+import vp.togedo.data.dao.GroupSchedule.GroupDao
+import vp.togedo.data.dao.GroupSchedule.JoinedGroupDao
 
 interface GroupService {
 

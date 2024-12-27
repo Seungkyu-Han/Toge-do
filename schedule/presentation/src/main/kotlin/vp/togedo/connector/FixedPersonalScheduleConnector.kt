@@ -1,7 +1,7 @@
 package vp.togedo.connector
 
 import org.bson.types.ObjectId
-import vp.togedo.data.dao.FixedScheduleDao
+import vp.togedo.data.dao.personalSchedule.FixedScheduleDao
 import vp.togedo.data.dto.fixedPersonalSchedule.CreateFixedReqDto
 import vp.togedo.data.dto.fixedPersonalSchedule.UpdateFixedReqDto
 

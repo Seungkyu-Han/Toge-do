@@ -4,7 +4,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
-import vp.togedo.data.dao.FlexibleScheduleDao
+import vp.togedo.data.dao.personalSchedule.FlexibleScheduleDao
 import vp.togedo.document.PersonalScheduleDocument
 import vp.togedo.document.Schedule
 import vp.togedo.repository.PersonalScheduleRepository

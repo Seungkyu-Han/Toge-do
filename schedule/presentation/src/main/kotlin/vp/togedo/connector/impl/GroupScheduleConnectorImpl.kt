@@ -4,7 +4,7 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import vp.togedo.connector.GroupScheduleConnector
-import vp.togedo.data.dao.GroupScheduleDao
+import vp.togedo.data.dao.Group.GroupScheduleDao
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
 import vp.togedo.data.dto.groupSchedule.PersonalScheduleDto
 import vp.togedo.data.dto.groupSchedule.PersonalSchedulesDto
