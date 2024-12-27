@@ -12,7 +12,9 @@ import vp.togedo.repository.GroupRepository
 import vp.togedo.service.GroupScheduleService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.GroupException
-import vp.togedo.util.exception.group.CantCreateMoreScheduleException
+import vp.togedo.util.error.exception.GroupScheduleException
+import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
+import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
 
 @Service
 class GroupScheduleServiceImpl(
@@ -58,6 +60,21 @@ class GroupScheduleServiceImpl(
                 }
         }
 
+    override fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDao> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                it.findGroupScheduleById(scheduleId)
+            }
+            .map {
+                groupScheduleToDao(it)
+            }
+            .onErrorMap {
+            when(it){
+                is NotFoundGroupScheduleException -> GroupScheduleException(ErrorCode.GROUP_SCHEDULE_CANT_FIND)
+                else -> it
+            }
+        }
+    }
 
     private fun groupScheduleToDao(groupSchedule: GroupSchedule): GroupScheduleDao =
         GroupScheduleDao(

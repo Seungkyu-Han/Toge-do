@@ -23,4 +23,12 @@ interface GroupScheduleService {
      * @return 해당 그룹의 공유 일정 목록(멤버들의 스케줄 제외)
      */
     fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDao>
+
+    /**
+     * 해당 공유 일정의 자세한 정보를 조회하는 메서드
+     * @param groupId 일정 목록을 가져올 그룹의 object id
+     * @param scheduleId 해당 일정에서 정보를 가져올 공유 일정의 object id
+     * @return 해당 그룹의 공유 일정 목록(멤버들의 스케줄 제외)
+     */
+    fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDao>
 }
