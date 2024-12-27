@@ -95,22 +95,30 @@ data class GroupDocument(
 
     /**
      * 해당 공유 일정을 수정하는 메서드
-     * @param groupSchedule 수정할 group schedule
+     * @param scheduleId 해당 스케줄의 object id
+     * @param name 수정할 name
+     * @param startDate 수정할 startDate
+     * @param endDate 수정할 endDate
      * @return 변경된 group schedule
      * @throws NotFoundGroupScheduleException 해당 공유일정을 찾을 수 없음
      */
-    fun updateGroupSchedule(groupSchedule: GroupSchedule): Mono<GroupSchedule>{
+    fun updateGroupSchedule(
+        scheduleId: ObjectId,
+        name: String,
+        startDate: Long,
+        endDate: Long
+    ): Mono<GroupSchedule>{
         return Mono.fromCallable {
-            val index: Int = groupSchedules.indexOfFirst { it.id == groupSchedule.id }
+            val index: Int = groupSchedules.indexOfFirst { it.id == scheduleId }
 
             if(index == -1)
                 throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
 
-            this.groupSchedules[index] = groupSchedule.apply{
-                name = groupSchedule.name
-                startDate = groupSchedule.startDate
-                endDate = groupSchedule.endDate
-            }
+            this.groupSchedules[index] = this.groupSchedules[index].copy(
+                name = name,
+                startDate = startDate,
+                endDate = endDate
+            )
 
             this.groupSchedules[index]
         }
