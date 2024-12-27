@@ -2,10 +2,12 @@ package vp.togedo.connector.impl
 
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.connector.GroupScheduleConnector
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
+import vp.togedo.data.dto.groupSchedule.GroupScheduleDto
 import vp.togedo.data.dto.groupSchedule.PersonalScheduleDto
 import vp.togedo.data.dto.groupSchedule.PersonalSchedulesDto
 import vp.togedo.service.GroupScheduleService
@@ -39,6 +41,18 @@ class GroupScheduleConnectorImpl(
             }
         }.map{groupScheduleDaoToDto(it) }
 
+    }
+
+    override fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDto> {
+        return groupScheduleService.readGroupSchedules(groupId = groupId)
+            .map{
+                GroupScheduleDto(
+                    id = it.id.toString(),
+                    name = it.name,
+                    startDate = it.startDate,
+                    endDate = it.endDate
+                )
+            }
     }
 
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
