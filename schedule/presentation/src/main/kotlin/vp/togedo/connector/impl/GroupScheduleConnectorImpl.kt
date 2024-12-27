@@ -4,7 +4,7 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import vp.togedo.connector.GroupScheduleConnector
-import vp.togedo.data.dao.Group.GroupScheduleDao
+import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
 import vp.togedo.data.dto.groupSchedule.PersonalScheduleDto
 import vp.togedo.data.dto.groupSchedule.PersonalSchedulesDto
@@ -31,7 +31,7 @@ class GroupScheduleConnectorImpl(
             endDate = endDate
         ).doOnNext{
             groupScheduleDao ->
-            groupScheduleDao.personalScheduleMap.keys.forEach {
+            groupScheduleDao.personalScheduleMap!!.keys.forEach {
                 key ->
                 if (key != userId){
                     kafkaService.publishCreateGroupScheduleEvent(key, groupScheduleDao).subscribe()
@@ -46,7 +46,7 @@ class GroupScheduleConnectorImpl(
         name = groupScheduleDao.name,
         startDate = groupScheduleDao.startDate,
         endDate = groupScheduleDao.endDate,
-        personalScheduleMap = groupScheduleDao.personalScheduleMap.map{
+        personalScheduleMap = groupScheduleDao.personalScheduleMap!!.map{
                 (key, value) ->
             key.toString() to PersonalSchedulesDto(
                 personalSchedules = value.personalSchedules.map{

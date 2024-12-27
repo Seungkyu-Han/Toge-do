@@ -1,4 +1,4 @@
-package vp.togedo.data.dao.GroupSchedule
+package vp.togedo.data.dao.group
 
 import org.bson.types.ObjectId
 

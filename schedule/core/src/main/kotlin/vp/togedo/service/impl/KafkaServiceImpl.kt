@@ -5,8 +5,8 @@ import org.bson.types.ObjectId
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import vp.togedo.data.dao.GroupSchedule.GroupDao
-import vp.togedo.data.dao.Group.GroupScheduleDao
+import vp.togedo.data.dao.group.GroupDao
+import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dto.group.InviteGroupEventDto
 import vp.togedo.data.dto.groupSchedule.CreateGroupScheduleEventDto
 import vp.togedo.service.KafkaService

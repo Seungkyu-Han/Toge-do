@@ -1,4 +1,4 @@
-package vp.togedo.data.dao.Group
+package vp.togedo.data.dao.groupSchedule
 
 import org.bson.types.ObjectId
 
@@ -7,7 +7,7 @@ data class GroupScheduleDao(
     val name: String,
     val startDate: Long,
     val endDate: Long,
-    val personalScheduleMap: Map<ObjectId, PersonalSchedulesDao>
+    val personalScheduleMap: Map<ObjectId, PersonalSchedulesDao>?
 )
 
 data class PersonalSchedulesDao(

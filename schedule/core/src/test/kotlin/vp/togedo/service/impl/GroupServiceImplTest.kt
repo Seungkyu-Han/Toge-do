@@ -12,8 +12,8 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
-import vp.togedo.data.dao.GroupSchedule.GroupDao
-import vp.togedo.data.dao.GroupSchedule.JoinedGroupDao
+import vp.togedo.data.dao.group.GroupDao
+import vp.togedo.data.dao.group.JoinedGroupDao
 import vp.togedo.document.GroupDocument
 import vp.togedo.document.JoinedGroupDocument
 import vp.togedo.repository.GroupRepository
