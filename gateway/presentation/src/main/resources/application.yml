@@ -55,7 +55,7 @@ spring:
         - id: schedule-security
           uri: ${SCHEDULE_URI}
           predicates:
-            - Path=/api/v1/fixed-personal-schedule/**, /api/v1/flexible-personal-schedule/**, /api/v1/group/**
+            - Path=/api/v1/fixed-personal-schedule/**, /api/v1/flexible-personal-schedule/**, /api/v1/group/**, /api/v1/group-schedule/**
           filters:
             - AuthorizationFilter
             - name: CircuitBreaker
