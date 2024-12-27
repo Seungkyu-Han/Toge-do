@@ -8,6 +8,7 @@ import java.time.LocalDate
 interface GroupScheduleConnector {
 
     fun createGroupSchedule(
+        userId: ObjectId,
         groupId: ObjectId,
         name: String,
         startDate: LocalDate,

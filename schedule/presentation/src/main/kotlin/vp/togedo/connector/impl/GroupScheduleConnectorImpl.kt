@@ -17,6 +17,7 @@ class GroupScheduleConnectorImpl(
 ): GroupScheduleConnector {
 
     override fun createGroupSchedule(
+        userId: ObjectId,
         groupId: ObjectId,
         name: String,
         startDate: LocalDate,
