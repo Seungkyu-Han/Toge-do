@@ -5,8 +5,10 @@ import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import reactor.core.publisher.Mono
+import vp.togedo.enums.GroupScheduleStateEnum
 import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 import vp.togedo.util.exception.group.NotJoinedGroupException
+import java.time.LocalDate
 
 @Document(collection = "groups")
 data class GroupDocument(
@@ -18,7 +20,10 @@ data class GroupDocument(
     var name: String,
 
     @JsonProperty("members")
-    val members: MutableSet<ObjectId> = mutableSetOf()
+    val members: MutableSet<ObjectId> = mutableSetOf(),
+
+    @JsonProperty("groupSchedules")
+    val groupSchedules: MutableList<GroupSchedule> = mutableListOf()
 ){
     fun changeName(name: String): Mono<GroupDocument> {
         return Mono.fromCallable {
@@ -44,3 +49,31 @@ data class GroupDocument(
         }
     }
 }
+
+data class GroupSchedule(
+    @JsonProperty("id")
+    val id: ObjectId = ObjectId.get(),
+
+    @JsonProperty("startDate")
+    var startDate: LocalDate,
+
+    @JsonProperty("personalSchedules")
+    val personalSchedules: MutableMap<ObjectId, PersonalSchedule>,
+
+    @JsonProperty("endDate")
+    var endDate: LocalDate,
+
+    @JsonProperty("state")
+    var state: GroupScheduleStateEnum = GroupScheduleStateEnum.DISCUSSING,
+
+    @JsonProperty("confirmedStartDate")
+    var confirmedStartDate: String? = null,
+
+    @JsonProperty("confirmedEndDate")
+    var confirmedEndDate: String? = null
+)
+
+data class PersonalSchedule(
+    @JsonProperty("schedules")
+    val schedule: MutableList<Schedule> = mutableListOf()
+)
