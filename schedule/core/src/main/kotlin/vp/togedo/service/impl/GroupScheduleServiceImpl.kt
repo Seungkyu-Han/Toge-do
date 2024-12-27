@@ -12,14 +12,13 @@ import vp.togedo.service.GroupScheduleService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.GroupException
 import vp.togedo.util.exception.group.CantCreateMoreScheduleException
-import java.time.LocalDate
 
 @Service
 class GroupScheduleServiceImpl(
     private val groupRepository: GroupRepository
 ): GroupScheduleService {
 
-    override fun createGroupSchedule(groupId: ObjectId, name: String, startDate: LocalDate, endDate: LocalDate): Mono<GroupScheduleDao> {
+    override fun createGroupSchedule(groupId: ObjectId, name: String, startDate: Long, endDate: Long): Mono<GroupScheduleDao> {
         return groupRepository.findById(groupId).flatMap{
             group ->
             group.createGroupSchedule(

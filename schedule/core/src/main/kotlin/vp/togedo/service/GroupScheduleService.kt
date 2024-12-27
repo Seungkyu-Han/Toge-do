@@ -3,7 +3,6 @@ package vp.togedo.service
 import org.bson.types.ObjectId
 import reactor.core.publisher.Mono
 import vp.togedo.data.dao.GroupScheduleDao
-import java.time.LocalDate
 
 interface GroupScheduleService {
 
@@ -15,5 +14,5 @@ interface GroupScheduleService {
      * @param endDate 희망 공유 일정일의 종료일
      * @return 생성된 공유 일정의 dao
      */
-    fun createGroupSchedule(groupId: ObjectId, name: String, startDate: LocalDate, endDate: LocalDate): Mono<GroupScheduleDao>
+    fun createGroupSchedule(groupId: ObjectId, name: String, startDate: Long, endDate: Long): Mono<GroupScheduleDao>
 }

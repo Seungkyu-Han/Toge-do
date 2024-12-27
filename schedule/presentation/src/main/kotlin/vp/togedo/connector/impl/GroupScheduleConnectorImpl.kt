@@ -10,7 +10,6 @@ import vp.togedo.data.dto.groupSchedule.PersonalScheduleDto
 import vp.togedo.data.dto.groupSchedule.PersonalSchedulesDto
 import vp.togedo.service.GroupScheduleService
 import vp.togedo.service.KafkaService
-import java.time.LocalDate
 
 @Service
 class GroupScheduleConnectorImpl(
@@ -22,8 +21,8 @@ class GroupScheduleConnectorImpl(
         userId: ObjectId,
         groupId: ObjectId,
         name: String,
-        startDate: LocalDate,
-        endDate: LocalDate
+        startDate: Long,
+        endDate: Long
     ): Mono<GroupScheduleDetailDto> {
         return groupScheduleService.createGroupSchedule(
             groupId = groupId,

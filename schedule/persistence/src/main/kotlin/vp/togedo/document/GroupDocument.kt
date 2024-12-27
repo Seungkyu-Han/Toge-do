@@ -9,7 +9,6 @@ import vp.togedo.enums.GroupScheduleStateEnum
 import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 import vp.togedo.util.exception.group.CantCreateMoreScheduleException
 import vp.togedo.util.exception.group.NotJoinedGroupException
-import java.time.LocalDate
 
 @Document(collection = "groups")
 data class GroupDocument(
@@ -58,8 +57,8 @@ data class GroupDocument(
      */
     fun createGroupSchedule(
         name: String,
-        startDate: LocalDate,
-        endDate: LocalDate,
+        startDate: Long,
+        endDate: Long,
     ): Mono<GroupDocument>{
         return Mono.fromCallable {
 
@@ -88,10 +87,10 @@ data class GroupSchedule(
     var name: String,
 
     @JsonProperty("startDate")
-    var startDate: LocalDate,
+    var startDate: Long,
 
     @JsonProperty("endDate")
-    var endDate: LocalDate,
+    var endDate: Long,
 
     @JsonProperty("personalSchedules")
     val personalScheduleMap: MutableMap<ObjectId, PersonalSchedules>,
