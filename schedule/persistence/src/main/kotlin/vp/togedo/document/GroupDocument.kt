@@ -70,7 +70,7 @@ data class GroupDocument(
                 name = name,
                 startDate = startDate,
                 endDate = endDate,
-                personalSchedules = this.members.associateWith{PersonalSchedule()}.toMutableMap()
+                personalScheduleMap = this.members.associateWith{PersonalSchedules()}.toMutableMap()
             )
 
             this.groupSchedules.add(groupSchedule)
@@ -94,7 +94,7 @@ data class GroupSchedule(
     var endDate: LocalDate,
 
     @JsonProperty("personalSchedules")
-    val personalSchedules: MutableMap<ObjectId, PersonalSchedule>,
+    val personalScheduleMap: MutableMap<ObjectId, PersonalSchedules>,
 
     @JsonProperty("state")
     var state: GroupScheduleStateEnum = GroupScheduleStateEnum.DISCUSSING,
@@ -106,7 +106,12 @@ data class GroupSchedule(
     var confirmedEndDate: String? = null
 )
 
+data class PersonalSchedules(
+    @JsonProperty("personalSchedules")
+    val personalSchedules: MutableList<PersonalSchedule> = mutableListOf()
+)
+
 data class PersonalSchedule(
-    @JsonProperty("schedules")
-    val schedule: MutableList<Schedule> = mutableListOf()
+    val startTime: Long,
+    val endTime: Long
 )
