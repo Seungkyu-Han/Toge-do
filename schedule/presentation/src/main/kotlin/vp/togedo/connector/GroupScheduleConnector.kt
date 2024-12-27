@@ -17,4 +17,6 @@ interface GroupScheduleConnector {
     ): Mono<GroupScheduleDetailDto>
 
     fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDto>
+
+    fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDetailDto>
 }

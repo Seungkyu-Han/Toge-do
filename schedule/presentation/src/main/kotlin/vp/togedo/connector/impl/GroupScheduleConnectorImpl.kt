@@ -55,6 +55,14 @@ class GroupScheduleConnectorImpl(
             }
     }
 
+    override fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.readGroupSchedule(
+            groupId = groupId, scheduleId = scheduleId
+        ).map{
+            groupScheduleDaoToDto(it)
+        }
+
+
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
         name = groupScheduleDao.name,
