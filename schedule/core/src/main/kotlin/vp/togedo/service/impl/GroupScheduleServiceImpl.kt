@@ -2,6 +2,7 @@ package vp.togedo.service.impl
 
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dao.groupSchedule.PersonalScheduleDao
@@ -39,6 +40,24 @@ class GroupScheduleServiceImpl(
             }
         }
     }
+
+    override fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDao> =
+        groupRepository.findById(groupId)
+            .flatMapMany {
+            group ->
+            Flux.fromIterable(group.groupSchedules)
+                .map{
+                    groupSchedule ->
+                    GroupScheduleDao(
+                        id = groupSchedule.id,
+                        name = groupSchedule.name,
+                        startDate = groupSchedule.startDate,
+                        endDate = groupSchedule.endDate,
+                        personalScheduleMap = null
+                    )
+                }
+        }
+
 
     private fun groupScheduleToDao(groupSchedule: GroupSchedule): GroupScheduleDao =
         GroupScheduleDao(
