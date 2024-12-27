@@ -52,15 +52,35 @@ class GroupScheduleController(
     @GetMapping("/schedules/{groupId}")
     @Operation(summary = "해당 그룹의 일정들을 조회")
     @ApiResponses(
-        ApiResponse(responseCode = "201", description = "조회 성공",
+        ApiResponse(responseCode = "200", description = "조회 성공",
             content = [Content(schema = Schema(implementation = GroupScheduleDto::class))]),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun readGroupSchedules(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @PathVariable groupId: String,
+    ): ResponseEntity<Flux<GroupScheduleDto>> =
+        ResponseEntity.ok().body(groupScheduleConnector.readGroupSchedules(groupId = ObjectId(groupId)))
+
+    @GetMapping("/schedule")
+    @Operation(summary = "해당 그룹에서 선택한 일정을 조회")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "조회 성공",
+            content = [Content(schema = Schema(implementation = GroupScheduleDetailDto::class))]),
         ApiResponse(responseCode = "403", description = "권한 없음",
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
     )
     fun readGroupSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
-        @PathVariable groupId: String,
-    ): ResponseEntity<Flux<GroupScheduleDto>> =
-        ResponseEntity.ok().body(groupScheduleConnector.readGroupSchedules(groupId = ObjectId(groupId)))
+        @RequestParam groupId: String,
+        @RequestParam scheduleId: String
+    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        groupScheduleConnector.readGroupSchedule(
+            groupId = ObjectId(groupId),
+            scheduleId = ObjectId(scheduleId)
+        ).map{
+            ResponseEntity.ok().body(it)
+        }
 
 }
