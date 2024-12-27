@@ -31,4 +31,12 @@ interface GroupScheduleService {
      * @return 해당 그룹의 공유 일정 목록(멤버들의 스케줄 제외)
      */
     fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDao>
+
+    /**
+     * 해당 공유 일정을 수정하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param groupScheduleDao 수정할 group schedule의 dao
+     * @return 수정된 group schedule dao
+     */
+    fun updateGroupSchedule(groupId: ObjectId, groupScheduleDao: GroupScheduleDao): Mono<GroupScheduleDao>
 }

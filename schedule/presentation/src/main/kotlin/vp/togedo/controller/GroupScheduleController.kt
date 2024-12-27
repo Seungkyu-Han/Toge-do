@@ -18,6 +18,7 @@ import vp.togedo.connector.GroupScheduleConnector
 import vp.togedo.data.dto.groupSchedule.CreateGroupScheduleReqDto
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDto
+import vp.togedo.data.dto.groupSchedule.UpdateGroupScheduleReqDto
 
 @RestController
 @RequestMapping("/api/v1/group-schedule")
@@ -79,6 +80,24 @@ class GroupScheduleController(
         groupScheduleConnector.readGroupSchedule(
             groupId = ObjectId(groupId),
             scheduleId = ObjectId(scheduleId)
+        ).map{
+            ResponseEntity.ok().body(it)
+        }
+
+    @PutMapping("/update")
+    @Operation(summary = "공유 일정을 수정")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "수정 성공",
+            content = [Content(schema = Schema(implementation = GroupScheduleDetailDto::class))]),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun updateGroupSchedule(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody updateGroupScheduleReqDto: UpdateGroupScheduleReqDto
+    ):  Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        groupScheduleConnector.updateGroupSchedule(
+            updateGroupScheduleReqDto = updateGroupScheduleReqDto
         ).map{
             ResponseEntity.ok().body(it)
         }

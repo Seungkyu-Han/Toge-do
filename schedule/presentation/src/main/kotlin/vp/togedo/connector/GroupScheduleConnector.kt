@@ -5,6 +5,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDto
+import vp.togedo.data.dto.groupSchedule.UpdateGroupScheduleReqDto
 
 interface GroupScheduleConnector {
 
@@ -19,4 +20,6 @@ interface GroupScheduleConnector {
     fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDto>
 
     fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDetailDto>
+
+    fun updateGroupSchedule(updateGroupScheduleReqDto: UpdateGroupScheduleReqDto): Mono<GroupScheduleDetailDto>
 }

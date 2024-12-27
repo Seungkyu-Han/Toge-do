@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dao.groupSchedule.PersonalScheduleDao
 import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
@@ -74,6 +75,28 @@ class GroupScheduleServiceImpl(
                 else -> it
             }
         }
+    }
+
+    override fun updateGroupSchedule(groupId: ObjectId, groupScheduleDao: GroupScheduleDao): Mono<GroupScheduleDao> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                group ->
+                group.updateGroupSchedule(
+                    scheduleId = groupScheduleDao.id!!,
+                    name = groupScheduleDao.name,
+                    startDate = groupScheduleDao.startDate,
+                    endDate = groupScheduleDao.endDate
+                ).publishOn(Schedulers.boundedElastic()).doOnSuccess {
+                    groupRepository.save(group).subscribe()
+                }
+            }.map{
+                groupScheduleToDao(it)
+            }.onErrorMap {
+                when(it){
+                    is NotFoundGroupScheduleException -> GroupScheduleException(ErrorCode.GROUP_SCHEDULE_CANT_FIND)
+                    else -> it
+                }
+            }
     }
 
     private fun groupScheduleToDao(groupSchedule: GroupSchedule): GroupScheduleDao =
