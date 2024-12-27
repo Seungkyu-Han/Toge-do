@@ -92,6 +92,29 @@ data class GroupDocument(
             groupSchedules.find { it.id == scheduleId } ?: throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
         }
     }
+
+    /**
+     * 해당 공유 일정을 수정하는 메서드
+     * @param groupSchedule 수정할 group schedule
+     * @return 변경된 group schedule
+     * @throws NotFoundGroupScheduleException 해당 공유일정을 찾을 수 없음
+     */
+    fun updateGroupSchedule(groupSchedule: GroupSchedule): Mono<GroupSchedule>{
+        return Mono.fromCallable {
+            val index: Int = groupSchedules.indexOfFirst { it.id == groupSchedule.id }
+
+            if(index == -1)
+                throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
+
+            this.groupSchedules[index] = groupSchedule.apply{
+                name = groupSchedule.name
+                startDate = groupSchedule.startDate
+                endDate = groupSchedule.endDate
+            }
+
+            this.groupSchedules[index]
+        }
+    }
 }
 
 data class GroupSchedule(
