@@ -18,5 +18,6 @@ enum class ErrorCode(
     REQUIRE_MORE_MEMBER(HttpStatus.BAD_REQUEST, "멤버가 더 필요합니다."),
     NOT_JOINED_GROUP(HttpStatus.BAD_REQUEST, "포함되지 않은 그룹입니다."),
     NOT_EXIST_GROUP(HttpStatus.NOT_FOUND, "존재하지 않는 그룹입니다."),
+    CANT_CREATE_MORE_SCHEDULE(HttpStatus.BAD_REQUEST, "생성 가능한 공유일정 개수를 초과합니다."),
 
 }
