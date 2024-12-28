@@ -10,6 +10,7 @@ import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
 import vp.togedo.util.exception.group.NotJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
+import vp.togedo.util.exception.groupSchedule.NotFoundPersonalScheduleException
 import vp.togedo.util.exception.schedule.ConflictScheduleException
 import vp.togedo.util.exception.schedule.InvalidTimeException
 
@@ -195,6 +196,25 @@ data class PersonalSchedules(
 
             this
         }
+    }
+
+    fun updatePersonalSchedules(personalScheduleList: List<PersonalSchedule>): Mono<PersonalSchedules>{
+        return Mono.fromCallable {
+            personalScheduleList.forEach {
+                personalSchedule ->
+                this.updatePersonalSchedule(personalSchedule)
+            }
+            this
+        }
+    }
+
+    private fun updatePersonalSchedule(personalSchedule: PersonalSchedule): PersonalSchedules{
+
+        if(personalSchedules.removeIf { it.id == personalSchedule.id })
+            return addPersonalSchedule(personalSchedule)
+        else
+            throw NotFoundPersonalScheduleException("해당 스케줄이 존재하지 않습니다.")
+
     }
 
     private fun addPersonalSchedule(personalSchedule: PersonalSchedule): PersonalSchedules {

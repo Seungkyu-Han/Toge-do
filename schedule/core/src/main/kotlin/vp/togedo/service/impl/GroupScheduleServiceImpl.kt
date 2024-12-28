@@ -17,6 +17,7 @@ import vp.togedo.util.error.exception.GroupException
 import vp.togedo.util.error.exception.GroupScheduleException
 import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
 import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
+import vp.togedo.util.exception.groupSchedule.NotFoundPersonalScheduleException
 
 @Service
 class GroupScheduleServiceImpl(
@@ -115,7 +116,7 @@ class GroupScheduleServiceImpl(
             }
             .then()
 
-    override fun addPersonalScheduleInGroupSchedule(
+    override fun addPersonalSchedulesInGroupSchedule(
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,
@@ -138,10 +139,41 @@ class GroupScheduleServiceImpl(
             }.map(::groupScheduleToDao)
             .onErrorMap {
                 when(it){
-                    is GroupScheduleException -> GroupScheduleException(ErrorCode.GROUP_SCHEDULE_CANT_FIND)
+                    is GroupScheduleException -> GroupScheduleException(ErrorCode.USER_NOT_JOINED_SCHEDULE)
                     else -> it
                 }
             }
+    }
+
+    override fun updatePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDao> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                group ->
+                group.findGroupScheduleById(scheduleId)
+                    .flatMap {
+                        groupSchedule ->
+                        val userPersonalSchedule = groupSchedule.findGroupScheduleByUserId(userId)
+
+                        val updatePersonalSchedules = personalSchedulesDaoToDocumentList(personalSchedulesDao)
+
+                        userPersonalSchedule
+                            .updatePersonalSchedules(updatePersonalSchedules)
+                            .then(groupRepository.save(group))
+                            .then(Mono.just(groupSchedule))
+                    }
+            }.map(::groupScheduleToDao)
+            .onErrorMap {
+                when(it){
+                    is NotFoundPersonalScheduleException -> GroupScheduleException(ErrorCode.PERSONAL_SCHEDULE_CANT_FIND)
+                    else -> it
+                }
+            }
+
     }
 
     private fun personalSchedulesDaoToDocumentList(personalSchedulesDao: PersonalSchedulesDao): List<PersonalSchedule>{
@@ -152,6 +184,7 @@ class GroupScheduleServiceImpl(
 
     private fun personalScheduleDaoToDocument(personalScheduleDao: PersonalScheduleDao): PersonalSchedule =
         PersonalSchedule(
+            id = personalScheduleDao.id ?: ObjectId.get(),
             startTime = personalScheduleDao.startTime,
             endTime = personalScheduleDao.endTime
         )

@@ -86,7 +86,7 @@ class GroupScheduleConnectorImpl(
         userId: ObjectId,
         personalSchedulesDao: PersonalSchedulesDao
     ): Mono<GroupScheduleDetailDto> {
-        return groupScheduleService.addPersonalScheduleInGroupSchedule(
+        return groupScheduleService.addPersonalSchedulesInGroupSchedule(
             groupId = groupId,
             scheduleId = scheduleId,
             userId = userId,
