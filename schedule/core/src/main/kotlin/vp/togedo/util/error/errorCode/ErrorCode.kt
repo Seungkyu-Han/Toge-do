@@ -22,6 +22,6 @@ enum class ErrorCode(
 
     GROUP_SCHEDULE_CANT_FIND(HttpStatus.NOT_FOUND, "해당 공유 일정이 존재하지 않습니다."),
     USER_NOT_JOINED_SCHEDULE(HttpStatus.NOT_FOUND, "해당 유저가 공유 일정에 속하지 않습니다."),
-
+    PERSONAL_SCHEDULE_CANT_FIND(HttpStatus.NOT_FOUND, "해당 개인 일정을 찾을 수 없습니다.")
 
 }

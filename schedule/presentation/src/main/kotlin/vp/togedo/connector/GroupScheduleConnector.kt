@@ -16,6 +16,8 @@ interface GroupScheduleConnector {
         name: String,
         startDate: Long,
         endDate: Long,
+        startTime: String,
+        endTime: String,
     ): Mono<GroupScheduleDetailDto>
 
     fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDto>
@@ -32,4 +34,18 @@ interface GroupScheduleConnector {
         userId: ObjectId,
         personalSchedulesDao: PersonalSchedulesDao
     ):Mono<GroupScheduleDetailDto>
+
+    fun updatePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDetailDto>
+
+    fun deletePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalScheduleIdList: List<ObjectId>
+    ): Mono<GroupScheduleDetailDto>
 }

@@ -10,6 +10,7 @@ import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
 import vp.togedo.util.exception.group.NotJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
+import vp.togedo.util.exception.groupSchedule.NotFoundPersonalScheduleException
 import vp.togedo.util.exception.schedule.ConflictScheduleException
 import vp.togedo.util.exception.schedule.InvalidTimeException
 
@@ -62,6 +63,8 @@ data class GroupDocument(
         name: String,
         startDate: Long,
         endDate: Long,
+        startTime: String,
+        endTime: String
     ): Mono<GroupDocument>{
         return Mono.fromCallable {
 
@@ -72,7 +75,9 @@ data class GroupDocument(
                 name = name,
                 startDate = startDate,
                 endDate = endDate,
-                personalScheduleMap = this.members.associateWith{PersonalSchedules()}.toMutableMap()
+                personalScheduleMap = this.members.associateWith{PersonalSchedules()}.toMutableMap(),
+                startTime = startTime,
+                endTime = endTime
             )
 
             this.groupSchedules.add(groupSchedule)
@@ -157,6 +162,12 @@ data class GroupSchedule(
     @JsonProperty("endDate")
     var endDate: Long,
 
+    @JsonProperty("startTime")
+    var startTime: String,
+
+    @JsonProperty("endTime")
+    var endTime: String,
+
     @JsonProperty("personalSchedules")
     val personalScheduleMap: MutableMap<ObjectId, PersonalSchedules>,
 
@@ -186,6 +197,19 @@ data class PersonalSchedules(
     @JsonProperty("personalSchedules")
     val personalSchedules: MutableList<PersonalSchedule> = mutableListOf()
 ){
+    fun deletePersonalSchedulesById(personalScheduleIdList: List<ObjectId>): Mono<PersonalSchedules> {
+        return Mono.fromCallable{
+            personalScheduleIdList.forEach(::deletePersonalScheduleById)
+
+            this
+        }
+    }
+
+    private fun deletePersonalScheduleById(personalScheduleId: ObjectId){
+        if(!this.personalSchedules.removeIf { it.id == personalScheduleId })
+            throw NotFoundPersonalScheduleException("해당 스케줄이 존재하지 않습니다.")
+    }
+
     fun addPersonalSchedules(personalScheduleList: List<PersonalSchedule>): Mono<PersonalSchedules>{
         return Mono.fromCallable {
             personalScheduleList.forEach {
@@ -195,6 +219,25 @@ data class PersonalSchedules(
 
             this
         }
+    }
+
+    fun updatePersonalSchedules(personalScheduleList: List<PersonalSchedule>): Mono<PersonalSchedules>{
+        return Mono.fromCallable {
+            personalScheduleList.forEach {
+                personalSchedule ->
+                this.updatePersonalSchedule(personalSchedule)
+            }
+            this
+        }
+    }
+
+    private fun updatePersonalSchedule(personalSchedule: PersonalSchedule): PersonalSchedules{
+
+        if(personalSchedules.removeIf { it.id == personalSchedule.id })
+            return addPersonalSchedule(personalSchedule)
+        else
+            throw NotFoundPersonalScheduleException("해당 스케줄이 존재하지 않습니다.")
+
     }
 
     private fun addPersonalSchedule(personalSchedule: PersonalSchedule): PersonalSchedules {
@@ -241,15 +284,9 @@ data class PersonalSchedules(
     }
 
     private fun checkTimeRange(time: Long): Boolean{
-        if (time !in 10_01_01_00_00 .. 99_12_31_23_59)
+        if (time !in 10_01_01 .. 99_12_31)
             throw InvalidTimeException("시간 범위 밖입니다.")
 
-        val hour = (time % 10000) / 100
-        if (hour !in 0 .. 23)
-            throw InvalidTimeException("hour 범위 밖입니다.")
-        val minute = time % 100
-        if (minute !in 0..59)
-            throw InvalidTimeException("minute 범위 밖입니다.")
         return true
     }
 }

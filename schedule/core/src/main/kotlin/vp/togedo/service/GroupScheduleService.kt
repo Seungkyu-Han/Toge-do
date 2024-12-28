@@ -14,9 +14,11 @@ interface GroupScheduleService {
      * @param name 생성할 공유 일정의 이름
      * @param startDate 희망 공유 일정일의 시작일
      * @param endDate 희망 공유 일정일의 종료일
+     * @param startTime 공유 일정의 시작 시간
+     * @param endTime 공유 일정의 종료 시간
      * @return 생성된 공유 일정의 dao
      */
-    fun createGroupSchedule(groupId: ObjectId, name: String, startDate: Long, endDate: Long): Mono<GroupScheduleDao>
+    fun createGroupSchedule(groupId: ObjectId, name: String, startDate: Long, endDate: Long, startTime: String, endTime: String): Mono<GroupScheduleDao>
 
     /**
      * 해당 그룹의 공유 일정 목록을 가져오는 메서드
@@ -57,10 +59,40 @@ interface GroupScheduleService {
      * @param personalSchedulesDao 등록할 개인 일정들
      * @return 수정된 group schedule dao
      */
-    fun addPersonalScheduleInGroupSchedule(
+    fun addPersonalSchedulesInGroupSchedule(
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,
         personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDao>
+
+    /**
+     * 공유 일정에 본인의 일정을 수정하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param scheduleId 일정을 수정할 공유 일정의 object id
+     * @param userId 수정할 유저의 object id
+     * @param personalSchedulesDao 등록할 개인 일정들
+     * @return 수정된 group schedule dao
+     */
+    fun updatePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDao>
+
+    /**
+     * 공유 일정에서 본인의 일정을 삭제하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param scheduleId 일정을 삭제할 공유 일정의 object id
+     * @param userId 일정을 삭제할 유저의 object id
+     * @param personalScheduleIdList 일정을 삭제할 공유 일정 속 개인 일정의 object id 리스트
+     * @return 삭제된 group schedule dao
+     */
+    fun deletePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalScheduleIdList: List<ObjectId>
     ): Mono<GroupScheduleDao>
 }

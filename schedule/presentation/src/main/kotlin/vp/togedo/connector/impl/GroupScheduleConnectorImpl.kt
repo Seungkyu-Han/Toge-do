@@ -22,13 +22,17 @@ class GroupScheduleConnectorImpl(
         groupId: ObjectId,
         name: String,
         startDate: Long,
-        endDate: Long
+        endDate: Long,
+        startTime: String,
+        endTime: String,
     ): Mono<GroupScheduleDetailDto> {
         return groupScheduleService.createGroupSchedule(
             groupId = groupId,
             name = name,
             startDate = startDate,
-            endDate = endDate
+            endDate = endDate,
+            startTime = startTime,
+            endTime = endTime,
         ).doOnNext{
             groupScheduleDao ->
             groupScheduleDao.personalScheduleMap!!.keys.forEach {
@@ -48,7 +52,9 @@ class GroupScheduleConnectorImpl(
                     id = it.id.toString(),
                     name = it.name,
                     startDate = it.startDate,
-                    endDate = it.endDate
+                    endDate = it.endDate,
+                    startTime = it.startTime,
+                    endTime = it.startTime,
                 )
             }
     }
@@ -68,6 +74,8 @@ class GroupScheduleConnectorImpl(
                 name = updateGroupScheduleReqDto.name,
                 startDate = updateGroupScheduleReqDto.startDate,
                 endDate = updateGroupScheduleReqDto.endDate,
+                startTime = updateGroupScheduleReqDto.startTime,
+                endTime = updateGroupScheduleReqDto.endTime,
                 personalScheduleMap = null
             )
         ).map{
@@ -86,7 +94,7 @@ class GroupScheduleConnectorImpl(
         userId: ObjectId,
         personalSchedulesDao: PersonalSchedulesDao
     ): Mono<GroupScheduleDetailDto> {
-        return groupScheduleService.addPersonalScheduleInGroupSchedule(
+        return groupScheduleService.addPersonalSchedulesInGroupSchedule(
             groupId = groupId,
             scheduleId = scheduleId,
             userId = userId,
@@ -96,11 +104,43 @@ class GroupScheduleConnectorImpl(
         }
     }
 
+    override fun updatePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDetailDto> {
+        return groupScheduleService.updatePersonalSchedulesInGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId,
+            personalSchedulesDao = personalSchedulesDao
+        ).map{
+            groupScheduleDaoToDto(it)
+        }
+    }
+
+    override fun deletePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalScheduleIdList: List<ObjectId>
+    ): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.deletePersonalSchedulesInGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId,
+            personalScheduleIdList = personalScheduleIdList
+        ).map(::groupScheduleDaoToDto)
+
+
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
         name = groupScheduleDao.name,
         startDate = groupScheduleDao.startDate,
         endDate = groupScheduleDao.endDate,
+        startTime = groupScheduleDao.startTime,
+        endTime = groupScheduleDao.endTime,
         personalScheduleMap = groupScheduleDao.personalScheduleMap!!.map{
                 (key, value) ->
             key.toString() to PersonalSchedulesDto(
