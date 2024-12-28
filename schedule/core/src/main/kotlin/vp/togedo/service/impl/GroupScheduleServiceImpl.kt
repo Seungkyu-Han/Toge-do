@@ -24,13 +24,15 @@ class GroupScheduleServiceImpl(
     private val groupRepository: GroupRepository
 ): GroupScheduleService {
 
-    override fun createGroupSchedule(groupId: ObjectId, name: String, startDate: Long, endDate: Long): Mono<GroupScheduleDao> {
+    override fun createGroupSchedule(groupId: ObjectId, name: String, startDate: Long, endDate: Long, startTime: String, endTime: String): Mono<GroupScheduleDao> {
         return groupRepository.findById(groupId).flatMap{
             group ->
             group.createGroupSchedule(
                 name = name,
                 startDate = startDate,
                 endDate = endDate,
+                startTime = startTime,
+                endTime = endTime
             )
         }.flatMap {
             groupRepository.save(it)
@@ -58,6 +60,8 @@ class GroupScheduleServiceImpl(
                         name = groupSchedule.name,
                         startDate = groupSchedule.startDate,
                         endDate = groupSchedule.endDate,
+                        startTime = groupSchedule.startTime,
+                        endTime = groupSchedule.endTime,
                         personalScheduleMap = null
                     )
                 }
@@ -222,6 +226,8 @@ class GroupScheduleServiceImpl(
             name = groupSchedule.name,
             startDate = groupSchedule.startDate,
             endDate = groupSchedule.endDate,
+            startTime = groupSchedule.startTime,
+            endTime = groupSchedule.endTime,
             personalScheduleMap = groupSchedule.personalScheduleMap.mapValues {
                 PersonalSchedulesDao(
                     personalSchedules = it.value.personalSchedules.map{
@@ -230,6 +236,7 @@ class GroupScheduleServiceImpl(
                             id = personalScheduleInGroup.id,
                             startTime = personalScheduleInGroup.startTime,
                             endTime = personalScheduleInGroup.endTime,
+
                         )
                     }
                 )

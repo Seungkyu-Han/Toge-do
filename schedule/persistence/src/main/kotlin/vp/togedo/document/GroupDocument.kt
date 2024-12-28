@@ -63,8 +63,8 @@ data class GroupDocument(
         name: String,
         startDate: Long,
         endDate: Long,
-        startTime: Long,
-        endTime: Long
+        startTime: String,
+        endTime: String
     ): Mono<GroupDocument>{
         return Mono.fromCallable {
 
@@ -163,10 +163,10 @@ data class GroupSchedule(
     var endDate: Long,
 
     @JsonProperty("startTime")
-    var startTime: Long,
+    var startTime: String,
 
     @JsonProperty("endTime")
-    var endTime: Long,
+    var endTime: String,
 
     @JsonProperty("personalSchedules")
     val personalScheduleMap: MutableMap<ObjectId, PersonalSchedules>,
