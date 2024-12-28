@@ -274,15 +274,9 @@ data class PersonalSchedules(
     }
 
     private fun checkTimeRange(time: Long): Boolean{
-        if (time !in 10_01_01_00_00 .. 99_12_31_23_59)
+        if (time !in 10_01_01 .. 99_12_31)
             throw InvalidTimeException("시간 범위 밖입니다.")
 
-        val hour = (time % 10000) / 100
-        if (hour !in 0 .. 23)
-            throw InvalidTimeException("hour 범위 밖입니다.")
-        val minute = time % 100
-        if (minute !in 0..59)
-            throw InvalidTimeException("minute 범위 밖입니다.")
         return true
     }
 }
