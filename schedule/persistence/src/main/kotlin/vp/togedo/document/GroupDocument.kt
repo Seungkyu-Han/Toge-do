@@ -10,6 +10,8 @@ import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
 import vp.togedo.util.exception.group.NotJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
+import vp.togedo.util.exception.schedule.ConflictScheduleException
+import vp.togedo.util.exception.schedule.InvalidTimeException
 
 @Document(collection = "groups")
 data class GroupDocument(
@@ -166,14 +168,94 @@ data class GroupSchedule(
 
     @JsonProperty("confirmedEndDate")
     var confirmedEndDate: String? = null
-)
+){
+    fun findGroupScheduleByUserId(userId: ObjectId): PersonalSchedules{
+
+        val personalSchedules = this.personalScheduleMap[userId]
+
+        if(personalSchedules != null)
+            return personalSchedules
+        else{
+            personalScheduleMap[userId] = PersonalSchedules()
+            return personalScheduleMap[userId]!!
+        }
+    }
+}
 
 data class PersonalSchedules(
     @JsonProperty("personalSchedules")
     val personalSchedules: MutableList<PersonalSchedule> = mutableListOf()
-)
+){
+    fun addPersonalSchedules(personalScheduleList: List<PersonalSchedule>): Mono<PersonalSchedules>{
+        return Mono.fromCallable {
+            personalScheduleList.forEach {
+                personalSchedule ->
+                this.addPersonalSchedule(personalSchedule)
+            }
+
+            this
+        }
+    }
+
+    private fun addPersonalSchedule(personalSchedule: PersonalSchedule): PersonalSchedules {
+        this.checkValidTime(personalSchedule.startTime, personalSchedule.endTime)
+
+        val insertedIndex = getInsertedIndex(personalSchedule.startTime, personalSchedule.endTime)
+
+        this.personalSchedules.add(insertedIndex, personalSchedule)
+
+        return this
+    }
+
+
+    private fun getInsertedIndex(startTime: Long, endTime: Long): Int{
+        val index = personalSchedules.binarySearch(0){
+            personalSchedule -> personalSchedule.startTime.compareTo(startTime)
+        }
+
+        if (index >= 0)
+            throw ConflictScheduleException("해당 시작시간에 시작하는 스케줄이 있습니다.")
+
+        val insertedIndex = (index + 1) * -1
+
+        if(insertedIndex > 0)
+            if(personalSchedules[insertedIndex - 1].endTime >= startTime)
+                throw ConflictScheduleException("전 스케줄이 종료되지 않았습니다.")
+
+        if(insertedIndex < personalSchedules.size)
+            if(personalSchedules[insertedIndex].startTime <= endTime)
+                throw ConflictScheduleException("뒤 스케줄의 시작시간과 충돌합니다.")
+
+        return insertedIndex
+    }
+
+    private fun checkValidTime(startTime: Long, endTime: Long): Boolean {
+        if (startTime > endTime)
+            throw InvalidTimeException("시작 시간이 종료 시간보다 뒤입니다.")
+
+        this.checkTimeRange(startTime)
+
+        this.checkTimeRange(endTime)
+
+        return true
+    }
+
+    private fun checkTimeRange(time: Long): Boolean{
+        if (time !in 10_01_01_00_00 .. 99_12_31_23_59)
+            throw InvalidTimeException("시간 범위 밖입니다.")
+
+        val hour = (time % 10000) / 100
+        if (hour !in 0 .. 23)
+            throw InvalidTimeException("hour 범위 밖입니다.")
+        val minute = time % 100
+        if (minute !in 0..59)
+            throw InvalidTimeException("minute 범위 밖입니다.")
+        return true
+    }
+}
 
 data class PersonalSchedule(
+    val id: ObjectId = ObjectId.get(),
     val startTime: Long,
     val endTime: Long
 )

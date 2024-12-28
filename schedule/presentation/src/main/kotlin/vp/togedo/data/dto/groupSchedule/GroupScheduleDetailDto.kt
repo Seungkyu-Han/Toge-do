@@ -13,6 +13,7 @@ data class PersonalSchedulesDto(
 )
 
 data class PersonalScheduleDto(
+    val id: String,
     val startTime: Long,
     val endTime: Long,
 )

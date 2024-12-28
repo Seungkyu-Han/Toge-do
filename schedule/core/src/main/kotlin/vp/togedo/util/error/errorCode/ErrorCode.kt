@@ -21,5 +21,7 @@ enum class ErrorCode(
     CANT_CREATE_MORE_SCHEDULE(HttpStatus.BAD_REQUEST, "생성 가능한 공유일정 개수를 초과합니다."),
 
     GROUP_SCHEDULE_CANT_FIND(HttpStatus.NOT_FOUND, "해당 공유 일정이 존재하지 않습니다."),
+    USER_NOT_JOINED_SCHEDULE(HttpStatus.NOT_FOUND, "해당 유저가 공유 일정에 속하지 않습니다."),
+
 
 }

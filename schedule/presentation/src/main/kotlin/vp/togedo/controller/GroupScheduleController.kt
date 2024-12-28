@@ -16,10 +16,9 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.config.IdComponent
 import vp.togedo.connector.GroupScheduleConnector
-import vp.togedo.data.dto.groupSchedule.CreateGroupScheduleReqDto
-import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
-import vp.togedo.data.dto.groupSchedule.GroupScheduleDto
-import vp.togedo.data.dto.groupSchedule.UpdateGroupScheduleReqDto
+import vp.togedo.data.dao.groupSchedule.PersonalScheduleDao
+import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
+import vp.togedo.data.dto.groupSchedule.*
 
 @RestController
 @RequestMapping("/api/v1/group-schedule")
@@ -122,4 +121,34 @@ class GroupScheduleController(
             scheduleId = ObjectId(scheduleId)
         ).then(Mono.fromCallable { ResponseEntity.ok().build() })
 
+    @PostMapping("/personal")
+    @Operation(summary = "공유 일정에 본인의 일정을 등록")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "삭제 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
+        ApiResponse(responseCode = "404", description = "해당 공유 일정을 찾을 수 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun createPersonalScheduleInGroupSchedule(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody personalSchedule: CreatePersonalScheduleInGroupScheduleReqDto
+    ): Mono<ResponseEntity<GroupScheduleDetailDto>>{
+        return groupScheduleConnector.createPersonalScheduleInGroupSchedule(
+            groupId = ObjectId(personalSchedule.groupId),
+            scheduleId = ObjectId(personalSchedule.scheduleId),
+            userId = idComponent.objectIdProvider(userId),
+            personalSchedulesDao = PersonalSchedulesDao(
+                personalSchedules = personalSchedule.personalSchedules.map{
+                    PersonalScheduleDao(
+                        id = null,
+                        startTime = it.startTime,
+                        endTime = it.endTime
+                    )
+                }
+            )
+        ).map{
+            ResponseEntity.ok().body(it)
+        }
+    }
 }

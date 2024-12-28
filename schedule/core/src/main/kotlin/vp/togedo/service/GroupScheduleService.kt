@@ -4,6 +4,7 @@ import org.bson.types.ObjectId
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
+import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
 
 interface GroupScheduleService {
 
@@ -35,7 +36,7 @@ interface GroupScheduleService {
     /**
      * 해당 공유 일정을 수정하는 메서드
      * @param groupId 해당 그룹의 object id
-     * @param groupScheduleDao 수정할 group schedule의 dao
+     * @param groupScheduleDao 수정할 공유 일정의 dao
      * @return 수정된 group schedule dao
      */
     fun updateGroupSchedule(groupId: ObjectId, groupScheduleDao: GroupScheduleDao): Mono<GroupScheduleDao>
@@ -43,8 +44,23 @@ interface GroupScheduleService {
     /**
      * 해당 공유 일정을 삭제하는 메서드
      * @param groupId 해당 그룹의 object id
-     * @param scheduleId 삭제하려는 스케줄의 object id
+     * @param scheduleId 삭제하려는 공유 일정의 object id
      * @return Mono void
      */
     fun deleteGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<Void>
+
+    /**
+     * 공유 일정에 본인의 일정을 등록하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param scheduleId 일정을 등록할 공유 일정의 object id
+     * @param userId 등록할 유저의 object id
+     * @param personalSchedulesDao 등록할 개인 일정들
+     * @return 수정된 group schedule dao
+     */
+    fun addPersonalScheduleInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDao>
 }
