@@ -15,7 +15,7 @@ data class PersonalSchedulesDao(
 )
 
 data class PersonalScheduleDao(
-    val id: ObjectId,
+    val id: ObjectId?,
     val startTime: Long,
     val endTime: Long,
 )
