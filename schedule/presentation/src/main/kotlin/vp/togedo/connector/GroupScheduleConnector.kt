@@ -22,4 +22,6 @@ interface GroupScheduleConnector {
     fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDetailDto>
 
     fun updateGroupSchedule(updateGroupScheduleReqDto: UpdateGroupScheduleReqDto): Mono<GroupScheduleDetailDto>
+
+    fun deleteGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<Void>
 }

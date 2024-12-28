@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.bson.types.ObjectId
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -101,5 +102,24 @@ class GroupScheduleController(
         ).map{
             ResponseEntity.ok().body(it)
         }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "공유 일정을 삭제")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "삭제 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
+        ApiResponse(responseCode = "404", description = "해당 공유 일정을 찾을 수 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun deleteGroupSchedule(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestParam groupId: String,
+        @RequestParam scheduleId: String
+    ): Mono<ResponseEntity<HttpStatus>> =
+        groupScheduleConnector.deleteGroupSchedule(
+            groupId = ObjectId(groupId),
+            scheduleId = ObjectId(scheduleId)
+        ).then(Mono.fromCallable { ResponseEntity.ok().build() })
 
 }

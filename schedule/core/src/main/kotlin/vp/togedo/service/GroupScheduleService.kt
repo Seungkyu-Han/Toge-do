@@ -39,4 +39,12 @@ interface GroupScheduleService {
      * @return 수정된 group schedule dao
      */
     fun updateGroupSchedule(groupId: ObjectId, groupScheduleDao: GroupScheduleDao): Mono<GroupScheduleDao>
+
+    /**
+     * 해당 공유 일정을 삭제하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param scheduleId 삭제하려는 스케줄의 object id
+     * @return Mono void
+     */
+    fun deleteGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<Void>
 }
