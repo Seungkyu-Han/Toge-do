@@ -39,4 +39,11 @@ interface GroupScheduleConnector {
         userId: ObjectId,
         personalSchedulesDao: PersonalSchedulesDao
     ): Mono<GroupScheduleDetailDto>
+
+    fun deletePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalScheduleIdList: List<ObjectId>
+    ): Mono<GroupScheduleDetailDto>
 }

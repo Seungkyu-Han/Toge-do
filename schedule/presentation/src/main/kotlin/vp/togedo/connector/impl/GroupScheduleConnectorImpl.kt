@@ -112,6 +112,20 @@ class GroupScheduleConnectorImpl(
         }
     }
 
+    override fun deletePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalScheduleIdList: List<ObjectId>
+    ): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.deletePersonalSchedulesInGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId,
+            personalScheduleIdList = personalScheduleIdList
+        ).map(::groupScheduleDaoToDto)
+
+
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
         name = groupScheduleDao.name,

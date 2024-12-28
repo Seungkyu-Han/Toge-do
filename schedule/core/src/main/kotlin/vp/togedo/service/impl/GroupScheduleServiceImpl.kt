@@ -173,7 +173,33 @@ class GroupScheduleServiceImpl(
                     else -> it
                 }
             }
+    }
 
+    override fun deletePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalScheduleIdList: List<ObjectId>
+    ): Mono<GroupScheduleDao> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                group ->
+                group.findGroupScheduleById(scheduleId)
+                    .flatMap {
+                        groupSchedule ->
+                        val userPersonalSchedule = groupSchedule.findGroupScheduleByUserId(userId)
+
+                        userPersonalSchedule.deletePersonalSchedulesById(personalScheduleIdList)
+                            .then(groupRepository.save(group))
+                            .then(Mono.just(groupSchedule))
+                    }
+            }.map(::groupScheduleToDao)
+            .onErrorMap {
+                when(it){
+                    is NotFoundPersonalScheduleException -> GroupScheduleException(ErrorCode.PERSONAL_SCHEDULE_CANT_FIND)
+                    else -> it
+                }
+            }
     }
 
     private fun personalSchedulesDaoToDocumentList(personalSchedulesDao: PersonalSchedulesDao): List<PersonalSchedule>{
