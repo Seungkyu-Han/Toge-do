@@ -179,17 +179,27 @@ data class PersonalSchedules(
     @JsonProperty("personalSchedules")
     val personalSchedules: MutableList<PersonalSchedule> = mutableListOf()
 ){
-    fun addPersonalSchedule(startTime: Long, endTime: Long): Mono<PersonalSchedules> =
-        Mono.fromCallable {
-
-            this.checkValidTime(startTime, endTime)
-
-            val insertedIndex = getInsertedIndex(startTime, endTime)
-
-            this.personalSchedules.add(insertedIndex, PersonalSchedule(startTime = startTime, endTime = endTime))
+    fun addPersonalSchedules(personalScheduleList: List<PersonalSchedule>): Mono<PersonalSchedules>{
+        return Mono.fromCallable {
+            personalScheduleList.forEach {
+                personalSchedule ->
+                this.addPersonalSchedule(personalSchedule)
+            }
 
             this
         }
+    }
+
+    private fun addPersonalSchedule(personalSchedule: PersonalSchedule): PersonalSchedules {
+        this.checkValidTime(personalSchedule.startTime, personalSchedule.endTime)
+
+        val insertedIndex = getInsertedIndex(personalSchedule.startTime, personalSchedule.endTime)
+
+        this.personalSchedules.add(insertedIndex, personalSchedule)
+
+        return this
+    }
+
 
     private fun getInsertedIndex(startTime: Long, endTime: Long): Int{
         val index = personalSchedules.binarySearch(0){
