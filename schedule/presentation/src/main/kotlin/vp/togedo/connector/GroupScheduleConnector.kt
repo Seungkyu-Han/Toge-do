@@ -32,4 +32,11 @@ interface GroupScheduleConnector {
         userId: ObjectId,
         personalSchedulesDao: PersonalSchedulesDao
     ):Mono<GroupScheduleDetailDto>
+
+    fun updatePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDetailDto>
 }

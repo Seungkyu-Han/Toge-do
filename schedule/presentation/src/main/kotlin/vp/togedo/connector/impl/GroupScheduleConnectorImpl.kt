@@ -96,6 +96,22 @@ class GroupScheduleConnectorImpl(
         }
     }
 
+    override fun updatePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDetailDto> {
+        return groupScheduleService.updatePersonalSchedulesInGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId,
+            personalSchedulesDao = personalSchedulesDao
+        ).map{
+            groupScheduleDaoToDto(it)
+        }
+    }
+
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
         name = groupScheduleDao.name,
