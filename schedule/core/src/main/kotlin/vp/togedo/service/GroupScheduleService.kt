@@ -57,7 +57,22 @@ interface GroupScheduleService {
      * @param personalSchedulesDao 등록할 개인 일정들
      * @return 수정된 group schedule dao
      */
-    fun addPersonalScheduleInGroupSchedule(
+    fun addPersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDao>
+
+    /**
+     * 공유 일정에 본인의 일정을 수정하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param scheduleId 일정을 등록할 공유 일정의 object id
+     * @param userId 등록할 유저의 object id
+     * @param personalSchedulesDao 등록할 개인 일정들
+     * @return 수정된 group schedule dao
+     */
+    fun updatePersonalSchedulesInGroupSchedule(
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,

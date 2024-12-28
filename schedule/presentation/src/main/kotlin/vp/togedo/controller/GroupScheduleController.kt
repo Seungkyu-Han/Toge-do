@@ -124,7 +124,7 @@ class GroupScheduleController(
     @PostMapping("/personal")
     @Operation(summary = "공유 일정에 본인의 일정을 등록")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "삭제 성공"),
+        ApiResponse(responseCode = "201", description = "등록 성공"),
         ApiResponse(responseCode = "403", description = "권한 없음",
             content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
         ApiResponse(responseCode = "404", description = "해당 공유 일정을 찾을 수 없음",
@@ -148,7 +148,37 @@ class GroupScheduleController(
                 }
             )
         ).map{
-            ResponseEntity.ok().body(it)
+            ResponseEntity.status(201).body(it)
         }
     }
+
+    @PatchMapping("/personal")
+    @Operation(summary = "공유 일정에 본인의 일정을 수정")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "수정 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
+        ApiResponse(responseCode = "404", description = "해당 개인 일정을 찾을 수 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun updatePersonalScheduleInGroupSchedule(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody personalSchedule: UpdatePersonalScheduleInGroupScheduleReqDto
+    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        groupScheduleConnector.updatePersonalSchedulesInGroupSchedule(
+            groupId = ObjectId(personalSchedule.groupId),
+            scheduleId = ObjectId(personalSchedule.scheduleId),
+            userId = idComponent.objectIdProvider(userId),
+            personalSchedulesDao = PersonalSchedulesDao(
+                personalSchedules = personalSchedule.personalSchedules.map{
+                    PersonalScheduleDao(
+                        id = ObjectId(it.personalScheduleId),
+                        startTime = it.startTime,
+                        endTime = it.endTime
+                    )
+                }
+            )
+        ).map{
+            ResponseEntity.status(200).body(it)
+        }
 }

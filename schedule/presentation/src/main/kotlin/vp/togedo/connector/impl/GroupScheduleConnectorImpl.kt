@@ -86,7 +86,23 @@ class GroupScheduleConnectorImpl(
         userId: ObjectId,
         personalSchedulesDao: PersonalSchedulesDao
     ): Mono<GroupScheduleDetailDto> {
-        return groupScheduleService.addPersonalScheduleInGroupSchedule(
+        return groupScheduleService.addPersonalSchedulesInGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId,
+            personalSchedulesDao = personalSchedulesDao
+        ).map{
+            groupScheduleDaoToDto(it)
+        }
+    }
+
+    override fun updatePersonalSchedulesInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDetailDto> {
+        return groupScheduleService.updatePersonalSchedulesInGroupSchedule(
             groupId = groupId,
             scheduleId = scheduleId,
             userId = userId,
