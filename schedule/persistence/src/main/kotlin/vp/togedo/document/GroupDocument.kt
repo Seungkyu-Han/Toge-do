@@ -284,7 +284,7 @@ data class PersonalSchedules(
     }
 
     private fun checkTimeRange(time: Long): Boolean{
-        if (time !in 10_01_01 .. 99_12_31)
+        if (time !in 10_01_01_00_00 .. 99_12_31_23_59)
             throw InvalidTimeException("시간 범위 밖입니다.")
 
         return true
