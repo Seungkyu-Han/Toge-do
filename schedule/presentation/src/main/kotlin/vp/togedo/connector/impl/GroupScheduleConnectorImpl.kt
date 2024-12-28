@@ -90,6 +90,7 @@ class GroupScheduleConnectorImpl(
                 personalSchedules = value.personalSchedules.map{
                     personalSchedule ->
                     PersonalScheduleDto(
+                        id = personalSchedule.id.toString(),
                         startTime = personalSchedule.startTime,
                         endTime = personalSchedule.endTime
                     )

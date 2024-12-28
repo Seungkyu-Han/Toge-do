@@ -174,6 +174,7 @@ data class PersonalSchedules(
 )
 
 data class PersonalSchedule(
+    val id: ObjectId = ObjectId.get(),
     val startTime: Long,
     val endTime: Long
 )

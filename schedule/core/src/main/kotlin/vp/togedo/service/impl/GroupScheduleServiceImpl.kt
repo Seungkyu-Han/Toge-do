@@ -126,6 +126,7 @@ class GroupScheduleServiceImpl(
                     personalSchedules = it.value.personalSchedules.map{
                         personalScheduleInGroup ->
                         PersonalScheduleDao(
+                            id = personalScheduleInGroup.id,
                             startTime = personalScheduleInGroup.startTime,
                             endTime = personalScheduleInGroup.endTime,
                         )
