@@ -10,7 +10,6 @@ import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
 import vp.togedo.util.exception.group.NotJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
-import vp.togedo.util.exception.groupSchedule.NotFoundPersonalScheduleException
 import vp.togedo.util.exception.schedule.ConflictScheduleException
 import vp.togedo.util.exception.schedule.InvalidTimeException
 
@@ -171,7 +170,15 @@ data class GroupSchedule(
     var confirmedEndDate: String? = null
 ){
     fun findGroupScheduleByUserId(userId: ObjectId): PersonalSchedules{
-        return personalScheduleMap[userId] ?: throw NotFoundPersonalScheduleException("해당 유저의 개인 일정이 없습니다.")
+
+        val personalSchedules = this.personalScheduleMap[userId]
+
+        if(personalSchedules != null)
+            return personalSchedules
+        else{
+            personalScheduleMap[userId] = PersonalSchedules()
+            return personalScheduleMap[userId]!!
+        }
     }
 }
 
