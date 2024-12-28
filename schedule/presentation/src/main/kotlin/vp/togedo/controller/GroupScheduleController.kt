@@ -179,6 +179,30 @@ class GroupScheduleController(
                 }
             )
         ).map{
-            ResponseEntity.status(200).body(it)
+            ResponseEntity.ok().body(it)
+        }
+
+    @DeleteMapping("/personal")
+    @Operation(summary = "공유 일정에서 본인의 일정을 삭제")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "삭제 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
+        ApiResponse(responseCode = "404", description = "해당 개인 일정을 찾을 수 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun deletePersonalScheduleInGroupSchedule(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestParam groupId: String,
+        @RequestParam scheduleId: String,
+        @RequestParam personalScheduleIdList: List<String>
+    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        groupScheduleConnector.deletePersonalSchedulesInGroupSchedule(
+            groupId = ObjectId(groupId),
+            scheduleId = ObjectId(scheduleId),
+            userId = idComponent.objectIdProvider(userId),
+            personalScheduleIdList = personalScheduleIdList.map{ObjectId(it)}
+        ).map{
+            ResponseEntity.ok().body(it)
         }
 }
