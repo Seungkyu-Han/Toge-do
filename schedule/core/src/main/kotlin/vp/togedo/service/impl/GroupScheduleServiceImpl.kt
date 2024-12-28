@@ -99,6 +99,22 @@ class GroupScheduleServiceImpl(
             }
     }
 
+    override fun deleteGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<Void> =
+        groupRepository.findById(groupId)
+            .flatMap {
+                it.deleteGroupScheduleById(scheduleId)
+            }.flatMap {
+                groupRepository.save(it)
+            }
+            .onErrorMap {
+                when(it){
+                    is NotFoundGroupScheduleException -> GroupScheduleException(ErrorCode.GROUP_SCHEDULE_CANT_FIND)
+                    else -> it
+                }
+            }
+            .then()
+
+
     private fun groupScheduleToDao(groupSchedule: GroupSchedule): GroupScheduleDao =
         GroupScheduleDao(
             id = groupSchedule.id,
