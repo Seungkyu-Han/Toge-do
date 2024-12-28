@@ -5,6 +5,8 @@ data class GroupScheduleDetailDto(
     val name: String,
     val startDate: Long,
     val endDate: Long,
+    val startTime: String,
+    val endTime: String,
     val personalScheduleMap: Map<String, PersonalSchedulesDto>
 )
 

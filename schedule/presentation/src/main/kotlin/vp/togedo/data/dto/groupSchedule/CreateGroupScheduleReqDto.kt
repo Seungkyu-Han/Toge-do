@@ -4,5 +4,7 @@ data class CreateGroupScheduleReqDto(
     val groupId: String,
     val name: String,
     val startDate: Long,
-    val endDate: Long
+    val endDate: Long,
+    val startTime: String,
+    val endTime: String
 )
