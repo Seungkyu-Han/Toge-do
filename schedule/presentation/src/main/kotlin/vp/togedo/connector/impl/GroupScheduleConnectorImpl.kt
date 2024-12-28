@@ -73,6 +73,12 @@ class GroupScheduleConnectorImpl(
             groupScheduleDaoToDto(it)
         }
 
+    override fun deleteGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<Void> =
+        groupScheduleService.deleteGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId
+        )
+
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
         name = groupScheduleDao.name,
