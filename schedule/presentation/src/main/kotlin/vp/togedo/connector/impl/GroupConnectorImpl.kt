@@ -36,20 +36,24 @@ class GroupConnectorImpl(
             .map{
             group ->
             userIdList.forEach{
-                userId ->
+                userIdInCreateGroup ->
                 mono{
                     kafkaService.publishInviteGroupEvent(
-                        receiverId = userId,
+                        receiverId = userIdInCreateGroup,
                         group = group)
                         .awaitSingleOrNull()
 
                     groupService.addGroupToJoinedGroup(
-                        userId = userId,
+                        userId = userIdInCreateGroup,
                         groupId = group.id,
                     ).awaitSingleOrNull()
-                }.subscribe()
-            }
-        }.then()
+                }.subscribe() }
+                group
+        }.doOnNext {
+            groupService.addGroupToJoinedGroup(
+                userId = userId,
+                groupId = it.id).subscribe()
+            }.then()
     }
 
     override fun readGroups(userId: ObjectId): Flux<GroupDto> =
