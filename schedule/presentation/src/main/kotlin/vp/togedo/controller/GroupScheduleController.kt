@@ -45,6 +45,8 @@ class GroupScheduleController(
             name = createGroupScheduleReqDto.name,
             startDate = createGroupScheduleReqDto.startDate,
             endDate = createGroupScheduleReqDto.endDate,
+            startTime = createGroupScheduleReqDto.startTime,
+            endTime = createGroupScheduleReqDto.endTime,
         ).map{
             ResponseEntity.ok().body(it)
         }

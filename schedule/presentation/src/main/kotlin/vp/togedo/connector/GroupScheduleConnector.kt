@@ -16,6 +16,8 @@ interface GroupScheduleConnector {
         name: String,
         startDate: Long,
         endDate: Long,
+        startTime: String,
+        endTime: String,
     ): Mono<GroupScheduleDetailDto>
 
     fun readGroupSchedules(groupId: ObjectId): Flux<GroupScheduleDto>
