@@ -187,6 +187,19 @@ data class PersonalSchedules(
     @JsonProperty("personalSchedules")
     val personalSchedules: MutableList<PersonalSchedule> = mutableListOf()
 ){
+    fun deletePersonalSchedulesById(personalScheduleIdList: List<ObjectId>): Mono<PersonalSchedules> {
+        return Mono.fromCallable{
+            personalScheduleIdList.forEach(::deletePersonalScheduleById)
+
+            this
+        }
+    }
+
+    private fun deletePersonalScheduleById(personalScheduleId: ObjectId){
+        if(!this.personalSchedules.removeIf { it.id == personalScheduleId })
+            throw NotFoundPersonalScheduleException("해당 스케줄이 존재하지 않습니다.")
+    }
+
     fun addPersonalSchedules(personalScheduleList: List<PersonalSchedule>): Mono<PersonalSchedules>{
         return Mono.fromCallable {
             personalScheduleList.forEach {
