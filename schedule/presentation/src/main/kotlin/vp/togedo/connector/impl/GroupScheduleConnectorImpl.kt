@@ -6,6 +6,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.connector.GroupScheduleConnector
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
+import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
 import vp.togedo.data.dto.groupSchedule.*
 import vp.togedo.service.GroupScheduleService
 import vp.togedo.service.KafkaService
@@ -79,6 +80,22 @@ class GroupScheduleConnectorImpl(
             scheduleId = scheduleId
         )
 
+    override fun createPersonalScheduleInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDetailDto> {
+        return groupScheduleService.addPersonalScheduleInGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId,
+            personalSchedulesDao = personalSchedulesDao
+        ).map{
+            groupScheduleDaoToDto(it)
+        }
+    }
+
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
         name = groupScheduleDao.name,
@@ -90,6 +107,7 @@ class GroupScheduleConnectorImpl(
                 personalSchedules = value.personalSchedules.map{
                     personalSchedule ->
                     PersonalScheduleDto(
+                        id = personalSchedule.id.toString(),
                         startTime = personalSchedule.startTime,
                         endTime = personalSchedule.endTime
                     )

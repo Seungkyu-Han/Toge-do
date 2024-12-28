@@ -9,6 +9,7 @@ import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dao.groupSchedule.PersonalScheduleDao
 import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
 import vp.togedo.document.GroupSchedule
+import vp.togedo.document.PersonalSchedule
 import vp.togedo.repository.GroupRepository
 import vp.togedo.service.GroupScheduleService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -114,6 +115,47 @@ class GroupScheduleServiceImpl(
             }
             .then()
 
+    override fun addPersonalScheduleInGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        personalSchedulesDao: PersonalSchedulesDao
+    ): Mono<GroupScheduleDao> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                group ->
+                group.findGroupScheduleById(scheduleId)
+                    .flatMap { groupSchedule ->
+                        val userPersonalSchedule = groupSchedule.findGroupScheduleByUserId(userId)
+
+                        val insertPersonalSchedules = personalSchedulesDaoToDocumentList(personalSchedulesDao)
+
+                        userPersonalSchedule
+                            .addPersonalSchedules(insertPersonalSchedules)
+                            .then(groupRepository.save(group))
+                            .then(Mono.just(groupSchedule))
+                    }
+            }.map(::groupScheduleToDao)
+            .onErrorMap {
+                when(it){
+                    is GroupScheduleException -> GroupScheduleException(ErrorCode.GROUP_SCHEDULE_CANT_FIND)
+                    else -> it
+                }
+            }
+    }
+
+    private fun personalSchedulesDaoToDocumentList(personalSchedulesDao: PersonalSchedulesDao): List<PersonalSchedule>{
+        return personalSchedulesDao.personalSchedules.map{
+            personalScheduleDao -> personalScheduleDaoToDocument(personalScheduleDao)
+        }
+    }
+
+    private fun personalScheduleDaoToDocument(personalScheduleDao: PersonalScheduleDao): PersonalSchedule =
+        PersonalSchedule(
+            startTime = personalScheduleDao.startTime,
+            endTime = personalScheduleDao.endTime
+        )
+
 
     private fun groupScheduleToDao(groupSchedule: GroupSchedule): GroupScheduleDao =
         GroupScheduleDao(
@@ -126,6 +168,7 @@ class GroupScheduleServiceImpl(
                     personalSchedules = it.value.personalSchedules.map{
                         personalScheduleInGroup ->
                         PersonalScheduleDao(
+                            id = personalScheduleInGroup.id,
                             startTime = personalScheduleInGroup.startTime,
                             endTime = personalScheduleInGroup.endTime,
                         )
