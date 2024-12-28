@@ -123,6 +123,23 @@ data class GroupDocument(
             this.groupSchedules[index]
         }
     }
+
+    /**
+     * 해당 공유 일정을 삭제하는 메서드
+     * @param scheduleId 삭제하려는 공유 일정의 object id
+     * @return 변경된 group document
+     * @throws NotFoundGroupScheduleException 해당 공유 일정을 찾을 수 없음
+     */
+    fun deleteGroupScheduleById(
+        scheduleId: ObjectId
+    ): Mono<GroupDocument>{
+        return Mono.fromCallable {
+            if(!this.groupSchedules.removeIf{it.id == scheduleId})
+                throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
+
+            this
+        }
+    }
 }
 
 data class GroupSchedule(
