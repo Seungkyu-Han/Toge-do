@@ -113,7 +113,8 @@ data class GroupDocument(
         scheduleId: ObjectId,
         name: String,
         startDate: Long,
-        endDate: Long
+        endDate: Long,
+        state: GroupScheduleStateEnum,
     ): Mono<GroupSchedule>{
         return Mono.fromCallable {
             val index: Int = groupSchedules.indexOfFirst { it.id == scheduleId }
@@ -124,7 +125,8 @@ data class GroupDocument(
             this.groupSchedules[index] = this.groupSchedules[index].copy(
                 name = name,
                 startDate = startDate,
-                endDate = endDate
+                endDate = endDate,
+                state = state
             )
 
             this.groupSchedules[index]
