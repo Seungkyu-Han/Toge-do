@@ -114,7 +114,6 @@ data class GroupDocument(
         name: String,
         startDate: Long,
         endDate: Long,
-        state: GroupScheduleStateEnum? = null,
     ): Mono<GroupSchedule>{
         return Mono.fromCallable {
             val index: Int = groupSchedules.indexOfFirst { it.id == scheduleId }
@@ -122,24 +121,39 @@ data class GroupDocument(
             if(index == -1)
                 throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
 
-            val updatedSchedule = if (state != null) {
-                this.groupSchedules[index].copy(
-                    name = name,
-                    startDate = startDate,
-                    endDate = endDate,
-                    state = state
-                )
-            } else {
-                this.groupSchedules[index].copy(
-                    name = name,
-                    startDate = startDate,
-                    endDate = endDate
-                )
-            }
+            this.groupSchedules[index] = this.groupSchedules[index].copy(
+                name = name,
+                startDate = startDate,
+                endDate = endDate,
+            )
 
-            this.groupSchedules[index] = updatedSchedule
+            this.groupSchedules[index]
+        }
+    }
 
-            updatedSchedule
+    /**
+     * 해당 공유 일정의 state를 변경하는 메서드
+     * @param scheduleId 해당 스케줄의 object id
+     * @param state 변경할 state
+     * @return 변경된 group schedule
+     * @throws NotFoundGroupScheduleException 해당 공유일정을 찾을 수 없음
+     */
+    fun updateGroupScheduleState(
+        scheduleId: ObjectId,
+        state: GroupScheduleStateEnum
+    ): Mono<GroupSchedule>{
+
+        return Mono.fromCallable {
+            val index: Int = groupSchedules.indexOfFirst { it.id == scheduleId }
+
+            if(index == -1)
+                throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
+
+            this.groupSchedules[index] = this.groupSchedules[index].copy(
+                state = state
+            )
+
+            this.groupSchedules[index]
         }
     }
 
