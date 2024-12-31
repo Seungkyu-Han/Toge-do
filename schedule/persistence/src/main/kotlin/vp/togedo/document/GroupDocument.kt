@@ -114,7 +114,7 @@ data class GroupDocument(
         name: String,
         startDate: Long,
         endDate: Long,
-        state: GroupScheduleStateEnum,
+        state: GroupScheduleStateEnum? = null,
     ): Mono<GroupSchedule>{
         return Mono.fromCallable {
             val index: Int = groupSchedules.indexOfFirst { it.id == scheduleId }
@@ -122,14 +122,24 @@ data class GroupDocument(
             if(index == -1)
                 throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
 
-            this.groupSchedules[index] = this.groupSchedules[index].copy(
-                name = name,
-                startDate = startDate,
-                endDate = endDate,
-                state = state
-            )
+            val updatedSchedule = if (state != null) {
+                this.groupSchedules[index].copy(
+                    name = name,
+                    startDate = startDate,
+                    endDate = endDate,
+                    state = state
+                )
+            } else {
+                this.groupSchedules[index].copy(
+                    name = name,
+                    startDate = startDate,
+                    endDate = endDate
+                )
+            }
 
-            this.groupSchedules[index]
+            this.groupSchedules[index] = updatedSchedule
+
+            updatedSchedule
         }
     }
 
