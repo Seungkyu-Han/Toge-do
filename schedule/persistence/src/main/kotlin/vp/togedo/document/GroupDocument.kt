@@ -9,6 +9,7 @@ import vp.togedo.enums.GroupScheduleStateEnum
 import vp.togedo.util.exception.group.AlreadyJoinedGroupException
 import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
 import vp.togedo.util.exception.group.NotJoinedGroupException
+import vp.togedo.util.exception.groupSchedule.InvalidGroupScheduleStateException
 import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
 import vp.togedo.util.exception.groupSchedule.NotFoundPersonalScheduleException
 import vp.togedo.util.exception.schedule.ConflictScheduleException
@@ -159,8 +160,40 @@ data class GroupDocument(
                 confirmedEndDate = confirmedEndDate,
             )
 
-            this.groupSchedules[index].confirmedUser = mutableSetOf(userId)
+            if(state == GroupScheduleStateEnum.REQUESTED)
+                this.groupSchedules[index].confirmedUser = mutableSetOf(userId)
+            else
+                this.groupSchedules[index].confirmedUser = mutableSetOf()
+
             this.groupSchedules[index].state = state
+
+            this.groupSchedules[index]
+        }
+    }
+
+    /**
+     * 해당 공유 일정 확인을 수락하는 메서드
+     * @param scheduleId 해당 스케줄의 object id
+     * @param userId 수락할 유저의 object id
+     * @return 변경된 group schedule
+     */
+    fun acceptConfirmGroupSchedule(
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupSchedule>{
+        return Mono.fromCallable {
+            val index: Int = groupSchedules.indexOfFirst { it.id == scheduleId }
+
+            if(index == -1)
+                throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
+
+            if(this.groupSchedules[index].state != GroupScheduleStateEnum.REQUESTED)
+                throw InvalidGroupScheduleStateException("요청 상태가 아닙니다.")
+
+            this.groupSchedules[index].confirmedUser.add(userId)
+
+            if(this.groupSchedules[index].confirmedUser.size == this.groupSchedules[index].personalScheduleMap.size)
+                this.groupSchedules[index].state = GroupScheduleStateEnum.CONFIRMED
 
             this.groupSchedules[index]
         }

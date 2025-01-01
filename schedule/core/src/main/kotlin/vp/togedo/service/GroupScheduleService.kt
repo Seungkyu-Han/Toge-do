@@ -111,4 +111,17 @@ interface GroupScheduleService {
         userId: ObjectId,
         confirmScheduleDao: ConfirmScheduleDao
     ): Mono<GroupScheduleDao>
+
+    /**
+     * 일정 확인 요청을 수락하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param scheduleId 수락할 일정의 object id
+     * @param userId 수락하는 유저의 object id
+     * @return 변경된 일정의 group schedule dao
+     */
+    fun acceptConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+    ): Mono<GroupScheduleDao>
 }

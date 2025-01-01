@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono
 import vp.togedo.data.dao.group.GroupDao
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dto.group.InviteGroupEventDto
+import vp.togedo.data.dto.groupSchedule.ConfirmScheduleEventDto
 import vp.togedo.data.dto.groupSchedule.CreateGroupScheduleEventDto
 import vp.togedo.data.dto.groupSchedule.SuggestGroupScheduleEventDto
 import vp.togedo.service.KafkaService
@@ -21,6 +22,7 @@ class KafkaServiceImpl(
     private val inviteGroupTopic = "INVITE_GROUP_TOPIC"
     private val createGroupScheduleTopic = "CREATE_GROUP_SCHEDULE_TOPIC"
     private val suggestConfirmScheduleTopic = "SUGGEST_CONFIRM_SCHEDULE_TOPIC"
+    private val confirmScheduleEventTopic = "CONFIRM_SCHEDULE_TOPIC"
 
     override fun publishInviteGroupEvent(receiverId: ObjectId, group: GroupDao): Mono<Void> =
         reactiveKafkaProducerTemplate.send(
@@ -50,6 +52,18 @@ class KafkaServiceImpl(
             suggestConfirmScheduleTopic,
             objectMapper.writeValueAsString(
                 SuggestGroupScheduleEventDto(
+                    receiverId = receiverId,
+                    name = groupSchedule.name
+                )
+            )
+        ).then()
+    }
+
+    override fun publishConfirmScheduleEvent(receiverId: String, groupSchedule: GroupScheduleDao): Mono<Void> {
+        return reactiveKafkaProducerTemplate.send(
+            confirmScheduleEventTopic,
+            objectMapper.writeValueAsString(
+                ConfirmScheduleEventDto(
                     receiverId = receiverId,
                     name = groupSchedule.name
                 )

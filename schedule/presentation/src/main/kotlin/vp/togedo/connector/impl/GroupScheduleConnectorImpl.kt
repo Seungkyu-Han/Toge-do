@@ -167,7 +167,28 @@ class GroupScheduleConnectorImpl(
                     }.subscribe()
         }.map{groupScheduleDaoToDto(it)}
 
-
+    override fun acceptConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.acceptConfirmGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId
+        ).publishOn(Schedulers.boundedElastic())
+            .doOnNext {
+            groupScheduleDao ->
+            if(groupScheduleDao.confirmScheduleDao!!.state == GroupScheduleStateDaoEnum.CONFIRMED){
+                Flux.fromIterable(groupScheduleDao.personalScheduleMap!!.keys)
+                    .map{
+                        userIdInGroup ->
+                        kafkaService.publishSuggestConfirmScheduleEvent(
+                            userIdInGroup.toString(), groupScheduleDao
+                        )
+                    }.subscribe()
+            }
+        }.map(::groupScheduleDaoToDto)
 
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
