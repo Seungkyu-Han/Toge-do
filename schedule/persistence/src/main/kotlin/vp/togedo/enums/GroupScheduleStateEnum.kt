@@ -1,6 +1,13 @@
 package vp.togedo.enums
 
-enum class GroupScheduleStateEnum {
+enum class GroupScheduleStateEnum(
+    val value: Int
+) {
 
-    DISCUSSING, REQUESTED, CONFIRMED
+    DISCUSSING(0), REQUESTED(1), CONFIRMED(2);
+
+    companion object {
+        fun find(value: Int): GroupScheduleStateEnum? = entries.find { it.value == value }
+    }
+
 }
