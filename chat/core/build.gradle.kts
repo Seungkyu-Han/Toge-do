@@ -15,6 +15,9 @@ dependencies {
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
+    //WEBSOCKET
+    implementation ("org.springframework.boot:spring-boot-starter-websocket")
+
     //MONGODB
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
