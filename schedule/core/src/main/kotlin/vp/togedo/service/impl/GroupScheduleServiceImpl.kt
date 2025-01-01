@@ -232,6 +232,25 @@ class GroupScheduleServiceImpl(
             }
     }
 
+    override fun acceptConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+    ): Mono<GroupScheduleDao>{
+        return groupRepository.findById(groupId)
+            .flatMap{
+                group ->
+                group.acceptConfirmGroupSchedule(
+                    scheduleId = scheduleId,
+                    userId = userId
+                ).flatMap{
+                    groupSchedule ->
+                    groupRepository.save(group)
+                        .map{groupSchedule}
+                }
+            }.map(::groupScheduleToDao)
+    }
+
 
     private fun personalSchedulesDaoToDocumentList(personalSchedulesDao: PersonalSchedulesDao): List<PersonalSchedule>{
         return personalSchedulesDao.personalSchedules.map{
