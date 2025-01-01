@@ -63,6 +63,18 @@ spring:
                 name: schedule
                 fallbackUri: forward:/fallback/schedule
 
+        - id: chat
+          uri: ${CHAT_URI}
+          predicates:
+            - Path=/chat/**
+
+        - id: chat-security
+          uri: ${CHAT_URI}
+          predicates:
+            - Path=/api/v1/chat/**
+          filters:
+            - AuthorizationFilter
+
 
 JWT:
   SECRET: ${JWT_SECRET}
