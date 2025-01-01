@@ -17,3 +17,5 @@ springdoc:
 SWAGGER:
   URL: ${SWAGGER_URL}
 
+JWT:
+  SECRET: ${JWT_SECRET}

@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation(project(":chat:core"))
+    implementation(project(":security:core"))
 
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -38,6 +39,11 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 kotlin {
     jvmToolchain(17)
 }
