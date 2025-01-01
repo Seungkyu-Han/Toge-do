@@ -251,6 +251,23 @@ class GroupScheduleServiceImpl(
             }.map(::groupScheduleToDao)
     }
 
+    override fun rejectConfirmGroupSchedule(groupId: ObjectId, scheduleId: ObjectId, userId: ObjectId): Mono<GroupScheduleDao> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                group ->
+                group.updateGroupScheduleState(
+                    scheduleId = scheduleId,
+                    userId = userId,
+                    state = GroupScheduleStateEnum.DISCUSSING,
+                    confirmedStartDate = null,
+                    confirmedEndDate = null
+                ).flatMap {
+                    groupSchedule ->
+                    groupRepository.save(group)
+                        .map{groupSchedule}
+                }
+            }.map(::groupScheduleToDao)
+    }
 
     private fun personalSchedulesDaoToDocumentList(personalSchedulesDao: PersonalSchedulesDao): List<PersonalSchedule>{
         return personalSchedulesDao.personalSchedules.map{

@@ -124,4 +124,16 @@ interface GroupScheduleService {
         scheduleId: ObjectId,
         userId: ObjectId,
     ): Mono<GroupScheduleDao>
+
+    /**
+     * 일정 확인 요청을 거절하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param scheduleId 거절할 일정의 object id
+     * @return 변경된 일정의 group schedule dao
+     */
+    fun rejectConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDao>
 }
