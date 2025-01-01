@@ -14,6 +14,7 @@ enum class EventEnums(
 
     //GROUP SCHEDULE
     CREATE_GROUP_SCHEDULE(3, "공유 일정이 생성되었습니다.", "공유 일정이 생성되었습니다."),
+    SUGGEST_CONFIRM_SCHEDULE(4, "일정 확인 요청입니다.", "일정 확인 요청입니다."),
 
 
 }

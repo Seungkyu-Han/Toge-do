@@ -7,7 +7,8 @@ data class GroupScheduleDetailDto(
     val endDate: Long,
     val startTime: String,
     val endTime: String,
-    val personalScheduleMap: Map<String, PersonalSchedulesDto>
+    val personalScheduleMap: Map<String, PersonalSchedulesDto>,
+    val confirmSchedule: ConfirmSchedule
 )
 
 data class PersonalSchedulesDto(
@@ -18,4 +19,11 @@ data class PersonalScheduleDto(
     val id: String,
     val startTime: Long,
     val endTime: Long,
+)
+
+data class ConfirmSchedule(
+    val state: String,
+    val startTime: String?,
+    val endTime: String?,
+    val confirmedUser: List<String>?
 )

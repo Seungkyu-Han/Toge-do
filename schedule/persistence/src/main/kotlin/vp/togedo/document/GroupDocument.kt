@@ -113,7 +113,7 @@ data class GroupDocument(
         scheduleId: ObjectId,
         name: String,
         startDate: Long,
-        endDate: Long
+        endDate: Long,
     ): Mono<GroupSchedule>{
         return Mono.fromCallable {
             val index: Int = groupSchedules.indexOfFirst { it.id == scheduleId }
@@ -124,8 +124,43 @@ data class GroupDocument(
             this.groupSchedules[index] = this.groupSchedules[index].copy(
                 name = name,
                 startDate = startDate,
-                endDate = endDate
+                endDate = endDate,
             )
+
+            this.groupSchedules[index]
+        }
+    }
+
+    /**
+     * 해당 공유 일정의 state를 변경하는 메서드
+     * @param scheduleId 해당 스케줄의 object id
+     * @param userId 스케줄을 변경하는 유저의 object id
+     * @param state 변경할 state
+     * @return 변경된 group schedule
+     * @throws NotFoundGroupScheduleException 해당 공유일정을 찾을 수 없음
+     */
+    fun updateGroupScheduleState(
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        state: GroupScheduleStateEnum,
+        confirmedStartDate: String?,
+        confirmedEndDate: String?,
+    ): Mono<GroupSchedule>{
+
+        return Mono.fromCallable {
+            val index: Int = groupSchedules.indexOfFirst { it.id == scheduleId }
+
+            if(index == -1)
+                throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
+
+            this.groupSchedules[index] = this.groupSchedules[index].copy(
+                state = state,
+                confirmedStartDate = confirmedStartDate,
+                confirmedEndDate = confirmedEndDate,
+            )
+
+            this.groupSchedules[index].confirmedUser = mutableSetOf(userId)
+            this.groupSchedules[index].state = state
 
             this.groupSchedules[index]
         }
@@ -173,6 +208,9 @@ data class GroupSchedule(
 
     @JsonProperty("state")
     var state: GroupScheduleStateEnum = GroupScheduleStateEnum.DISCUSSING,
+
+    @JsonProperty("confirmedUser")
+    var confirmedUser: MutableSet<ObjectId> = mutableSetOf(),
 
     @JsonProperty("confirmedStartDate")
     var confirmedStartDate: String? = null,
