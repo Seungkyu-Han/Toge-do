@@ -1,0 +1,19 @@
+server:
+  port: 12044
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      auto-index-creation: true
+
+springdoc:
+  api-docs:
+    path: /chat/v3/api-docs
+  swagger-ui:
+    url: /chat/v3/api-docs
+    path: /chat/swagger
+
+SWAGGER:
+  URL: ${SWAGGER_URL}
+
