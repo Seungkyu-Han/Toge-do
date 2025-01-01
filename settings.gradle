@@ -30,4 +30,8 @@ findProject(':schedule:presentation')?.name = 'presentation'
 include 'chat'
 include 'chat:persistence'
 findProject(':chat:persistence')?.name = 'persistence'
+include 'chat:core'
+findProject(':chat:core')?.name = 'core'
+include 'chat:presentation'
+findProject(':chat:presentation')?.name = 'presentation'
 
