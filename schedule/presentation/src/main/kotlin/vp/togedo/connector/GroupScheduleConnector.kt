@@ -62,4 +62,10 @@ interface GroupScheduleConnector {
         scheduleId: ObjectId,
         userId: ObjectId
     ): Mono<GroupScheduleDetailDto>
+
+    fun rejectConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDetailDto>
 }

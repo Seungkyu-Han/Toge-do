@@ -190,6 +190,17 @@ class GroupScheduleConnectorImpl(
             }
         }.map(::groupScheduleDaoToDto)
 
+    override fun rejectConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.rejectConfirmGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId
+        ).map(::groupScheduleDaoToDto)
+
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
         name = groupScheduleDao.name,
