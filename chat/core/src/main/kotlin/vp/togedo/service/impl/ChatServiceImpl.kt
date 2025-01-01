@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.messaging.simp.SimpMessageSendingOperations
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import vp.togedo.data.dto.MessageResDto
 import vp.togedo.document.ChatDocument
 import vp.togedo.repository.ChatRepository
@@ -27,9 +28,8 @@ class ChatServiceImpl(
                 val operationType = item.operationType
 
                 if(chatDocument != null && operationType == OperationType.INSERT) {
-                    println(chatDocument)
                     simpMessageSendingOperations.convertAndSend(
-                        "/chat-sub/${chatDocument.groupId}", messageDocumentToDto(chatDocument)
+                        "/sub/${chatDocument.groupId}", messageDocumentToDto(chatDocument)
                     )
                 }
             }.subscribe()
@@ -38,6 +38,15 @@ class ChatServiceImpl(
     override fun getChatMessages(groupId: String): Flux<MessageResDto> {
         return chatRepository.findByGroupId(ObjectId(groupId))
             .map(::messageDocumentToDto)
+    }
+
+    override fun publishMessage(groupId: String, userId: String, message: String): Mono<Void> {
+        val chatDocument = ChatDocument(
+            groupId = ObjectId(groupId),
+            senderId = ObjectId(userId),
+            message = message
+        )
+        return chatRepository.save(chatDocument).then()
     }
 
     private fun messageDocumentToDto(chatDocument: ChatDocument): MessageResDto =
