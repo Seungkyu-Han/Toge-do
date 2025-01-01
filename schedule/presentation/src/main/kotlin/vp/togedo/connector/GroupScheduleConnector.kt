@@ -56,4 +56,10 @@ interface GroupScheduleConnector {
         startTime: String,
         endTime: String,
     ): Mono<GroupScheduleDetailDto>
+
+    fun acceptConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDetailDto>
 }
