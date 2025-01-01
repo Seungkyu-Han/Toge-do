@@ -44,7 +44,7 @@ class GroupScheduleConnectorImpl(
                     kafkaService.publishCreateGroupScheduleEvent(key, groupScheduleDao).subscribe()
                 }
             }
-        }.map{groupScheduleDaoToDto(it) }
+        }.map{groupScheduleDaoToDto(it)}
 
     }
 
@@ -79,7 +79,8 @@ class GroupScheduleConnectorImpl(
                 endDate = updateGroupScheduleReqDto.endDate,
                 startTime = updateGroupScheduleReqDto.startTime,
                 endTime = updateGroupScheduleReqDto.endTime,
-                personalScheduleMap = null
+                personalScheduleMap = null,
+                confirmScheduleDao = null
             )
         ).map{
             groupScheduleDaoToDto(it)
@@ -187,7 +188,13 @@ class GroupScheduleConnectorImpl(
                     )
                 }
             )
-        }.toMap()
+        }.toMap(),
+        confirmSchedule = ConfirmSchedule(
+            startTime = groupScheduleDao.confirmScheduleDao?.startTime,
+            endTime = groupScheduleDao.confirmScheduleDao?.endTime,
+            state = groupScheduleDao.confirmScheduleDao!!.state.name,
+            confirmedUser = groupScheduleDao.confirmScheduleDao!!.confirmedUser!!.map{it.toString()}
+        )
     )
 
 }

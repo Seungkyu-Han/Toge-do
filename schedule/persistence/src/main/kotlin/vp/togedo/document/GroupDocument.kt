@@ -142,7 +142,9 @@ data class GroupDocument(
     fun updateGroupScheduleState(
         scheduleId: ObjectId,
         userId: ObjectId,
-        state: GroupScheduleStateEnum
+        state: GroupScheduleStateEnum,
+        confirmedStartDate: String?,
+        confirmedEndDate: String?,
     ): Mono<GroupSchedule>{
 
         return Mono.fromCallable {
@@ -152,10 +154,12 @@ data class GroupDocument(
                 throw NotFoundGroupScheduleException("해당 공유 일정이 존재하지 않습니다.")
 
             this.groupSchedules[index] = this.groupSchedules[index].copy(
-                state = state
+                state = state,
+                confirmedStartDate = confirmedStartDate,
+                confirmedEndDate = confirmedEndDate,
             )
 
-            this.groupSchedules[index].confirmUser = mutableSetOf(userId)
+            this.groupSchedules[index].confirmedUser = mutableSetOf(userId)
             this.groupSchedules[index].state = state
 
             this.groupSchedules[index]
@@ -205,8 +209,8 @@ data class GroupSchedule(
     @JsonProperty("state")
     var state: GroupScheduleStateEnum = GroupScheduleStateEnum.DISCUSSING,
 
-    @JsonProperty("confirmUser")
-    var confirmUser: MutableSet<ObjectId> = mutableSetOf(),
+    @JsonProperty("confirmedUser")
+    var confirmedUser: MutableSet<ObjectId> = mutableSetOf(),
 
     @JsonProperty("confirmedStartDate")
     var confirmedStartDate: String? = null,

@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
-import vp.togedo.data.dao.groupSchedule.ConfirmScheduleDao
-import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
-import vp.togedo.data.dao.groupSchedule.PersonalScheduleDao
-import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
+import vp.togedo.data.dao.groupSchedule.*
 import vp.togedo.document.GroupSchedule
 import vp.togedo.document.PersonalSchedule
 import vp.togedo.enums.GroupScheduleStateEnum
@@ -64,7 +61,8 @@ class GroupScheduleServiceImpl(
                         endDate = groupSchedule.endDate,
                         startTime = groupSchedule.startTime,
                         endTime = groupSchedule.endTime,
-                        personalScheduleMap = null
+                        personalScheduleMap = null,
+                        confirmScheduleDao = null
                     )
                 }
         }
@@ -221,6 +219,8 @@ class GroupScheduleServiceImpl(
                     scheduleId = scheduleId,
                     state = GroupScheduleStateEnum.find(confirmScheduleDao.state.value)!!,
                     userId = userId,
+                    confirmedStartDate = confirmScheduleDao.startTime,
+                    confirmedEndDate = confirmScheduleDao.endTime
                 )
                     .flatMap {
                         groupSchedule ->
@@ -255,6 +255,12 @@ class GroupScheduleServiceImpl(
             endDate = groupSchedule.endDate,
             startTime = groupSchedule.startTime,
             endTime = groupSchedule.endTime,
+            confirmScheduleDao = ConfirmScheduleDao(
+                state = GroupScheduleStateDaoEnum.find(groupSchedule.state.value)!!,
+                startTime = groupSchedule.confirmedStartDate,
+                endTime = groupSchedule.confirmedEndDate,
+                confirmedUser = groupSchedule.confirmedUser
+            ),
             personalScheduleMap = groupSchedule.personalScheduleMap.mapValues {
                 PersonalSchedulesDao(
                     personalSchedules = it.value.personalSchedules.map{
@@ -263,10 +269,9 @@ class GroupScheduleServiceImpl(
                             id = personalScheduleInGroup.id,
                             startTime = personalScheduleInGroup.startTime,
                             endTime = personalScheduleInGroup.endTime,
-
                         )
                     }
                 )
-            }
+            },
         )
 }
