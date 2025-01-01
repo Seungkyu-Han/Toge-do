@@ -9,7 +9,8 @@ data class GroupScheduleDao(
     val endDate: Long,
     val startTime: String,
     val endTime: String,
-    val personalScheduleMap: Map<ObjectId, PersonalSchedulesDao>?
+    val personalScheduleMap: Map<ObjectId, PersonalSchedulesDao>?,
+    val confirmScheduleDao: ConfirmScheduleDao?
 )
 
 data class PersonalSchedulesDao(

@@ -4,8 +4,11 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.GroupScheduleConnector
+import vp.togedo.data.dao.groupSchedule.ConfirmScheduleDao
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
+import vp.togedo.data.dao.groupSchedule.GroupScheduleStateDaoEnum
 import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
 import vp.togedo.data.dto.groupSchedule.*
 import vp.togedo.service.GroupScheduleService
@@ -41,7 +44,7 @@ class GroupScheduleConnectorImpl(
                     kafkaService.publishCreateGroupScheduleEvent(key, groupScheduleDao).subscribe()
                 }
             }
-        }.map{groupScheduleDaoToDto(it) }
+        }.map{groupScheduleDaoToDto(it)}
 
     }
 
@@ -76,7 +79,8 @@ class GroupScheduleConnectorImpl(
                 endDate = updateGroupScheduleReqDto.endDate,
                 startTime = updateGroupScheduleReqDto.startTime,
                 endTime = updateGroupScheduleReqDto.endTime,
-                personalScheduleMap = null
+                personalScheduleMap = null,
+                confirmScheduleDao = null
             )
         ).map{
             groupScheduleDaoToDto(it)
@@ -133,6 +137,69 @@ class GroupScheduleConnectorImpl(
             personalScheduleIdList = personalScheduleIdList
         ).map(::groupScheduleDaoToDto)
 
+    override fun createSuggestGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        startTime: String,
+        endTime: String
+    ): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.changeStateToConfirmSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId,
+            confirmScheduleDao = ConfirmScheduleDao(
+                startTime = startTime,
+                endTime = endTime,
+                state = GroupScheduleStateDaoEnum.REQUESTED,
+                confirmedUser = null)
+        ).publishOn(Schedulers.boundedElastic())
+            .doOnNext {
+                groupScheduleDao ->
+                Flux.fromIterable(groupScheduleDao.personalScheduleMap!!.keys)
+                    .publishOn(Schedulers.boundedElastic())
+                    .map{
+                        userIdInGroup ->
+                        if(userId != userIdInGroup)
+                            kafkaService.publishSuggestConfirmScheduleEvent(
+                                userId.toString(), groupScheduleDao
+                            ).subscribe()
+                    }.subscribe()
+        }.map{groupScheduleDaoToDto(it)}
+
+    override fun acceptConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.acceptConfirmGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId
+        ).publishOn(Schedulers.boundedElastic())
+            .doOnNext {
+            groupScheduleDao ->
+            if(groupScheduleDao.confirmScheduleDao!!.state == GroupScheduleStateDaoEnum.CONFIRMED){
+                Flux.fromIterable(groupScheduleDao.personalScheduleMap!!.keys)
+                    .map{
+                        userIdInGroup ->
+                        kafkaService.publishSuggestConfirmScheduleEvent(
+                            userIdInGroup.toString(), groupScheduleDao
+                        )
+                    }.subscribe()
+            }
+        }.map(::groupScheduleDaoToDto)
+
+    override fun rejectConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.rejectConfirmGroupSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId
+        ).map(::groupScheduleDaoToDto)
 
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(
         id = groupScheduleDao.id.toString(),
@@ -153,7 +220,13 @@ class GroupScheduleConnectorImpl(
                     )
                 }
             )
-        }.toMap()
+        }.toMap(),
+        confirmSchedule = ConfirmSchedule(
+            startTime = groupScheduleDao.confirmScheduleDao?.startTime,
+            endTime = groupScheduleDao.confirmScheduleDao?.endTime,
+            state = groupScheduleDao.confirmScheduleDao!!.state.name,
+            confirmedUser = groupScheduleDao.confirmScheduleDao!!.confirmedUser!!.map{it.toString()}
+        )
     )
 
 }

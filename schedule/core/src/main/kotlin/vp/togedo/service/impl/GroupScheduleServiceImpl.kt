@@ -5,11 +5,10 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
-import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
-import vp.togedo.data.dao.groupSchedule.PersonalScheduleDao
-import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
+import vp.togedo.data.dao.groupSchedule.*
 import vp.togedo.document.GroupSchedule
 import vp.togedo.document.PersonalSchedule
+import vp.togedo.enums.GroupScheduleStateEnum
 import vp.togedo.repository.GroupRepository
 import vp.togedo.service.GroupScheduleService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -62,7 +61,8 @@ class GroupScheduleServiceImpl(
                         endDate = groupSchedule.endDate,
                         startTime = groupSchedule.startTime,
                         endTime = groupSchedule.endTime,
-                        personalScheduleMap = null
+                        personalScheduleMap = null,
+                        confirmScheduleDao = null
                     )
                 }
         }
@@ -206,6 +206,69 @@ class GroupScheduleServiceImpl(
             }
     }
 
+    override fun changeStateToConfirmSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        confirmScheduleDao: ConfirmScheduleDao
+    ): Mono<GroupScheduleDao> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                group ->
+                group.updateGroupScheduleState(
+                    scheduleId = scheduleId,
+                    state = GroupScheduleStateEnum.find(confirmScheduleDao.state.value)!!,
+                    userId = userId,
+                    confirmedStartDate = confirmScheduleDao.startTime,
+                    confirmedEndDate = confirmScheduleDao.endTime
+                )
+                    .flatMap {
+                        groupSchedule ->
+                        groupRepository.save(group)
+                            .map{groupSchedule}
+                    }
+            }.map{
+                groupScheduleToDao(it)
+            }
+    }
+
+    override fun acceptConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+    ): Mono<GroupScheduleDao>{
+        return groupRepository.findById(groupId)
+            .flatMap{
+                group ->
+                group.acceptConfirmGroupSchedule(
+                    scheduleId = scheduleId,
+                    userId = userId
+                ).flatMap{
+                    groupSchedule ->
+                    groupRepository.save(group)
+                        .map{groupSchedule}
+                }
+            }.map(::groupScheduleToDao)
+    }
+
+    override fun rejectConfirmGroupSchedule(groupId: ObjectId, scheduleId: ObjectId, userId: ObjectId): Mono<GroupScheduleDao> {
+        return groupRepository.findById(groupId)
+            .flatMap {
+                group ->
+                group.updateGroupScheduleState(
+                    scheduleId = scheduleId,
+                    userId = userId,
+                    state = GroupScheduleStateEnum.DISCUSSING,
+                    confirmedStartDate = null,
+                    confirmedEndDate = null
+                ).flatMap {
+                    groupSchedule ->
+                    groupRepository.save(group)
+                        .map{groupSchedule}
+                }
+            }.map(::groupScheduleToDao)
+    }
+
     private fun personalSchedulesDaoToDocumentList(personalSchedulesDao: PersonalSchedulesDao): List<PersonalSchedule>{
         return personalSchedulesDao.personalSchedules.map{
             personalScheduleDao -> personalScheduleDaoToDocument(personalScheduleDao)
@@ -228,6 +291,12 @@ class GroupScheduleServiceImpl(
             endDate = groupSchedule.endDate,
             startTime = groupSchedule.startTime,
             endTime = groupSchedule.endTime,
+            confirmScheduleDao = ConfirmScheduleDao(
+                state = GroupScheduleStateDaoEnum.find(groupSchedule.state.value)!!,
+                startTime = groupSchedule.confirmedStartDate,
+                endTime = groupSchedule.confirmedEndDate,
+                confirmedUser = groupSchedule.confirmedUser
+            ),
             personalScheduleMap = groupSchedule.personalScheduleMap.mapValues {
                 PersonalSchedulesDao(
                     personalSchedules = it.value.personalSchedules.map{
@@ -236,10 +305,9 @@ class GroupScheduleServiceImpl(
                             id = personalScheduleInGroup.id,
                             startTime = personalScheduleInGroup.startTime,
                             endTime = personalScheduleInGroup.endTime,
-
                         )
                     }
                 )
-            }
+            },
         )
 }

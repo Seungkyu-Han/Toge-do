@@ -48,4 +48,24 @@ interface GroupScheduleConnector {
         userId: ObjectId,
         personalScheduleIdList: List<ObjectId>
     ): Mono<GroupScheduleDetailDto>
+
+    fun createSuggestGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        startTime: String,
+        endTime: String,
+    ): Mono<GroupScheduleDetailDto>
+
+    fun acceptConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDetailDto>
+
+    fun rejectConfirmGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId
+    ): Mono<GroupScheduleDetailDto>
 }

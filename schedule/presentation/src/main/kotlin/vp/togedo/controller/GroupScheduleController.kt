@@ -207,4 +207,70 @@ class GroupScheduleController(
         ).map{
             ResponseEntity.ok().body(it)
         }
+
+    @PostMapping("/suggest-confirm")
+    @Operation(summary = "공유 일정 확인을 요청")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "요청 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
+        ApiResponse(responseCode = "404", description = "해당 공유 일정을 찾을 수 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun createSuggestConfirm(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody suggestConfirmReqDto: SuggestConfirmReqDto,
+    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        groupScheduleConnector.createSuggestGroupSchedule(
+            userId = idComponent.objectIdProvider(userId),
+            groupId = ObjectId(suggestConfirmReqDto.groupId),
+            scheduleId = ObjectId(suggestConfirmReqDto.scheduleId),
+            startTime = suggestConfirmReqDto.startTime,
+            endTime = suggestConfirmReqDto.endTime
+        ).map{
+            ResponseEntity.ok().body(it)
+        }
+
+    @PostMapping("/accept-confirm")
+    @Operation(summary = "공유 일정 확인을 수락")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "수락 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
+        ApiResponse(responseCode = "404", description = "해당 공유 일정을 찾을 수 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun acceptConfirm(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody updateConfirmReqDto: UpdateConfirmReqDto
+    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        groupScheduleConnector.acceptConfirmGroupSchedule(
+            groupId = ObjectId(updateConfirmReqDto.groupId),
+            scheduleId = ObjectId(updateConfirmReqDto.scheduleId),
+            userId = idComponent.objectIdProvider(userId)
+        ).map{
+            ResponseEntity.ok().body(it)
+        }
+
+    @PatchMapping("/reject-confirm")
+    @Operation(summary = "공유 일정 확인을 거절")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "거절 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
+        ApiResponse(responseCode = "404", description = "해당 공유 일정을 찾을 수 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun rejectConfirm(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody updateConfirmReqDto: UpdateConfirmReqDto
+    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        groupScheduleConnector.rejectConfirmGroupSchedule(
+            groupId = ObjectId(updateConfirmReqDto.groupId),
+            scheduleId = ObjectId(updateConfirmReqDto.scheduleId),
+            userId = idComponent.objectIdProvider(userId)
+        ).map{
+            ResponseEntity.ok().body(it)
+        }
+
 }
