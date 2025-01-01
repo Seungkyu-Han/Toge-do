@@ -27,4 +27,7 @@ include 'schedule:core'
 findProject(':schedule:core')?.name = 'core'
 include 'schedule:presentation'
 findProject(':schedule:presentation')?.name = 'presentation'
+include 'chat'
+include 'chat:persistence'
+findProject(':chat:persistence')?.name = 'persistence'
 
