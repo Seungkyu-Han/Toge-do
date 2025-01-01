@@ -15,6 +15,9 @@ dependencies {
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
+    //WEBSOCKET
+    implementation ("org.springframework.boot:spring-boot-starter-websocket")
+
     //COROUTINE
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
