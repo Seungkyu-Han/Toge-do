@@ -251,4 +251,26 @@ class GroupScheduleController(
         ).map{
             ResponseEntity.ok().body(it)
         }
+
+    @PatchMapping("/reject-confirm")
+    @Operation(summary = "공유 일정 확인을 거절")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "거절 성공"),
+        ApiResponse(responseCode = "403", description = "권한 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)]),
+        ApiResponse(responseCode = "404", description = "해당 공유 일정을 찾을 수 없음",
+            content = [Content(mediaType = MediaType.TEXT_PLAIN_VALUE)])
+    )
+    fun rejectConfirm(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @RequestBody updateConfirmReqDto: UpdateConfirmReqDto
+    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        groupScheduleConnector.rejectConfirmGroupSchedule(
+            groupId = ObjectId(updateConfirmReqDto.groupId),
+            scheduleId = ObjectId(updateConfirmReqDto.scheduleId),
+            userId = idComponent.objectIdProvider(userId)
+        ).map{
+            ResponseEntity.ok().body(it)
+        }
+
 }
