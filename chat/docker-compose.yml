@@ -1,0 +1,14 @@
+services:
+  chat:
+    image: chat:1.0.0
+    container_name: chat
+    networks:
+      - vp
+    ports:
+      - "12044:12044"
+    env_file:
+      - /home/ec2-user/.env
+
+networks:
+  vp:
+    external: true
