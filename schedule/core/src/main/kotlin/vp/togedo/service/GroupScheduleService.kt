@@ -3,6 +3,7 @@ package vp.togedo.service
 import org.bson.types.ObjectId
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import vp.togedo.data.dao.groupSchedule.ConfirmScheduleDao
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
 
@@ -94,5 +95,20 @@ interface GroupScheduleService {
         scheduleId: ObjectId,
         userId: ObjectId,
         personalScheduleIdList: List<ObjectId>
+    ): Mono<GroupScheduleDao>
+
+    /**
+     * 공유 일정 상태를 변경하는 메서드
+     * @param groupId 해당 그룹의 object id
+     * @param scheduleId 확정할 일정의 object id
+     * @param userId 확정을 요청하는 유저의 object id
+     * @param confirmScheduleDao 확정을 요청하는 스케줄의 dao
+     * @return 변경된 일정의 group schedule dao
+     */
+    fun changeStateToConfirmSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        confirmScheduleDao: ConfirmScheduleDao
     ): Mono<GroupScheduleDao>
 }

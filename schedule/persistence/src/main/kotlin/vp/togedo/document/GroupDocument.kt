@@ -134,12 +134,14 @@ data class GroupDocument(
     /**
      * 해당 공유 일정의 state를 변경하는 메서드
      * @param scheduleId 해당 스케줄의 object id
+     * @param userId 스케줄을 변경하는 유저의 object id
      * @param state 변경할 state
      * @return 변경된 group schedule
      * @throws NotFoundGroupScheduleException 해당 공유일정을 찾을 수 없음
      */
     fun updateGroupScheduleState(
         scheduleId: ObjectId,
+        userId: ObjectId,
         state: GroupScheduleStateEnum
     ): Mono<GroupSchedule>{
 
@@ -152,6 +154,9 @@ data class GroupDocument(
             this.groupSchedules[index] = this.groupSchedules[index].copy(
                 state = state
             )
+
+            this.groupSchedules[index].confirmUser = mutableSetOf(userId)
+            this.groupSchedules[index].state = state
 
             this.groupSchedules[index]
         }
@@ -199,6 +204,9 @@ data class GroupSchedule(
 
     @JsonProperty("state")
     var state: GroupScheduleStateEnum = GroupScheduleStateEnum.DISCUSSING,
+
+    @JsonProperty("confirmUser")
+    var confirmUser: MutableSet<ObjectId> = mutableSetOf(),
 
     @JsonProperty("confirmedStartDate")
     var confirmedStartDate: String? = null,
