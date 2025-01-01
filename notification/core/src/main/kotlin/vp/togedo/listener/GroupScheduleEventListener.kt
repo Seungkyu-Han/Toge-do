@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import vp.togedo.data.groupSchedule.CreateGroupScheduleEventDto
+import vp.togedo.data.groupSchedule.SuggestGroupScheduleEventDto
 import vp.togedo.data.notification.EventEnums
 import vp.togedo.data.notification.SSEDao
 import vp.togedo.service.FCMService
@@ -29,6 +30,24 @@ class GroupScheduleEventListener(
                 userId = createGroupScheduleEventDto.receiverId,
                 title = event.eventTitle,
                 content = "${createGroupScheduleEventDto.name}${event.eventContent}",
+                image = null
+            )
+        }
+    }
+
+    @KafkaListener(topics = ["SUGGEST_CONFIRM_SCHEDULE_TOPIC"], groupId = "seungkyu")
+    fun suggestConfirmSchedule(message: String){
+        val event = EventEnums.SUGGEST_CONFIRM_SCHEDULE
+        val suggestGroupScheduleEventDto = objectMapper.readValue(message, SuggestGroupScheduleEventDto::class.java)
+        val isSSE = notificationService.publishNotification(
+            id = suggestGroupScheduleEventDto.receiverId,
+            sseDao = SSEDao(event, suggestGroupScheduleEventDto.name, null)
+        )
+        if (!isSSE){
+            fcmService.pushNotification(
+                userId = suggestGroupScheduleEventDto.receiverId,
+                title = event.eventTitle,
+                content = "${suggestGroupScheduleEventDto.name}${event.eventContent}",
                 image = null
             )
         }
