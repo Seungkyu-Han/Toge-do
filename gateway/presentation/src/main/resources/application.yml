@@ -75,6 +75,11 @@ spring:
           filters:
             - AuthorizationFilter
 
+        - id: chat-websocket
+          uri: ${CHAT_WEBSOCKET_URI}
+          predicates:
+            - Path=/websocket/v1/chat/**
+
 
 JWT:
   SECRET: ${JWT_SECRET}
@@ -105,7 +110,3 @@ resilience4j:
 
       schedule:
         timeout-duration: 8s
-
-logging:
-  level:
-    io.github.resilience4j.circuitbreaker: debug
