@@ -11,5 +11,5 @@ interface KafkaService {
 
     fun publishCreateGroupScheduleEvent(receiverId: ObjectId, groupSchedule: GroupScheduleDao): Mono<Void>
 
-    fun publishSuggestConfirmScheduleEvent(receiverId: ObjectId, groupSchedule: GroupScheduleDao): Mono<Void>
+    fun publishSuggestConfirmScheduleEvent(receiverId: String, groupSchedule: GroupScheduleDao): Mono<Void>
 }

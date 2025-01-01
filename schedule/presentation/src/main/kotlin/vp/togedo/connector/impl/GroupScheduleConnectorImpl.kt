@@ -4,8 +4,11 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.GroupScheduleConnector
+import vp.togedo.data.dao.groupSchedule.ConfirmScheduleDao
 import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
+import vp.togedo.data.dao.groupSchedule.GroupScheduleStateDaoEnum
 import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
 import vp.togedo.data.dto.groupSchedule.*
 import vp.togedo.service.GroupScheduleService
@@ -132,6 +135,37 @@ class GroupScheduleConnectorImpl(
             userId = userId,
             personalScheduleIdList = personalScheduleIdList
         ).map(::groupScheduleDaoToDto)
+
+    override fun createSuggestGroupSchedule(
+        groupId: ObjectId,
+        scheduleId: ObjectId,
+        userId: ObjectId,
+        startTime: String,
+        endTime: String
+    ): Mono<GroupScheduleDetailDto> =
+        groupScheduleService.changeStateToConfirmSchedule(
+            groupId = groupId,
+            scheduleId = scheduleId,
+            userId = userId,
+            confirmScheduleDao = ConfirmScheduleDao(
+                startTime = startTime,
+                endTime = endTime,
+                state = GroupScheduleStateDaoEnum.REQUESTED,
+                confirmedUser = null)
+        ).publishOn(Schedulers.boundedElastic())
+            .doOnNext {
+                groupScheduleDao ->
+                Flux.fromIterable(groupScheduleDao.personalScheduleMap!!.keys)
+                    .publishOn(Schedulers.boundedElastic())
+                    .map{
+                        userIdInGroup ->
+                        if(userId != userIdInGroup)
+                            kafkaService.publishSuggestConfirmScheduleEvent(
+                                userId.toString(), groupScheduleDao
+                            ).subscribe()
+                    }.subscribe()
+        }.map{groupScheduleDaoToDto(it)}
+
 
 
     private fun groupScheduleDaoToDto(groupScheduleDao: GroupScheduleDao): GroupScheduleDetailDto = GroupScheduleDetailDto(

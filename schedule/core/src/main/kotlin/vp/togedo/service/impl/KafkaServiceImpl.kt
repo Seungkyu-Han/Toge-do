@@ -45,12 +45,12 @@ class KafkaServiceImpl(
         ).then()
     }
 
-    override fun publishSuggestConfirmScheduleEvent(receiverId: ObjectId, groupSchedule: GroupScheduleDao): Mono<Void> {
+    override fun publishSuggestConfirmScheduleEvent(receiverId: String, groupSchedule: GroupScheduleDao): Mono<Void> {
         return reactiveKafkaProducerTemplate.send(
             suggestConfirmScheduleTopic,
             objectMapper.writeValueAsString(
                 SuggestGroupScheduleEventDto(
-                    receiverId = receiverId.toString(),
+                    receiverId = receiverId,
                     name = groupSchedule.name
                 )
             )
