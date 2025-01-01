@@ -1,9 +1,14 @@
 package vp.togedo.controller
 
 import io.swagger.v3.oas.annotations.Parameter
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.messaging.handler.annotation.DestinationVariable
+import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import vp.togedo.data.dto.MessageReqDto
 import vp.togedo.data.dto.MessageResDto
 import vp.togedo.service.ChatService
 
@@ -13,7 +18,7 @@ class ChatController(
     private val chatService: ChatService,
 ) {
 
-    @GetMapping("/{groupId}")
+    @GetMapping("/chats/{groupId}")
     fun getChatMessages(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
         @PathVariable groupId: String,
@@ -21,5 +26,20 @@ class ChatController(
         ResponseEntity.ok(
             chatService.getChatMessages(groupId)
         )
+
+    @MessageMapping("/{groupId}")
+    fun publishChatMessage(
+        @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
+        @DestinationVariable groupId: String,
+        @RequestBody messageReqDto: MessageReqDto
+    ): Mono<ResponseEntity<Void>> =
+        chatService.publishMessage(
+            groupId = groupId,
+            userId = userId,
+            message = messageReqDto.message
+        ).then<ResponseEntity<Void>?>(Mono.fromCallable { ResponseEntity(HttpStatus.OK) })
+            .doOnNext {
+                println("user id: $userId")
+            }
 
 }
