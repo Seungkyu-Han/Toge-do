@@ -17,8 +17,8 @@ data class PersonalSchedulesDto(
 
 data class PersonalScheduleDto(
     val id: String,
-    val startTime: Long,
-    val endTime: Long,
+    val startTime: String,
+    val endTime: String,
 )
 
 data class ConfirmSchedule(

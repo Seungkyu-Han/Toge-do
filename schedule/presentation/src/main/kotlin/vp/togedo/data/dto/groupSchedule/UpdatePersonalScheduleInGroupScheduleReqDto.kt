@@ -8,6 +8,6 @@ data class UpdatePersonalScheduleInGroupScheduleReqDto(
 
 data class UpdatePersonalScheduleDto(
     val personalScheduleId: String,
-    val startTime: Long,
-    val endTime: Long
+    val startTime: String,
+    val endTime: String
 )

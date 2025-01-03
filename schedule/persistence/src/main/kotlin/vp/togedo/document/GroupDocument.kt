@@ -322,7 +322,7 @@ data class PersonalSchedules(
     }
 
 
-    private fun getInsertedIndex(startTime: Long, endTime: Long): Int{
+    private fun getInsertedIndex(startTime: String, endTime: String): Int{
         val index = personalSchedules.binarySearch(0){
             personalSchedule -> personalSchedule.startTime.compareTo(startTime)
         }
@@ -343,13 +343,13 @@ data class PersonalSchedules(
         return insertedIndex
     }
 
-    private fun checkValidTime(startTime: Long, endTime: Long): Boolean {
+    private fun checkValidTime(startTime: String, endTime: String): Boolean {
         if (startTime > endTime)
             throw InvalidTimeException("시작 시간이 종료 시간보다 뒤입니다.")
 
-        this.checkTimeRange(startTime)
+        this.checkTimeRange(startTime.toLong())
 
-        this.checkTimeRange(endTime)
+        this.checkTimeRange(endTime.toLong())
 
         return true
     }
@@ -364,6 +364,6 @@ data class PersonalSchedules(
 
 data class PersonalSchedule(
     val id: ObjectId = ObjectId.get(),
-    val startTime: Long,
-    val endTime: Long
+    val startTime: String,
+    val endTime: String
 )

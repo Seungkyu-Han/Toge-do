@@ -7,6 +7,6 @@ data class CreatePersonalScheduleInGroupScheduleReqDto(
 )
 
 data class CreatePersonalScheduleDto(
-    val startTime: Long,
-    val endTime: Long
+    val startTime: String,
+    val endTime: String
 )
