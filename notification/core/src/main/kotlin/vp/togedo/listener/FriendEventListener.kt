@@ -20,7 +20,7 @@ class FriendEventListener(
 
     @KafkaListener(topics = [Topics.FRIEND_REQUEST], groupId = "seungkyu")
     fun requestFriend(message: String){
-        val event = EventEnums.REQUEST_FRIEND_EVENT
+        val event = EventEnums.REQUEST_FRIEND
         val friendRequestEventDto = objectMapper.readValue(message, FriendRequestEventDto::class.java)
         val isSSE = notificationService.publishNotification(
             id = friendRequestEventDto.receiverId,
@@ -38,7 +38,7 @@ class FriendEventListener(
 
     @KafkaListener(topics = [Topics.FRIEND_APPROVE], groupId = "seungkyu")
     fun approveFriend(message: String){
-        val event = EventEnums.APPROVE_FRIEND_EVENT
+        val event = EventEnums.APPROVE_FRIEND
         val friendApproveEventDto = objectMapper.readValue(message, FriendApproveEventDto::class.java)
         val isSSE = notificationService.publishNotification(
             id = friendApproveEventDto.receiverId,
