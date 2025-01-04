@@ -1,8 +1,6 @@
 package vp.togedo.service.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.bson.types.ObjectId
-import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
