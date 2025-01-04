@@ -1,4 +1,6 @@
-package vp.togedo.data.notification
+package vp.togedo.data.sse
+
+import vp.togedo.kafka.data.enums.EventEnums
 
 data class SSEDao (
     val event: EventEnums,

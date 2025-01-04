@@ -20,6 +20,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail:3.4.0")
 
     //KAFKA
+    implementation(project(":kafka"))
     implementation("io.projectreactor.kafka:reactor-kafka")
     implementation("org.springframework.kafka:spring-kafka")
 

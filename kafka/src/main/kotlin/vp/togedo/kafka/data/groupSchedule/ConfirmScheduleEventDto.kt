@@ -1,4 +1,4 @@
-package vp.togedo.data.groupSchedule
+package vp.togedo.kafka.data.groupSchedule
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Sinks
 import reactor.core.publisher.Sinks.Many
-import vp.togedo.data.notification.SSEDao
-import vp.togedo.data.notification.SSEDto
+import vp.togedo.data.sse.SSEDao
+import vp.togedo.data.sse.SSEDto
 import vp.togedo.service.NotificationService
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap

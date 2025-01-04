@@ -3,7 +3,6 @@ package vp.togedo.service
 import org.bson.types.ObjectId
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kafka.sender.SenderResult
 import vp.togedo.document.UserDocument
 import vp.togedo.util.error.exception.FriendException
 import vp.togedo.util.error.exception.UserException
@@ -42,8 +41,4 @@ interface FriendService {
     fun rejectRequest(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument>
 
     fun removeFriend(userId: ObjectId, friendId: ObjectId): Mono<UserDocument>
-
-    fun publishRequestFriendEvent(receiver: UserDocument, sender: UserDocument): Mono<SenderResult<Void>>
-
-    fun publishApproveFriendEvent(receiver: UserDocument, sender: UserDocument): Mono<SenderResult<Void>>
 }

@@ -13,6 +13,9 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.connector.FriendConnector
 import vp.togedo.document.UserDocument
+import vp.togedo.kafka.data.friend.FriendApproveEventDto
+import vp.togedo.kafka.data.friend.FriendRequestEventDto
+import vp.togedo.kafka.service.FriendKafkaService
 import vp.togedo.service.FriendService
 import vp.togedo.service.UserService
 
@@ -20,7 +23,8 @@ import vp.togedo.service.UserService
 class FriendConnectorImpl(
     private val transactionalOperator: TransactionalOperator,
     private val userService: UserService,
-    private val friendService: FriendService
+    private val friendService: FriendService,
+    private val friendKafkaService: FriendKafkaService
 ): FriendConnector {
 
     override fun getFriendsInfo(id: ObjectId): Flux<UserDocument> {
@@ -37,34 +41,14 @@ class FriendConnectorImpl(
 
         val receiverDocument = userService.findUser(friendId).awaitSingle()
 
-        friendService.requestFriend(id, receiverDocument).awaitSingle()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val senderDocument = userService.findUser(id).awaitSingle()
-            friendService.publishRequestFriendEvent(
-                receiver = receiverDocument,
-                sender = senderDocument
-            ).awaitSingleOrNull()
-        }
-
-        return receiverDocument
+        return requestFriend(id, receiverDocument)
     }
 
     override suspend fun requestFriendByEmail(id: ObjectId, email: String): UserDocument {
 
         val receiverDocument = userService.findUserByEmail(email).awaitSingle()
 
-        friendService.requestFriend(id, receiverDocument).awaitSingle()
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val senderDocument = userService.findUser(id).awaitSingle()
-            friendService.publishRequestFriendEvent(
-                receiver = receiverDocument,
-                sender = senderDocument
-            ).awaitSingleOrNull()
-        }
-
-        return receiverDocument
+        return requestFriend(id, receiverDocument)
     }
 
     override suspend fun approveFriend(id: ObjectId, friendId: ObjectId): UserDocument {
@@ -78,9 +62,12 @@ class FriendConnectorImpl(
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            friendService.publishApproveFriendEvent(
-                receiver = senderDocument,
-                sender = receiverDocument
+            friendKafkaService.publishApproveFriendEvent(
+                FriendApproveEventDto(
+                    receiverId = senderDocument.id.toString(),
+                    sender = receiverDocument.name,
+                    image = receiverDocument.profileImageUrl
+                )
             ).awaitSingleOrNull()
         }
 
@@ -91,11 +78,27 @@ class FriendConnectorImpl(
         return friendService.rejectRequest(receiverId, senderId)
     }
 
-//    @Transactional
     override fun disconnectFriend(id: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return transactionalOperator.transactional(friendService.removeFriend(id, friendId)
             .flatMap {
                 friendService.removeFriend(friendId, id)
             })
+    }
+
+    private suspend fun requestFriend(id: ObjectId, userDocument: UserDocument): UserDocument {
+        friendService.requestFriend(id, userDocument).awaitSingle()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val senderDocument = userService.findUser(id).awaitSingle()
+            friendKafkaService.publishRequestFriendEvent(
+                FriendRequestEventDto(
+                    receiverId = userDocument.id.toString(),
+                    sender = senderDocument.name,
+                    image = senderDocument.profileImageUrl
+                )
+            ).awaitSingleOrNull()
+        }
+
+        return userDocument
     }
 }
