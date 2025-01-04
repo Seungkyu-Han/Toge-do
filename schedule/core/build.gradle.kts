@@ -18,7 +18,6 @@ dependencies {
     //MONGODB
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
-
     //TEST
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
@@ -34,10 +33,6 @@ dependencies {
 
     //REFLECT
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-
-    //KAFKA
-    implementation("io.projectreactor.kafka:reactor-kafka")
-    implementation("org.springframework.kafka:spring-kafka")
 }
 
 tasks.test {

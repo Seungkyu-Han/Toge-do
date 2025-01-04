@@ -13,13 +13,14 @@ import vp.togedo.data.dao.group.GroupDao
 import vp.togedo.data.dto.group.CreateGroupReqDto
 import vp.togedo.data.dto.group.GroupDto
 import vp.togedo.data.dto.group.UpdateGroupReqDto
+import vp.togedo.kafka.data.group.InviteGroupEventDto
+import vp.togedo.kafka.service.GroupKafkaService
 import vp.togedo.service.GroupService
-import vp.togedo.service.KafkaService
 
 @Service
 class GroupConnectorImpl(
     private val groupService: GroupService,
-    private val kafkaService: KafkaService
+    private val groupKafkaService: GroupKafkaService
 ): GroupConnector {
 
     @Transactional
@@ -38,10 +39,12 @@ class GroupConnectorImpl(
             userIdList.forEach{
                 userIdInCreateGroup ->
                 mono{
-                    kafkaService.publishInviteGroupEvent(
-                        receiverId = userIdInCreateGroup,
-                        group = group)
-                        .awaitSingleOrNull()
+                    groupKafkaService.publishInviteGroupEvent(
+                        InviteGroupEventDto(
+                            receiverId = userIdInCreateGroup.toString(),
+                            name = group.name,
+                        )
+                    ).awaitSingleOrNull()
 
                     groupService.addGroupToJoinedGroup(
                         userId = userIdInCreateGroup,
@@ -94,9 +97,12 @@ class GroupConnectorImpl(
                 groupDocument
             }
         }.publishOn(Schedulers.boundedElastic()).doOnNext {
-            kafkaService.publishInviteGroupEvent(
-                receiverId = userObjectId,
-                group = it).subscribe()
+            groupKafkaService.publishInviteGroupEvent(
+                InviteGroupEventDto(
+                    receiverId = userObjectId.toString(),
+                    name = it.name
+                )
+            ).subscribe()
         }.then()
     }
 

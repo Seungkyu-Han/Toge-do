@@ -3,7 +3,6 @@ package vp.togedo.connector.impl
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.SignatureException
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -127,7 +126,7 @@ class UserConnectorImpl(
 
         if (userDocument.profileImageUrl != null){
             val fileName = userDocument.profileImageUrl!!.split("/").last()
-            imageService.publishDeleteEvent(fileName).awaitSingleOrNull()
+            imageService.publishDeleteEvent(fileName).awaitSingle()
         }
 
         if (userInfoReqDto.image != null){
