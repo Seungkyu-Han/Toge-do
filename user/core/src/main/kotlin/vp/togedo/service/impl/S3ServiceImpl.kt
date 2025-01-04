@@ -38,7 +38,7 @@ class S3ServiceImpl(
     }
 
     override fun deleteImage(fileName: String) {
-        val fileNameInS3 = fileName.removeSuffix(" \"https://${bucket}.s3-ap-northeast-2.amazonaws.com/")
+        val fileNameInS3 = fileName.removeSuffix("https://${bucket}.s3-ap-northeast-2.amazonaws.com/")
         amazonS3Client.deleteObject(bucket, fileNameInS3)
     }
 }

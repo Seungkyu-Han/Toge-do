@@ -124,14 +124,15 @@ class UserConnectorImpl(
     override suspend fun updateUserInfo(userInfoReqDto: UserInfoReqDto, id: ObjectId): UserInfoResDto {
         val userDocument = userService.findUser(id).awaitSingle()
 
-//        if (userDocument.profileImageUrl != null){
-//            val fileName = userDocument.profileImageUrl!!.split("/").last()
-//            imageService.publishDeleteEvent(fileName).awaitSingle()
-//        }
-//
-        if (userInfoReqDto.image != null){
-            val image = s3Service.postImage(id.toString(), userInfoReqDto.image).awaitSingle()
-            userDocument.profileImageUrl = image
+        if(userInfoReqDto.isProfileImageDelete){
+            if(userDocument.profileImageUrl != null)
+                s3Service.deleteImage(userDocument.profileImageUrl!!)
+            userDocument.profileImageUrl = null
+        }else{
+            if (userInfoReqDto.image != null){
+                val image = s3Service.postImage(id.toString(), userInfoReqDto.image).awaitSingle()
+                userDocument.profileImageUrl = image
+            }
         }
 
         userDocument.name = userInfoReqDto.name
