@@ -6,10 +6,7 @@ import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kafka.sender.SenderResult
 import vp.togedo.repository.UserRepository
-import vp.togedo.data.dto.friend.FriendApproveEventDto
-import vp.togedo.data.dto.friend.FriendRequestEventDto
 import vp.togedo.document.UserDocument
 import vp.togedo.service.FriendService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -20,12 +17,7 @@ import vp.togedo.util.exception.*
 @Service
 class FriendServiceImpl(
     private val userRepository: UserRepository,
-    private val objectMapper: ObjectMapper,
-    private val reactiveKafkaProducerTemplate: ReactiveKafkaProducerTemplate<String, String>
 ): FriendService {
-
-    private val friendRequestEventTopic = "FRIEND_REQUEST_TOPIC"
-    private val friendApproveEventTopic = "FRIEND_APPROVE_TOPIC"
 
     /**
      * 친구 목록에 있는 ID를 이용해 사용자를 검색해오는 메서드
@@ -59,22 +51,6 @@ class FriendServiceImpl(
     }
 
     /**
-     * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
-     * @param receiver 친구 요청을 받는 사용자의 user document
-     * @param sender 친구 요청을 보낸 사용자의 user document
-     * @return kafka send result
-     */
-    override fun publishRequestFriendEvent(receiver: UserDocument, sender: UserDocument): Mono<SenderResult<Void>> =
-        reactiveKafkaProducerTemplate.send(
-            friendRequestEventTopic, objectMapper.writeValueAsString(
-                FriendRequestEventDto(
-                    receiverId = receiver.id.toString(),
-                    sender = sender.name,
-                    image = sender.profileImageUrl
-                ))
-        )
-
-    /**
      * 해당 유저와 친구 관계를 삭제하는 메서드
      * @param userId 친구 삭제를 요청하는 유저
      * @param friendId 친구 삭제를 당하는 유저
@@ -94,22 +70,6 @@ class FriendServiceImpl(
                     else -> it
                 }
             }
-    }
-
-    /**
-     * 해당 사용자 아이디로 kafka 이벤트를 전송하는 메서드
-     * @param receiver 친구 요청을 보낸 사용자의 user document
-     * @param sender 친구 요청을 받은 사용자의 user document
-     * @return kafka send result
-     */
-    override fun publishApproveFriendEvent(receiver: UserDocument, sender: UserDocument): Mono<SenderResult<Void>> {
-        return reactiveKafkaProducerTemplate.send(
-            friendApproveEventTopic, objectMapper.writeValueAsString(
-                FriendApproveEventDto(
-                    receiverId = receiver.id.toString(),
-                    sender = sender.name,
-                    image = sender.profileImageUrl
-                    )))
     }
 
     /**
