@@ -1,4 +1,4 @@
-package vp.togedo.data.notification
+package vp.togedo.data.sse
 
 enum class EventEnums(
     val eventValue: Int,

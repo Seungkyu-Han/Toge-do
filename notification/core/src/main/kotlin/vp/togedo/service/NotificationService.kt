@@ -2,8 +2,8 @@ package vp.togedo.service
 
 import org.springframework.http.codec.ServerSentEvent
 import reactor.core.publisher.Flux
-import vp.togedo.data.notification.SSEDao
-import vp.togedo.data.notification.SSEDto
+import vp.togedo.data.sse.SSEDao
+import vp.togedo.data.sse.SSEDto
 
 interface NotificationService {
 
