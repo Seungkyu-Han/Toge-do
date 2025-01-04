@@ -11,13 +11,18 @@ import vp.togedo.data.dao.groupSchedule.GroupScheduleDao
 import vp.togedo.data.dao.groupSchedule.GroupScheduleStateDaoEnum
 import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
 import vp.togedo.data.dto.groupSchedule.*
+import vp.togedo.kafka.data.groupSchedule.ConfirmScheduleEventDto
+import vp.togedo.kafka.data.groupSchedule.CreateGroupScheduleEventDto
+import vp.togedo.kafka.data.groupSchedule.SuggestGroupScheduleEventDto
+import vp.togedo.kafka.service.GroupScheduleKafkaService
 import vp.togedo.service.GroupScheduleService
 import vp.togedo.service.KafkaService
 
 @Service
 class GroupScheduleConnectorImpl(
     private val groupScheduleService: GroupScheduleService,
-    private val kafkaService: KafkaService
+    private val kafkaService: KafkaService,
+    private val groupScheduleKafkaService: GroupScheduleKafkaService
 ): GroupScheduleConnector {
 
     override fun createGroupSchedule(
@@ -41,7 +46,12 @@ class GroupScheduleConnectorImpl(
             groupScheduleDao.personalScheduleMap!!.keys.forEach {
                 key ->
                 if (key != userId){
-                    kafkaService.publishCreateGroupScheduleEvent(key, groupScheduleDao).subscribe()
+                    groupScheduleKafkaService.publishCreateGroupScheduleEvent(
+                        CreateGroupScheduleEventDto(
+                            receiverId = key.toString(),
+                            name = groupScheduleDao.name
+                        )
+                    ).subscribe()
                 }
             }
         }.map{groupScheduleDaoToDto(it)}
@@ -161,8 +171,11 @@ class GroupScheduleConnectorImpl(
                     .map{
                         userIdInGroup ->
                         if(userId != userIdInGroup)
-                            kafkaService.publishSuggestConfirmScheduleEvent(
-                                userId.toString(), groupScheduleDao
+                            groupScheduleKafkaService.publishSuggestConfirmScheduleEvent(
+                                SuggestGroupScheduleEventDto(
+                                    receiverId = userIdInGroup.toString(),
+                                    name = groupScheduleDao.name
+                                )
                             ).subscribe()
                     }.subscribe()
         }.map{groupScheduleDaoToDto(it)}
@@ -183,8 +196,11 @@ class GroupScheduleConnectorImpl(
                 Flux.fromIterable(groupScheduleDao.personalScheduleMap!!.keys)
                     .map{
                         userIdInGroup ->
-                        kafkaService.publishSuggestConfirmScheduleEvent(
-                            userIdInGroup.toString(), groupScheduleDao
+                        groupScheduleKafkaService.publishConfirmScheduleEvent(
+                            ConfirmScheduleEventDto(
+                                receiverId = userIdInGroup.toString(),
+                                name = groupScheduleDao.name
+                            )
                         )
                     }.subscribe()
             }
