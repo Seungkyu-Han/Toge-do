@@ -33,5 +33,11 @@ class S3ServiceImpl(
             }.map{
                 fileUrl
             }
+
+
+    }
+
+    override fun deleteImage(fileName: String) {
+        amazonS3Client.deleteObject(bucket, "toge-do/${fileName}")
     }
 }
