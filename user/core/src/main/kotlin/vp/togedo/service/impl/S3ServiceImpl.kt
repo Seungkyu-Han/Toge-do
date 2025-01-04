@@ -18,7 +18,9 @@ class S3ServiceImpl(
 ): S3Service {
 
     override fun postImage(fileName: String, image: FilePart): Mono<String> {
-        val fileUrl = "https://${bucket}/toge-do/${fileName}.${image.name().substringAfterLast(".", "")}"
+        val fileExtension = image.filename().split(".").last()
+
+        val fileUrl = "https://${bucket}.s3-ap-northeast-2.amazonaws.com/toge-do/${fileName}.$fileExtension"
 
         val objectMetadata = ObjectMetadata()
         objectMetadata.contentType = image.headers().contentType?.type
@@ -27,7 +29,7 @@ class S3ServiceImpl(
         return DataBufferUtils.join(image.content())
             .map(DataBuffer::asInputStream)
             .doOnNext{
-                amazonS3Client.putObject(bucket, fileName, it, objectMetadata)
+                amazonS3Client.putObject(bucket, "toge-do/$fileName.${fileExtension}", it, objectMetadata)
             }.map{
                 fileUrl
             }
