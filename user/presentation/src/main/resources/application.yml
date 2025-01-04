@@ -38,10 +38,17 @@ springdoc:
 SWAGGER:
   URL: ${SWAGGER_URL}
 
-IMAGE:
-  PATH: ${IMAGE_PATH}
-  SERVER_NAME: ${IMAGE_SERVER_NAME}
-
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    s3:
+      bucket: ${AWS_BUCKET}
 
 GOOGLE:
   AUTH:
