@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component
 import vp.togedo.kafka.data.group.InviteGroupEventDto
 import vp.togedo.data.sse.EventEnums
 import vp.togedo.data.sse.SSEDao
+import vp.togedo.kafka.config.Topics
 import vp.togedo.service.FCMService
 import vp.togedo.service.NotificationService
 
@@ -16,7 +17,7 @@ class GroupEventListener(
     private val objectMapper: ObjectMapper
 ) {
 
-    @KafkaListener(topics = ["INVITE_GROUP_TOPIC"], groupId = "seungkyu")
+    @KafkaListener(topics = [Topics.INVITE_GROUP], groupId = "seungkyu")
     fun inviteGroup(message: String){
         val event = EventEnums.INVITE_GROUP
         val inviteGroupEventDto = objectMapper.readValue(message, InviteGroupEventDto::class.java)

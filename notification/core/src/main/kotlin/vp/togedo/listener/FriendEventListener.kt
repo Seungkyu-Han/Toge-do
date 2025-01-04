@@ -7,6 +7,7 @@ import vp.togedo.data.sse.EventEnums
 import vp.togedo.kafka.data.friend.FriendApproveEventDto
 import vp.togedo.kafka.data.friend.FriendRequestEventDto
 import vp.togedo.data.sse.SSEDao
+import vp.togedo.kafka.config.Topics
 import vp.togedo.service.FCMService
 import vp.togedo.service.NotificationService
 
@@ -17,7 +18,7 @@ class FriendEventListener(
     private val objectMapper: ObjectMapper,
 ) {
 
-    @KafkaListener(topics = ["FRIEND_REQUEST_TOPIC"], groupId = "seungkyu")
+    @KafkaListener(topics = [Topics.FRIEND_REQUEST], groupId = "seungkyu")
     fun requestFriend(message: String){
         val event = EventEnums.REQUEST_FRIEND_EVENT
         val friendRequestEventDto = objectMapper.readValue(message, FriendRequestEventDto::class.java)
@@ -35,7 +36,7 @@ class FriendEventListener(
         }
     }
 
-    @KafkaListener(topics = ["FRIEND_APPROVE_TOPIC"], groupId = "seungkyu")
+    @KafkaListener(topics = [Topics.FRIEND_APPROVE], groupId = "seungkyu")
     fun approveFriend(message: String){
         val event = EventEnums.APPROVE_FRIEND_EVENT
         val friendApproveEventDto = objectMapper.readValue(message, FriendApproveEventDto::class.java)

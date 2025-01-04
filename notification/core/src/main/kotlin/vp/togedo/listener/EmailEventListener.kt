@@ -3,6 +3,7 @@ package vp.togedo.listener
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
+import vp.togedo.kafka.config.Topics
 import vp.togedo.kafka.data.email.ValidCodeEventDto
 import vp.togedo.service.EmailService
 
@@ -12,7 +13,7 @@ class EmailEventListener(
     private val emailService: EmailService
 ) {
 
-    @KafkaListener(topics = ["SEND_EMAIL_VALIDATION_CODE_TOPIC"], groupId = "seungkyu")
+    @KafkaListener(topics = [Topics.SEND_EMAIL_VALIDATION_CODE], groupId = "seungkyu")
     fun sendValidationCode(message: String) {
         val validCodeEventDto = objectMapper.readValue(message, ValidCodeEventDto::class.java)
         emailService.sendEmail(
