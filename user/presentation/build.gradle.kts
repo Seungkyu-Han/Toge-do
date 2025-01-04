@@ -38,10 +38,6 @@ dependencies {
     //SWAGGER
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
 
-    //KAFKA
-    implementation("io.projectreactor.kafka:reactor-kafka")
-    implementation("org.springframework.kafka:spring-kafka")
-
     //REDIS
     implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.2")
 

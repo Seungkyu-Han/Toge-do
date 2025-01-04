@@ -5,7 +5,6 @@ import org.springframework.http.codec.multipart.FilePart
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import reactor.kafka.sender.SenderResult
 import vp.togedo.service.ImageService
 import java.nio.file.Files
 import java.nio.file.Path
@@ -37,9 +36,9 @@ class ImageServiceImpl(
         Files.deleteIfExists(Path.of("$imagePath/$fileName"))
     }
 
-    override fun publishDeleteEvent(fileName: String): Mono<SenderResult<Void>> =
+    override fun publishDeleteEvent(fileName: String): Mono<Void> =
         reactiveKafkaProducerTemplate.send(
             deleteImageEventTopic, fileName
-        )
+        ).then()
 
 }
