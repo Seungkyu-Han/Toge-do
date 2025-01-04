@@ -16,12 +16,10 @@ import vp.togedo.kafka.data.groupSchedule.CreateGroupScheduleEventDto
 import vp.togedo.kafka.data.groupSchedule.SuggestGroupScheduleEventDto
 import vp.togedo.kafka.service.GroupScheduleKafkaService
 import vp.togedo.service.GroupScheduleService
-import vp.togedo.service.KafkaService
 
 @Service
 class GroupScheduleConnectorImpl(
     private val groupScheduleService: GroupScheduleService,
-    private val kafkaService: KafkaService,
     private val groupScheduleKafkaService: GroupScheduleKafkaService
 ): GroupScheduleConnector {
 
