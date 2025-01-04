@@ -15,6 +15,7 @@ import vp.togedo.dto.user.UserInfoResDto
 import vp.togedo.enums.OauthEnum
 import vp.togedo.service.GoogleService
 import vp.togedo.service.KakaoService
+import vp.togedo.service.S3Service
 import vp.togedo.service.UserService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.UserException
@@ -23,7 +24,8 @@ import vp.togedo.util.error.exception.UserException
 class UserConnectorImpl(
     private val userService: UserService,
     private val kakaoService: KakaoService,
-    private val googleService: GoogleService
+    private val googleService: GoogleService,
+    private val s3Service: S3Service,
 ): UserConnector {
 
     override fun extractUserIdByToken(token: String?): ObjectId{
@@ -127,10 +129,10 @@ class UserConnectorImpl(
 //            imageService.publishDeleteEvent(fileName).awaitSingle()
 //        }
 //
-//        if (userInfoReqDto.image != null){
-//            val image = imageService.saveImage(userInfoReqDto.image).awaitSingle()
-//            userDocument.profileImageUrl = image
-//        }
+        if (userInfoReqDto.image != null){
+            val image = s3Service.postImage(id.toString(), userInfoReqDto.image).awaitSingle()
+            userDocument.profileImageUrl = image
+        }
 
         userDocument.name = userInfoReqDto.name
         userDocument.email = userInfoReqDto.email
