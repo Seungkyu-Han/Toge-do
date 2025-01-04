@@ -15,6 +15,7 @@ dependencies {
     //PROJECT
     implementation(project(":user:core"))
     implementation(project(":user:persistence"))
+    implementation(project(":kafka"))
 
 
     //WEBFLUX
@@ -58,6 +59,6 @@ kotlin {
     jvmToolchain(17)
 }
 
-tasks.bootJar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
+//tasks.bootJar {
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//}
