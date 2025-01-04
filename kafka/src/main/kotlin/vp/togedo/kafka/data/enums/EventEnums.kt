@@ -1,4 +1,4 @@
-package vp.togedo.data.sse
+package vp.togedo.kafka.data.enums
 
 enum class EventEnums(
     val eventValue: Int,

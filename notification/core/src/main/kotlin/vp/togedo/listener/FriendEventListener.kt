@@ -3,7 +3,7 @@ package vp.togedo.listener
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
-import vp.togedo.data.sse.EventEnums
+import vp.togedo.kafka.data.enums.EventEnums
 import vp.togedo.kafka.data.friend.FriendApproveEventDto
 import vp.togedo.kafka.data.friend.FriendRequestEventDto
 import vp.togedo.data.sse.SSEDao

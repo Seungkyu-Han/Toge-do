@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import vp.togedo.kafka.data.group.InviteGroupEventDto
-import vp.togedo.data.sse.EventEnums
+import vp.togedo.kafka.data.enums.EventEnums
 import vp.togedo.data.sse.SSEDao
 import vp.togedo.kafka.config.Topics
 import vp.togedo.service.FCMService

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 import vp.togedo.kafka.data.groupSchedule.ConfirmScheduleEventDto
 import vp.togedo.kafka.data.groupSchedule.CreateGroupScheduleEventDto
 import vp.togedo.kafka.data.groupSchedule.SuggestGroupScheduleEventDto
-import vp.togedo.data.sse.EventEnums
+import vp.togedo.kafka.data.enums.EventEnums
 import vp.togedo.data.sse.SSEDao
 import vp.togedo.kafka.config.Topics
 import vp.togedo.service.FCMService
