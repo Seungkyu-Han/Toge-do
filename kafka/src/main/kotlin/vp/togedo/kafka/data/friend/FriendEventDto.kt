@@ -1,4 +1,4 @@
-package vp.togedo.data.notification
+package vp.togedo.kafka.data.friend
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

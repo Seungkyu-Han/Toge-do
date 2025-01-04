@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import vp.togedo.data.notification.EventEnums
-import vp.togedo.data.notification.FriendApproveEventDto
-import vp.togedo.data.notification.FriendRequestEventDto
+import vp.togedo.kafka.data.friend.FriendApproveEventDto
+import vp.togedo.kafka.data.friend.FriendRequestEventDto
 import vp.togedo.data.notification.SSEDao
 import vp.togedo.service.FCMService
 import vp.togedo.service.NotificationService

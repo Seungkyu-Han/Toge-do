@@ -1,8 +1,8 @@
-package vp.togedo.data.group
+package vp.togedo.kafka.data.groupSchedule
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class InviteGroupEventDto(
+data class SuggestGroupScheduleEventDto(
     @JsonProperty("receiverId")
     val receiverId: String,
     @JsonProperty("name")

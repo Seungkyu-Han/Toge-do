@@ -3,9 +3,9 @@ package vp.togedo.listener
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
-import vp.togedo.data.groupSchedule.ConfirmScheduleEventDto
-import vp.togedo.data.groupSchedule.CreateGroupScheduleEventDto
-import vp.togedo.data.groupSchedule.SuggestGroupScheduleEventDto
+import vp.togedo.kafka.data.groupSchedule.ConfirmScheduleEventDto
+import vp.togedo.kafka.data.groupSchedule.CreateGroupScheduleEventDto
+import vp.togedo.kafka.data.groupSchedule.SuggestGroupScheduleEventDto
 import vp.togedo.data.notification.EventEnums
 import vp.togedo.data.notification.SSEDao
 import vp.togedo.service.FCMService
