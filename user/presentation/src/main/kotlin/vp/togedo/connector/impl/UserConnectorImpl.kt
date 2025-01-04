@@ -14,7 +14,6 @@ import vp.togedo.dto.user.UserInfoReqDto
 import vp.togedo.dto.user.UserInfoResDto
 import vp.togedo.enums.OauthEnum
 import vp.togedo.service.GoogleService
-import vp.togedo.service.ImageService
 import vp.togedo.service.KakaoService
 import vp.togedo.service.UserService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -24,8 +23,7 @@ import vp.togedo.util.error.exception.UserException
 class UserConnectorImpl(
     private val userService: UserService,
     private val kakaoService: KakaoService,
-    private val googleService: GoogleService,
-    private val imageService: ImageService
+    private val googleService: GoogleService
 ): UserConnector {
 
     override fun extractUserIdByToken(token: String?): ObjectId{
@@ -124,15 +122,15 @@ class UserConnectorImpl(
     override suspend fun updateUserInfo(userInfoReqDto: UserInfoReqDto, id: ObjectId): UserInfoResDto {
         val userDocument = userService.findUser(id).awaitSingle()
 
-        if (userDocument.profileImageUrl != null){
-            val fileName = userDocument.profileImageUrl!!.split("/").last()
-            imageService.publishDeleteEvent(fileName).awaitSingle()
-        }
-
-        if (userInfoReqDto.image != null){
-            val image = imageService.saveImage(userInfoReqDto.image).awaitSingle()
-            userDocument.profileImageUrl = image
-        }
+//        if (userDocument.profileImageUrl != null){
+//            val fileName = userDocument.profileImageUrl!!.split("/").last()
+//            imageService.publishDeleteEvent(fileName).awaitSingle()
+//        }
+//
+//        if (userInfoReqDto.image != null){
+//            val image = imageService.saveImage(userInfoReqDto.image).awaitSingle()
+//            userDocument.profileImageUrl = image
+//        }
 
         userDocument.name = userInfoReqDto.name
         userDocument.email = userInfoReqDto.email
