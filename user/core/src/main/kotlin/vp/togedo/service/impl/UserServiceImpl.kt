@@ -1,6 +1,5 @@
 package vp.togedo.service.impl
 
-import io.jsonwebtoken.MalformedJwtException
 import org.bson.types.ObjectId
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.data.redis.core.ReactiveRedisTemplate
@@ -149,7 +148,6 @@ class UserServiceImpl(
      * Token에서 UserId를 추출
      * @param token 해당 서비스에서 발급받은 토큰
      * @return 해당 유저의 ObjectId
-     * @throws MalformedJwtException 유효하지 않은 토큰 사용시 발생
      * @throws IllegalArgumentException ObjectId로 바꿀 수 없을 때 발생
      */
     override fun getUserIdByToken(token: String): ObjectId {
