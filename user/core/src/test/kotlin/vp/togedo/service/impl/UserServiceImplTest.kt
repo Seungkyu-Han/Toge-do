@@ -16,10 +16,10 @@ import reactor.core.publisher.Mono
 
 import reactor.test.StepVerifier
 import vp.togedo.repository.UserRepository
-import vp.togedo.config.jwt.JwtTokenProvider
 import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument
 import vp.togedo.enums.OauthEnum
+import vp.togedo.security.config.JwtTokenProvider
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.UserException
 import java.util.*
