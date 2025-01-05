@@ -19,7 +19,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
-import vp.togedo.config.JwtTokenProvider
+import vp.togedo.security.config.JwtTokenProvider
 
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [AuthorizationFilter::class])
