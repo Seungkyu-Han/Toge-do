@@ -5,9 +5,6 @@ plugins {
     id("io.spring.dependency-management") version "1.1.6"
 }
 
-group = "vp"
-version = "unspecified"
-
 repositories {
     mavenCentral()
 }

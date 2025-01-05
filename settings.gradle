@@ -35,4 +35,5 @@ findProject(':chat:core')?.name = 'core'
 include 'chat:presentation'
 findProject(':chat:presentation')?.name = 'presentation'
 include 'kafka'
+include 'security'
 
