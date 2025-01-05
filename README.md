@@ -42,6 +42,11 @@
 <img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white" alt="SWAGGER">
 
 ---
+### 데이터베이스 설계(2025.01.05)
+##### MongoDB
+![](image/database.png)
+
+---
 ### 기록
 ##### INTRO (초기 세팅)
 ![](image/intro.png)
@@ -176,3 +181,13 @@
 - 채팅 서버 배포 설정
 - 그룹 채팅방에 채팅 생성
 - 그룹 채팅방에 채팅 구독
+
+<br>
+
+##### 스프린트 9 (kafka module 리펙토링)
+기간: 2025.01.04-2024.01.05
+
+![](image/스프린트9.png)
+
+- kafka service 멀티 모듈로 교체
+- kafka module 테스트 코드 추가
