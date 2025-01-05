@@ -30,11 +30,6 @@ dependencies {
     //SWAGGER
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
 
-    //JWT
-    implementation("io.jsonwebtoken:jjwt:0.9.1")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-
     //MAC NETTY RESOLVER
     if(System.getProperty("os.name") == "Mac OS X" && System.getProperty("os.arch") == "aarch64"){
         runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64")

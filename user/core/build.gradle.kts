@@ -23,11 +23,6 @@ dependencies {
     //AWS S3
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 
-    implementation("io.jsonwebtoken:jjwt:0.9.1")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-
-
     //TEST
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
