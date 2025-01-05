@@ -5,9 +5,6 @@ plugins {
     id("io.spring.dependency-management") version "1.1.6"
 }
 
-group = "vp"
-version = "unspecified"
-
 repositories {
     mavenCentral()
 }
@@ -15,6 +12,7 @@ repositories {
 dependencies {
     //USER PERSISTENCE
     implementation(project(":user:persistence"))
+    implementation(project(":security"))
 
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -24,11 +22,6 @@ dependencies {
 
     //AWS S3
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
-
-    implementation("io.jsonwebtoken:jjwt:0.9.1")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
-
 
     //TEST
     testImplementation("org.springframework.boot:spring-boot-starter-test")

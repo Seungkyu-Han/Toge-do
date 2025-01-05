@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
 import vp.togedo.repository.UserRepository
-import vp.togedo.config.jwt.JwtTokenProvider
 import vp.togedo.document.Oauth
 import vp.togedo.document.UserDocument
 import vp.togedo.enums.OauthEnum
+import vp.togedo.security.config.JwtTokenProvider
 import vp.togedo.service.UserService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.UserException

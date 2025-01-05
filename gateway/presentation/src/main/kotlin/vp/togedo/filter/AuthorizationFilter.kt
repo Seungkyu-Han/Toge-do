@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import vp.togedo.config.JwtTokenProvider
+import vp.togedo.security.config.JwtTokenProvider
 @Component
 class AuthorizationFilter(
     private val jwtTokenProvider: JwtTokenProvider

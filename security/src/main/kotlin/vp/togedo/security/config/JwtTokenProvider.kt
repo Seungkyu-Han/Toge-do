@@ -1,4 +1,4 @@
-package vp.togedo.config.jwt
+package vp.togedo.security.config
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -15,6 +15,7 @@ class JwtTokenProvider(
 
     private final val accessTokenValidTime = Duration.ofHours(2).toMillis()
     private final val refreshTokenValidTime = Duration.ofDays(7).toMillis()
+
 
     fun getUserId(token: String): String? {
         return Jwts.parser()
