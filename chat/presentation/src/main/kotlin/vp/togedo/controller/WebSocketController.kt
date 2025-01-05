@@ -10,8 +10,8 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import vp.togedo.config.JwtTokenProvider
 import vp.togedo.data.dto.MessageReqDto
+import vp.togedo.security.config.JwtTokenProvider
 import vp.togedo.service.ChatService
 
 @RestController
@@ -27,12 +27,9 @@ class WebSocketController(
     ): Mono<ResponseEntity<Void>> {
         return chatService.publishMessage(
             groupId = groupId,
-            userId = getUserIdFromToken(accessToken),
+            userId = jwtTokenProvider.getUserId(accessToken.removePrefix("Bearer "))!!,
             message = messageReqDto.message
         ).then(Mono.fromCallable { ResponseEntity(HttpStatus.OK) })
     }
 
-    private fun getUserIdFromToken(token: String): String{
-        return jwtTokenProvider.getUserId(token.removePrefix("Bearer "))!!
-    }
 }
