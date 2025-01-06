@@ -246,4 +246,49 @@ class UserDocumentTest{
         }
     }
 
+    @Nested
+    inner class UpdateUserInfo{
+
+        @Test
+        @DisplayName("사용자의 이름과 이메일을 동시에 수정")
+        fun updateUserNameAndEmailReturnSuccess(){
+            //given
+            val newName = UUID.randomUUID().toString()
+            val newEmail = UUID.randomUUID().toString()
+
+            //when
+            user.updateUserInfo(name = newName, email = newEmail)
+
+            //then
+            Assertions.assertEquals(newName, user.name)
+            Assertions.assertEquals(newEmail, user.email)
+        }
+
+        @Test
+        @DisplayName("사용자의 이름만 수정")
+        fun updateUserNameReturnSuccess(){
+            //given
+            val newName = UUID.randomUUID().toString()
+
+            //when
+            user.updateUserInfo(name = newName, email = user.email)
+
+            //then
+            Assertions.assertEquals(newName, user.name)
+        }
+
+        @Test
+        @DisplayName("사용자의 이메일만 수정")
+        fun updateUserEmailReturnSuccess(){
+            //given
+            val newEmail = UUID.randomUUID().toString()
+
+            //when
+            user.updateUserInfo(name = user.name, email = newEmail)
+
+            //then
+            Assertions.assertEquals(newEmail, user.email)
+        }
+    }
+
 }
