@@ -178,7 +178,7 @@ data class PersonalSchedule(
      * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     fun isValidTimeForFlexibleSchedule(personalScheduleElement: PersonalScheduleElement): Boolean{
-        return isStartTimeBefore(personalScheduleElement = personalScheduleElement) &&
+        return personalScheduleElement.isStartTimeBefore() &&
                 //00(년)_01(월)_01(일)_00(시)_00(분) ~ 99(년)_12(월)_31(일)_23(시)_59(분)
                 isTimeRange(
                     personalScheduleElement = personalScheduleElement,
@@ -194,7 +194,7 @@ data class PersonalSchedule(
      * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     fun isValidTimeForFixedSchedule(personalScheduleElement: PersonalScheduleElement): Boolean{
-        return isStartTimeBefore(personalScheduleElement = personalScheduleElement) &&
+        return personalScheduleElement.isStartTimeBefore() &&
                 //1(요일)_00(시)_00(분) ~ 7(요일)_23(시)_59(분)
                 isTimeRange(personalScheduleElement = personalScheduleElement,
                     startTimeRange = "10000",
@@ -219,19 +219,6 @@ data class PersonalSchedule(
             personalScheduleElement.endTime !in startTimeRange..endTimeRange){
             throw PersonalScheduleTimeIsNotRangeException()
         }
-        return true
-    }
-
-    /**
-     * 해당 개인 스케줄 요소의 시작 시간이 종료 시간보다 앞인지 확인
-     * @param personalScheduleElement 확인할 요소
-     * @return true
-     * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
-     */
-    private fun isStartTimeBefore(personalScheduleElement: PersonalScheduleElement): Boolean{
-        if(personalScheduleElement.startTime.length != personalScheduleElement.endTime.length ||
-            personalScheduleElement.startTime > personalScheduleElement.endTime)
-            throw PersonalScheduleEndTimeBeforeStartTimeException()
         return true
     }
 
