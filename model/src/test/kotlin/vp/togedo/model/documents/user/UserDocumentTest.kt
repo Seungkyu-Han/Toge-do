@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*
 import vp.togedo.model.exception.user.AlreadyFriendException
 import vp.togedo.model.exception.user.AlreadyRequestFriendException
 import vp.togedo.model.exception.user.CantRequestToMeException
+import vp.togedo.model.exception.user.FriendRequestNotSentException
 import java.util.*
 
 class UserDocumentTest{
@@ -108,6 +109,59 @@ class UserDocumentTest{
             //when && then
             Assertions.assertThrows(AlreadyFriendException::class.java){user.addFriend(userId = friendId)}
             Assertions.assertTrue(user.friends.contains(friendId))
+        }
+    }
+
+    @Nested
+    inner class ApproveFriendRequest{
+        private val friendId:ObjectId = ObjectId.get()
+
+        @Test
+        @DisplayName("친구 요청을 보낸 사용자의 친구 요청을 승인")
+        fun approveFriendRequestToSendFriendRequestReturnSuccess(){
+            //given
+            user.friendRequests.add(element = friendId)
+
+            //when && then
+            user.approveFriendRequest(userId = friendId)
+
+            //then
+            Assertions.assertTrue(user.friends.contains(friendId))
+            Assertions.assertFalse(user.friendRequests.contains(friendId))
+        }
+
+        @Test
+        @DisplayName("승인 하는 유저가 본인인 경우")
+        fun approveFriendRequestToMeReturnException(){
+            //given
+
+            //when && then
+            Assertions.assertThrows(CantRequestToMeException::class.java){user.approveFriendRequest(userId = user.id)}
+
+            Assertions.assertFalse(user.friends.contains(user.id))
+        }
+
+        @Test
+        @DisplayName("승인하는 유저가 이미 친구인 경우")
+        fun approveFriendRequestToAlreadyFriendReturnException(){
+            //given
+            user.friends.add(element = friendId)
+
+            //when && then
+            Assertions.assertThrows(AlreadyFriendException::class.java){user.approveFriendRequest(userId = friendId)}
+
+            Assertions.assertTrue(user.friends.contains(friendId))
+        }
+
+        @Test
+        @DisplayName("승인하는 유저가 친구 요청을 보내지 않은 경우")
+        fun approveFriendRequestToNotSendRequestReturnException(){
+            //given
+
+            //when && then
+            Assertions.assertThrows(FriendRequestNotSentException::class.java){user.approveFriendRequest(userId = friendId)}
+
+            Assertions.assertFalse(user.friends.contains(friendId))
         }
     }
 

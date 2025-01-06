@@ -62,7 +62,7 @@ data class UserDocument(
     fun approveFriendRequest(userId: ObjectId): UserDocument {
         isNotMe(userId) && isNotFriend(userId) && isRequestFriend(userId)
         this.friendRequests.remove(userId)
-        this.friendRequests.add(userId)
+        this.friends.add(userId)
         return this
     }
 
@@ -73,7 +73,7 @@ data class UserDocument(
      * @throws CantRequestToMeException 해당 유저가 본인인 경우
      */
     fun removeFriend(userId: ObjectId): UserDocument {
-        isNotMe(userId) && isNotFriend(userId)
+        isNotMe(userId) && isFriend(userId)
         this.friends.remove(userId)
         return this
     }
@@ -183,7 +183,7 @@ data class UserDocument(
      * @throws FriendRequestNotSentException 해당 유저가 친구 요청을 보내지 않았을 경우
      */
     private fun isRequestFriend(userId: ObjectId): Boolean{
-        if(friendRequests.contains(userId))
+        if(!friendRequests.contains(userId))
             throw FriendRequestNotSentException()
         return true
     }
