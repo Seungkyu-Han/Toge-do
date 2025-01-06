@@ -47,6 +47,9 @@ data class PersonalSchedule(
      * @param personalScheduleElement 변경하고 싶은 고정 일정
      * @return 변경된 personal schedule document
      * @throws NotFoundPersonaScheduleException 해당 스케줄이 존재하지 않음
+     * @throws ConflictPersonalScheduleException 스케줄의 시간이 충돌
+     * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     fun modifyFixedPersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule{
 
@@ -70,6 +73,9 @@ data class PersonalSchedule(
      * @param personalScheduleElement 변경하고 싶은 유동 일정
      * @return 변경된 personal schedule document
      * @throws NotFoundPersonaScheduleException 해당 스케줄이 존재하지 않음
+     * @throws ConflictPersonalScheduleException 스케줄의 시간이 충돌
+     * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     fun modifyFlexiblePersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule{
 
