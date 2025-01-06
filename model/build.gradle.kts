@@ -13,10 +13,16 @@ dependencies {
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    //JWT
-    implementation("io.jsonwebtoken:jjwt:0.9.1")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
+    //MONGODB
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+
+    //COROUTINE
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3")
+
+    //REFLECT
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     //TEST
     testImplementation("org.springframework.boot:spring-boot-starter-test")
