@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
-import vp.togedo.model.exception.personalSchedule.ConflictScheduleException
-import vp.togedo.model.exception.personalSchedule.EndTimeBeforeStartTimeException
-import vp.togedo.model.exception.personalSchedule.NotFoundPersonalScheduleException
-import vp.togedo.model.exception.personalSchedule.TimeIsNotRangeException
+import vp.togedo.model.exception.personalSchedule.ConflictPersonalScheduleException
+import vp.togedo.model.exception.personalSchedule.PersonalScheduleEndTimeBeforeStartTimeException
+import vp.togedo.model.exception.personalSchedule.NotFoundPersonaScheduleException
+import vp.togedo.model.exception.personalSchedule.PersonalScheduleTimeIsNotRangeException
 
 @Document(collection = "personal_schedules")
 data class PersonalSchedule(
@@ -25,11 +25,11 @@ data class PersonalSchedule(
      * 고정 스케줄에서 아이디를 기준으로 해당 일정을 삭제
      * @param personalScheduleElementId 삭제할 고정 스케줄의 object id
      * @return 고정 스케줄이 삭제된 personal schedule document
-     * @throws NotFoundPersonalScheduleException 해당 스케줄이 존재하지 않음
+     * @throws NotFoundPersonaScheduleException 해당 스케줄이 존재하지 않음
      */
     fun deleteFixedPersonalScheduleElementById(personalScheduleElementId: ObjectId): PersonalSchedule{
         if(!fixedSchedules.removeIf { it.id == personalScheduleElementId })
-            throw NotFoundPersonalScheduleException()
+            throw NotFoundPersonaScheduleException()
         return this
     }
 
@@ -37,11 +37,11 @@ data class PersonalSchedule(
      * 유동 스케줄에서 아이디를 기준으로 해당 일정을 삭제
      * @param personalScheduleElementId 삭제할 유동 스케줄의 object id
      * @return 유동 스케줄이 삭제된 personal schedule document
-     * @throws NotFoundPersonalScheduleException 해당 스케줄이 존재하지 않음
+     * @throws NotFoundPersonaScheduleException 해당 스케줄이 존재하지 않음
      */
     fun deleteFlexiblePersonalScheduleElementById(personalScheduleElementId: ObjectId): PersonalSchedule{
         if(!flexibleSchedules.removeIf { it.id == personalScheduleElementId })
-            throw NotFoundPersonalScheduleException()
+            throw NotFoundPersonaScheduleException()
         return this
     }
 
@@ -49,9 +49,9 @@ data class PersonalSchedule(
      * 고정 스케줄에 새로운 고정 일정을 추가
      * @param personalScheduleElement 추가하고 싶은 고정 일정
      * @return 추가된 personal schedule document
-     * @throws ConflictScheduleException 스케줄의 시간이 충돌
-     * @throws TimeIsNotRangeException 유효한 시간 범위가 아님
-     * @throws EndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
+     * @throws ConflictPersonalScheduleException 스케줄의 시간이 충돌
+     * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     fun addFixedPersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule {
         isValidTimeForFixedSchedule(personalScheduleElement)
@@ -69,9 +69,9 @@ data class PersonalSchedule(
      * 유동 스케줄에 새로운 유동 일정을 추가
      * @param personalScheduleElement 추가하고 싶은 유동 일정
      * @return 추가된 personal schedule document
-     * @throws ConflictScheduleException 스케줄의 시간이 충돌
-     * @throws TimeIsNotRangeException 유효한 시간 범위가 아님
-     * @throws EndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
+     * @throws ConflictPersonalScheduleException 스케줄의 시간이 충돌
+     * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     fun addFlexiblePersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule {
 
@@ -91,7 +91,7 @@ data class PersonalSchedule(
      * @param personalScheduleElement 탐색하고 싶은 스케줄 요소
      * @param scheduleEnum 탐색하고 싶은 스케줄 배열
      * @return 삽입될 스케줄의 인덱스
-     * @throws ConflictScheduleException 스케줄의 시간이 충돌
+     * @throws ConflictPersonalScheduleException 스케줄의 시간이 충돌
      */
     fun getSortedIndex(personalScheduleElement: PersonalScheduleElement, scheduleEnum: ScheduleEnum): Int {
         val schedules:MutableList<PersonalScheduleElement> = when(scheduleEnum){
@@ -104,19 +104,19 @@ data class PersonalSchedule(
         }
 
         if(index >= 0)
-            throw ConflictScheduleException()
+            throw ConflictPersonalScheduleException()
 
         val sortedIndex = (index + 1) * -1
 
         //앞의 종료 시간과 해당 스케줄의 시작 시간을 비교
         if(sortedIndex > 0)
             if(schedules[sortedIndex - 1].endTime >= personalScheduleElement.startTime)
-                throw ConflictScheduleException()
+                throw ConflictPersonalScheduleException()
 
         //뒤의 시작 시간과 해당 스케줄의 종료 시간을 비교
         if(sortedIndex < schedules.size)
             if(schedules[sortedIndex].startTime <= personalScheduleElement.endTime)
-                throw ConflictScheduleException()
+                throw ConflictPersonalScheduleException()
 
         return sortedIndex
     }
@@ -125,8 +125,8 @@ data class PersonalSchedule(
      * 유동 스케줄의 시간이 유효한지 확인
      * @param personalScheduleElement 확인할 요소
      * @return true
-     * @throws TimeIsNotRangeException 유효한 시간 범위가 아님
-     * @throws EndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
+     * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     fun isValidTimeForFlexibleSchedule(personalScheduleElement: PersonalScheduleElement): Boolean{
         return isStartTimeBefore(personalScheduleElement = personalScheduleElement) &&
@@ -141,8 +141,8 @@ data class PersonalSchedule(
      * 고정 스케줄의 시간이 유효한지 확인
      * @param personalScheduleElement 확인할 요소
      * @return true
-     * @throws TimeIsNotRangeException 유효한 시간 범위가 아님
-     * @throws EndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
+     * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     fun isValidTimeForFixedSchedule(personalScheduleElement: PersonalScheduleElement): Boolean{
         return isStartTimeBefore(personalScheduleElement = personalScheduleElement) &&
@@ -158,7 +158,7 @@ data class PersonalSchedule(
      * @param startTimeRange 시작 범위
      * @param endTimeRange 종료 범위
      * @return true
-     * @throws TimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
      */
     private fun isTimeRange(
         personalScheduleElement: PersonalScheduleElement,
@@ -168,7 +168,7 @@ data class PersonalSchedule(
             personalScheduleElement.endTime.length != endTimeRange.length ||
             personalScheduleElement.startTime !in startTimeRange..endTimeRange ||
             personalScheduleElement.endTime !in startTimeRange..endTimeRange){
-            throw TimeIsNotRangeException()
+            throw PersonalScheduleTimeIsNotRangeException()
         }
         return true
     }
@@ -177,12 +177,12 @@ data class PersonalSchedule(
      * 해당 개인 스케줄 요소의 시작 시간이 종료 시간보다 앞인지 확인
      * @param personalScheduleElement 확인할 요소
      * @return true
-     * @throws EndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
+     * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
     private fun isStartTimeBefore(personalScheduleElement: PersonalScheduleElement): Boolean{
         if(personalScheduleElement.startTime.length != personalScheduleElement.endTime.length ||
             personalScheduleElement.startTime > personalScheduleElement.endTime)
-            throw EndTimeBeforeStartTimeException()
+            throw PersonalScheduleEndTimeBeforeStartTimeException()
         return true
     }
 }
