@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import vp.togedo.model.exception.personalSchedule.ConflictScheduleException
 import vp.togedo.model.exception.personalSchedule.EndTimeBeforeStartTimeException
 import vp.togedo.model.exception.personalSchedule.TimeIsNotRangeException
 
@@ -14,11 +15,87 @@ data class PersonalSchedule(
     val id: ObjectId,
 
     @JsonProperty("fixedSchedules")
-    val fixedSchedules: List<PersonalScheduleElement>,
+    val fixedSchedules: MutableList<PersonalScheduleElement>,
 
     @JsonProperty("flexibleSchedules")
-    val flexibleSchedules: List<PersonalScheduleElement>
+    val flexibleSchedules: MutableList<PersonalScheduleElement>
 ){
+
+    /**
+     * 고정 스케줄에 새로운 고정 일정을 추가
+     * @param personalScheduleElement 추가하고 싶은 고정 일정
+     * @return 추가된 personal schedule document
+     * @throws ConflictScheduleException 스케줄의 시간이 충돌
+     * @throws TimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws EndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
+     */
+    fun addFixedPersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule {
+        isValidTimeForFixedSchedule(personalScheduleElement)
+
+        val sortedIndex = getSortedIndex(
+            personalScheduleElement = personalScheduleElement,
+            scheduleEnum = ScheduleEnum.FIXED_PERSONAL_SCHEDULE
+        )
+
+        fixedSchedules.add(sortedIndex, personalScheduleElement)
+        return this
+    }
+
+    /**
+     * 유동 스케줄에 새로운 유동 일정을 추가
+     * @param personalScheduleElement 추가하고 싶은 유동 일정
+     * @return 추가된 personal schedule document
+     * @throws ConflictScheduleException 스케줄의 시간이 충돌
+     * @throws TimeIsNotRangeException 유효한 시간 범위가 아님
+     * @throws EndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
+     */
+    fun addFlexiblePersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule {
+
+        isValidTimeForFlexibleSchedule(personalScheduleElement)
+
+        val sortedIndex = getSortedIndex(
+            personalScheduleElement = personalScheduleElement,
+            scheduleEnum = ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+
+        flexibleSchedules.add(sortedIndex, personalScheduleElement)
+
+        return this
+    }
+
+    /**
+     * 정렬된 스케줄 배열에 해당 스케줄의 인덱스를 탐색
+     * @param personalScheduleElement 탐색하고 싶은 스케줄 요소
+     * @param scheduleEnum 탐색하고 싶은 스케줄 배열
+     * @return 삽입될 스케줄의 인덱스
+     * @throws ConflictScheduleException 스케줄의 시간이 충돌
+     */
+    fun getSortedIndex(personalScheduleElement: PersonalScheduleElement, scheduleEnum: ScheduleEnum): Int {
+        val schedules:MutableList<PersonalScheduleElement> = when(scheduleEnum){
+            ScheduleEnum.FIXED_PERSONAL_SCHEDULE -> fixedSchedules
+            ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE -> flexibleSchedules
+        }
+
+        val index = schedules.binarySearch(0){
+            it.startTime.compareTo(personalScheduleElement.startTime)
+        }
+
+        if(index >= 0)
+            throw ConflictScheduleException()
+
+        val sortedIndex = (index + 1) * -1
+
+        //앞의 종료 시간과 해당 스케줄의 시작 시간을 비교
+        if(sortedIndex > 0)
+            if(schedules[sortedIndex - 1].endTime >= personalScheduleElement.startTime)
+                throw ConflictScheduleException()
+
+        //뒤의 시작 시간과 해당 스케줄의 종료 시간을 비교
+        if(sortedIndex < schedules.size)
+            if(schedules[sortedIndex].startTime <= personalScheduleElement.endTime)
+                throw ConflictScheduleException()
+
+        return sortedIndex
+    }
 
     /**
      * 유동 스케줄의 시간이 유효한지 확인
