@@ -61,8 +61,26 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("빈 리스트에서 유동 스케줄의 인덱스를 탐색")
-        fun findFlexibleIndexFromEmptyListReturnSuccess(){
+        fun findFlexibleIndexFromEmptyListReturnException(){
             //given
+
+            //when && then
+            Assertions.assertThrows(NotFoundPersonaScheduleException::class.java){
+                personalSchedule.findFlexiblePersonalScheduleIndexById(flexiblePersonalSchedule.id)
+            }
+        }
+
+        @Test
+        @DisplayName("10개의 요소가 있는 리스트에서 없는 요동 스케줄의 인덱스를 탐색")
+        fun findFlexibleIndexFromNotExistTenElementListReturnException(){
+            //given
+            for(i in 1..10)
+                personalSchedule.flexibleSchedules.add(PersonalScheduleElement(
+                    startTime = "10010${i}0000",
+                    endTime = "10010${i}0001",
+                    name = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                ))
 
             //when && then
             Assertions.assertThrows(NotFoundPersonaScheduleException::class.java){
