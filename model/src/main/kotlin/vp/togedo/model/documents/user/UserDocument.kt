@@ -82,11 +82,49 @@ data class UserDocument(
      * 해당 유저가 보낸 친구 요청을 삭제
      * @param userId 삭제할 유저의 object id
      * @return 변경된 사용자의 document
+     * @return 변경된 사용자의 document
      * @throws FriendRequestNotSentException
      */
     fun removeFriendRequest(userId: ObjectId): UserDocument {
         isNotMe(userId) && isRequestFriend(userId)
         this.friendRequests.remove(userId)
+        return this
+    }
+
+    /**
+     * 해당 유저의 정보를 수정
+     * @param name 변경할 사용자의 이름
+     * @param email 변경할 사용자의 이메일
+     * @return 변경된 사용자의 document
+     */
+    fun updateUserInfo(
+        name: String,
+        email: String?
+    ): UserDocument {
+        this.name = name
+        this.email = email
+        return this
+    }
+
+    /**
+     * 해당 유저의 프로필 이미지를 수정
+     * @param profileImageUrl 변경할 사용자 이미지의 주소
+     * @return 변경된 사용자의 document
+     */
+    fun updateUserProfileImageUrl(
+        profileImageUrl: String?
+    ): UserDocument {
+        this.profileImageUrl = profileImageUrl
+        return this
+    }
+
+    /**
+     * 해당 유저의 device token을 수정
+     * @param deviceToken 변경할 사용자의 device token
+     * @return 변경된 사용자의 document
+     */
+    fun updateUserDeviceToken(deviceToken: String?): UserDocument {
+        this.deviceToken = deviceToken
         return this
     }
 
