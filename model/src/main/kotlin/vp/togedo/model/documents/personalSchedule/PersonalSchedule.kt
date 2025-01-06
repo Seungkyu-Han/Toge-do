@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import vp.togedo.model.exception.personalSchedule.ConflictScheduleException
 import vp.togedo.model.exception.personalSchedule.EndTimeBeforeStartTimeException
+import vp.togedo.model.exception.personalSchedule.NotFoundPersonalScheduleException
 import vp.togedo.model.exception.personalSchedule.TimeIsNotRangeException
 
 @Document(collection = "personal_schedules")
@@ -20,6 +21,29 @@ data class PersonalSchedule(
     @JsonProperty("flexibleSchedules")
     val flexibleSchedules: MutableList<PersonalScheduleElement>
 ){
+    /**
+     * 고정 스케줄에서 아이디를 기준으로 해당 일정을 삭제
+     * @param personalScheduleElementId 삭제할 고정 스케줄의 object id
+     * @return 고정 스케줄이 삭제된 personal schedule document
+     * @throws NotFoundPersonalScheduleException 해당 스케줄이 존재하지 않음
+     */
+    fun deleteFixedPersonalScheduleElementById(personalScheduleElementId: ObjectId): PersonalSchedule{
+        if(!fixedSchedules.removeIf { it.id == personalScheduleElementId })
+            throw NotFoundPersonalScheduleException()
+        return this
+    }
+
+    /**
+     * 유동 스케줄에서 아이디를 기준으로 해당 일정을 삭제
+     * @param personalScheduleElementId 삭제할 유동 스케줄의 object id
+     * @return 유동 스케줄이 삭제된 personal schedule document
+     * @throws NotFoundPersonalScheduleException 해당 스케줄이 존재하지 않음
+     */
+    fun deleteFlexiblePersonalScheduleElementById(personalScheduleElementId: ObjectId): PersonalSchedule{
+        if(!flexibleSchedules.removeIf { it.id == personalScheduleElementId })
+            throw NotFoundPersonalScheduleException()
+        return this
+    }
 
     /**
      * 고정 스케줄에 새로운 고정 일정을 추가
