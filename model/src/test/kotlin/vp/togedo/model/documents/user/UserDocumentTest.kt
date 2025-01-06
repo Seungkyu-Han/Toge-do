@@ -291,4 +291,33 @@ class UserDocumentTest{
         }
     }
 
+    @Nested
+    inner class UpdateUserProfileImageUrl{
+
+        @Test
+        @DisplayName("해당 유저의 프로필 이미지를 새로운 이미지로 변경")
+        fun updateUserProfileImageUrlToNewImageUrlReturnSuccess(){
+            //given
+            val newProfileImageUrl = UUID.randomUUID().toString()
+
+            //when
+            user.updateUserProfileImageUrl(newProfileImageUrl)
+
+            //then
+            Assertions.assertEquals(newProfileImageUrl, user.profileImageUrl)
+        }
+
+        @Test
+        @DisplayName("해당 유저의 프로필 이미지를 삭제")
+        fun updateUserProfileImageToNullReturnSuccess(){
+            //given
+
+            //when
+            user.updateUserProfileImageUrl(null)
+
+            //then
+            Assertions.assertNull(user.profileImageUrl)
+        }
+    }
+
 }
