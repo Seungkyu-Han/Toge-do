@@ -64,7 +64,7 @@ data class PersonalSchedule(
             addFixedPersonalScheduleElement(personalScheduleElement)
         }catch(e: PersonalScheduleException){
             fixedSchedules.add(index, originalFixedPersonalScheduleElement)
-            this
+            throw e
         }
     }
 
@@ -90,7 +90,7 @@ data class PersonalSchedule(
             addFlexiblePersonalScheduleElement(personalScheduleElement)
         }catch(e: PersonalScheduleException){
             flexibleSchedules.add(index, originalFlexiblePersonalScheduleElement)
-            this
+            throw e
         }
     }
 
