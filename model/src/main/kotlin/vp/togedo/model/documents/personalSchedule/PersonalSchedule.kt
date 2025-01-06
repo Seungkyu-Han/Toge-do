@@ -241,7 +241,7 @@ data class PersonalSchedule(
      * @return 해당 개인 고정 일정의 인덱스
      * @throws NotFoundPersonaScheduleException 해당 고정 일정을 찾을 수 없음
      */
-    private fun findFixedPersonalScheduleIndexById(fixedPersonalScheduleId: ObjectId): Int{
+    fun findFixedPersonalScheduleIndexById(fixedPersonalScheduleId: ObjectId): Int{
         val index = fixedSchedules.indexOfFirst{it.id == fixedPersonalScheduleId}
         if(index < 0)
             throw NotFoundPersonaScheduleException()
