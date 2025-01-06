@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
-import vp.togedo.model.exception.personalSchedule.ConflictPersonalScheduleException
-import vp.togedo.model.exception.personalSchedule.PersonalScheduleEndTimeBeforeStartTimeException
-import vp.togedo.model.exception.personalSchedule.NotFoundPersonaScheduleException
-import vp.togedo.model.exception.personalSchedule.PersonalScheduleTimeIsNotRangeException
+import vp.togedo.model.exception.personalSchedule.*
 
 @Document(collection = "personal_schedules")
 data class PersonalSchedule(
@@ -43,6 +40,52 @@ data class PersonalSchedule(
         if(!flexibleSchedules.removeIf { it.id == personalScheduleElementId })
             throw NotFoundPersonaScheduleException()
         return this
+    }
+
+    /**
+     * 고정 스케줄에서 해당 스케줄을 변경
+     * @param personalScheduleElement 변경하고 싶은 고정 일정
+     * @return 변경된 personal schedule document
+     * @throws NotFoundPersonaScheduleException 해당 스케줄이 존재하지 않음
+     */
+    fun modifyFixedPersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule{
+
+        val index = findFixedPersonalScheduleIndexById(
+            fixedPersonalScheduleId = personalScheduleElement.id)
+
+        val originalFixedPersonalScheduleElement = fixedSchedules[index]
+
+        fixedSchedules.removeAt(index)
+
+        return try{
+            addFixedPersonalScheduleElement(personalScheduleElement)
+        }catch(e: PersonalScheduleException){
+            fixedSchedules.add(index, originalFixedPersonalScheduleElement)
+            this
+        }
+    }
+
+    /**
+     * 유동 스케줄에서 해당 스케줄을 변경
+     * @param personalScheduleElement 변경하고 싶은 유동 일정
+     * @return 변경된 personal schedule document
+     * @throws NotFoundPersonaScheduleException 해당 스케줄이 존재하지 않음
+     */
+    fun modifyFlexiblePersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule{
+
+        val index = findFlexiblePersonalScheduleIndexById(
+            flexiblePersonalScheduleId = personalScheduleElement.id)
+
+        val originalFlexiblePersonalScheduleElement = flexibleSchedules[index]
+
+        flexibleSchedules.removeAt(index)
+
+        return try{
+            addFlexiblePersonalScheduleElement(personalScheduleElement)
+        }catch(e: PersonalScheduleException){
+            flexibleSchedules.add(index, originalFlexiblePersonalScheduleElement)
+            this
+        }
     }
 
     /**
@@ -184,5 +227,31 @@ data class PersonalSchedule(
             personalScheduleElement.startTime > personalScheduleElement.endTime)
             throw PersonalScheduleEndTimeBeforeStartTimeException()
         return true
+    }
+
+    /**
+     * 해당 개인 고정 일정의 인덱스를 아이디를 기준으로 탐색
+     * @param fixedPersonalScheduleId 개인 고정 일정의 object id
+     * @return 해당 개인 고정 일정의 인덱스
+     * @throws NotFoundPersonaScheduleException 해당 고정 일정을 찾을 수 없음
+     */
+    private fun findFixedPersonalScheduleIndexById(fixedPersonalScheduleId: ObjectId): Int{
+        val index = fixedSchedules.indexOfFirst{it.id == fixedPersonalScheduleId}
+        if(index < 0)
+            throw NotFoundPersonaScheduleException()
+        return index
+    }
+
+    /**
+     * 해당 개인 유동 일정의 인덱스를 아이디를 기준으로 탐색
+     * @param flexiblePersonalScheduleId 개인 유동 일정의 object id
+     * @return 해당 개인 유동 일정의 인덱스
+     * @throws NotFoundPersonaScheduleException 해당 유동 일정을 찾을 수 없음
+     */
+    private fun findFlexiblePersonalScheduleIndexById(flexiblePersonalScheduleId: ObjectId): Int{
+        val index = flexibleSchedules.indexOfFirst{it.id == flexiblePersonalScheduleId}
+        if(index < 0)
+            throw NotFoundPersonaScheduleException()
+        return index
     }
 }
