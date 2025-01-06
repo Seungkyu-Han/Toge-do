@@ -13,10 +13,10 @@ data class PersonalSchedule(
     val id: ObjectId,
 
     @JsonProperty("fixedSchedules")
-    val fixedSchedules: MutableList<PersonalScheduleElement>,
+    val fixedSchedules: MutableList<PersonalScheduleElement> = mutableListOf(),
 
     @JsonProperty("flexibleSchedules")
-    val flexibleSchedules: MutableList<PersonalScheduleElement>
+    val flexibleSchedules: MutableList<PersonalScheduleElement> = mutableListOf()
 ){
     /**
      * 고정 스케줄에서 아이디를 기준으로 해당 일정을 삭제
@@ -254,7 +254,7 @@ data class PersonalSchedule(
      * @return 해당 개인 유동 일정의 인덱스
      * @throws NotFoundPersonaScheduleException 해당 유동 일정을 찾을 수 없음
      */
-    private fun findFlexiblePersonalScheduleIndexById(flexiblePersonalScheduleId: ObjectId): Int{
+    fun findFlexiblePersonalScheduleIndexById(flexiblePersonalScheduleId: ObjectId): Int{
         val index = flexibleSchedules.indexOfFirst{it.id == flexiblePersonalScheduleId}
         if(index < 0)
             throw NotFoundPersonaScheduleException()
