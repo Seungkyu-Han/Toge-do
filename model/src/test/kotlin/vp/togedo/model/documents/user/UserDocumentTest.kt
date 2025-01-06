@@ -2,10 +2,7 @@ package vp.togedo.model.documents.user
 
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.*
-import vp.togedo.model.exception.user.AlreadyFriendException
-import vp.togedo.model.exception.user.AlreadyRequestFriendException
-import vp.togedo.model.exception.user.CantRequestToMeException
-import vp.togedo.model.exception.user.FriendRequestNotSentException
+import vp.togedo.model.exception.user.*
 import java.util.*
 
 class UserDocumentTest{
@@ -161,6 +158,48 @@ class UserDocumentTest{
             //when && then
             Assertions.assertThrows(FriendRequestNotSentException::class.java){user.approveFriendRequest(userId = friendId)}
 
+            Assertions.assertFalse(user.friends.contains(friendId))
+        }
+    }
+
+    @Nested
+    inner class RemoveFriend{
+        private val friendId: ObjectId = ObjectId.get()
+
+        @Test
+        @DisplayName("친구 목록에서 친구를 삭제")
+        fun removeFriendFromFriendListReturnSuccess(){
+            //given
+            user.friends.add(element = friendId)
+
+            //when
+            user.removeFriend(userId = friendId)
+
+            //then
+            Assertions.assertFalse(user.friends.contains(friendId))
+        }
+
+        @Test
+        @DisplayName("본인을 친구 목록에서 삭제")
+        fun removeFriendToMeReturnException(){
+            //given
+
+            //when
+            Assertions.assertThrows(CantRequestToMeException::class.java){user.removeFriend(userId = user.id)}
+
+            //then
+            Assertions.assertFalse(user.friends.contains(user.id))
+        }
+
+        @Test
+        @DisplayName("친구 아닌 유저를 친구 목록에서 삭제")
+        fun removeFriendNotFriendReturnException(){
+            //given
+
+            //when
+            Assertions.assertThrows(NotFriendException::class.java){user.removeFriend(userId = friendId)}
+
+            //then
             Assertions.assertFalse(user.friends.contains(friendId))
         }
     }
