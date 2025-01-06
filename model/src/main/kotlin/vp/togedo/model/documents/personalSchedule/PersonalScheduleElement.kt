@@ -16,7 +16,7 @@ data class PersonalScheduleElement(
      * @return true
      * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
-    fun isStartTimeBefore(): Boolean{
+    private fun isStartTimeBefore(): Boolean{
         if(startTime.length != endTime.length ||
             startTime > endTime)
             throw PersonalScheduleEndTimeBeforeStartTimeException()
