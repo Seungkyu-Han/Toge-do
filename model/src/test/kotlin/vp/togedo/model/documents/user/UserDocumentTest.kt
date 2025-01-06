@@ -320,4 +320,33 @@ class UserDocumentTest{
         }
     }
 
+    @Nested
+    inner class UpdateUserDeviceToken{
+
+        @Test
+        @DisplayName("해당 유저의 device token을 변경")
+        fun updateUserDeviceTokenReturnSuccess(){
+            //given
+            val newDeviceToken = UUID.randomUUID().toString()
+
+            //when
+            user.updateUserDeviceToken(newDeviceToken)
+
+            //then
+            Assertions.assertEquals(newDeviceToken, user.deviceToken)
+        }
+
+        @Test
+        @DisplayName("해당 유저의 device token을 삭제")
+        fun updateUserDeviceTokenToNullReturnSuccess(){
+            //given
+
+            //when
+            user.updateUserDeviceToken(null)
+
+            //then
+            Assertions.assertNull(user.deviceToken)
+        }
+    }
+
 }
