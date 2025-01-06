@@ -71,7 +71,44 @@ class UserDocumentTest{
             Assertions.assertThrows(AlreadyRequestFriendException::class.java){user.addFriendRequest(userId = friendId)}
             Assertions.assertTrue(user.friendRequests.contains(friendId))
         }
+    }
 
+    @Nested
+    inner class AddFriend{
+        private val friendId: ObjectId = ObjectId.get()
+
+        @Test
+        @DisplayName("해당 유저를 친구로 추가")
+        fun addFriendReturnSuccess(){
+            //given
+
+            //when
+            user.addFriend(userId = friendId)
+
+            //then
+            Assertions.assertTrue(user.friends.contains(friendId))
+        }
+
+        @Test
+        @DisplayName("본인을 친구로 추가")
+        fun addFriendToMeReturnException(){
+            //given
+
+            //when && then
+            Assertions.assertThrows(CantRequestToMeException::class.java){user.addFriend(userId = user.id)}
+            Assertions.assertFalse(user.friends.contains(user.id))
+        }
+
+        @Test
+        @DisplayName("이미 친구를 친구로 추가")
+        fun addFriendAlreadyFriendReturnException(){
+            //given
+            user.friends.add(element = friendId)
+
+            //when && then
+            Assertions.assertThrows(AlreadyFriendException::class.java){user.addFriend(userId = friendId)}
+            Assertions.assertTrue(user.friends.contains(friendId))
+        }
     }
 
 }
