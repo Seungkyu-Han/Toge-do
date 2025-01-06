@@ -204,4 +204,46 @@ class UserDocumentTest{
         }
     }
 
+    @Nested
+    inner class RemoveFriendRequest{
+        private val friendId: ObjectId = ObjectId.get()
+
+        @Test
+        @DisplayName("친구 요청을 보낸 유저의 친구 요청을 삭제")
+        fun removeFriendRequestReturnSuccess(){
+            //given
+            user.friendRequests.add(element = friendId)
+
+            //when
+            user.removeFriendRequest(userId = friendId)
+
+            //then
+            Assertions.assertFalse(user.friendRequests.contains(friendId))
+        }
+
+        @Test
+        @DisplayName("본인을 친구 요청 목록에서 삭제")
+        fun removeFriendRequestToMeReturnException(){
+            //given
+
+            //when
+            Assertions.assertThrows(CantRequestToMeException::class.java){user.removeFriendRequest(userId = user.id)}
+
+            //then
+            Assertions.assertFalse(user.friendRequests.contains(user.id))
+        }
+
+        @Test
+        @DisplayName("친구 요청을 보내지 않은 유저를 삭제")
+        fun removeFriendRequestToNotSendRequestReturnException(){
+            //given
+
+            //when
+            Assertions.assertThrows(FriendRequestNotSentException::class.java){user.removeFriendRequest(userId = friendId)}
+
+            //then
+            Assertions.assertFalse(user.friendRequests.contains(friendId))
+        }
+    }
+
 }
