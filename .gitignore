@@ -43,4 +43,4 @@ docker/.env
 /docker/mongo.key
 
 ### assestlinks.json ###
-**/assestlinks.json
+**/assetlinks.json
