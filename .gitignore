@@ -43,4 +43,4 @@ docker/.env
 /docker/mongo.key
 
 ### assestlinks.json ###
-user/persistence/src/main/resources/public/.well-known/**
+**/assestlinks.json
