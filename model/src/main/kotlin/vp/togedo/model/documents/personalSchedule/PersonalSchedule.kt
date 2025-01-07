@@ -107,7 +107,7 @@ data class PersonalSchedule(
 
         val sortedIndex = getSortedIndex(
             personalScheduleElement = personalScheduleElement,
-            scheduleEnum = ScheduleEnum.FIXED_PERSONAL_SCHEDULE
+            personalScheduleEnum = PersonalScheduleEnum.FIXED_PERSONAL_SCHEDULE
         )
 
         fixedSchedules.add(sortedIndex, personalScheduleElement)
@@ -128,7 +128,7 @@ data class PersonalSchedule(
 
         val sortedIndex = getSortedIndex(
             personalScheduleElement = personalScheduleElement,
-            scheduleEnum = ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
+            personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE)
 
         flexibleSchedules.add(sortedIndex, personalScheduleElement)
 
@@ -138,14 +138,14 @@ data class PersonalSchedule(
     /**
      * 정렬된 스케줄 배열에 해당 스케줄의 인덱스를 탐색
      * @param personalScheduleElement 탐색하고 싶은 스케줄 요소
-     * @param scheduleEnum 탐색하고 싶은 스케줄 배열
+     * @param personalScheduleEnum 탐색하고 싶은 스케줄 배열
      * @return 삽입될 스케줄의 인덱스
      * @throws ConflictPersonalScheduleException 스케줄의 시간이 충돌
      */
-    fun getSortedIndex(personalScheduleElement: PersonalScheduleElement, scheduleEnum: ScheduleEnum): Int {
-        val schedules:MutableList<PersonalScheduleElement> = when(scheduleEnum){
-            ScheduleEnum.FIXED_PERSONAL_SCHEDULE -> fixedSchedules
-            ScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE -> flexibleSchedules
+    fun getSortedIndex(personalScheduleElement: PersonalScheduleElement, personalScheduleEnum: PersonalScheduleEnum): Int {
+        val schedules:MutableList<PersonalScheduleElement> = when(personalScheduleEnum){
+            PersonalScheduleEnum.FIXED_PERSONAL_SCHEDULE -> fixedSchedules
+            PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE -> flexibleSchedules
         }
 
         val index = schedules.binarySearch(0){
