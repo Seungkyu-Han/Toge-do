@@ -26,6 +26,62 @@ class PersonalScheduleTest{
     )
 
     @Nested
+    inner class DeleteFixedPersonalScheduleElementById{
+        @BeforeEach
+        fun setUp(){
+            personalSchedule = PersonalSchedule(id = userId)
+        }
+
+        @Test
+        @DisplayName("하나만 존재하는 고정 일정 리스트에서 요소를 삭제")
+        fun deleteFixedScheduleFromOneElementListReturnSuccess(){
+            //given
+            personalSchedule.fixedSchedules.add(fixedPersonalSchedule)
+
+            //when
+            personalSchedule.deleteFixedPersonalScheduleElementById(fixedPersonalSchedule.id)
+
+            //then
+            Assertions.assertFalse(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+            Assertions.assertEquals(0, personalSchedule.fixedSchedules.size)
+        }
+
+        @Test
+        @DisplayName("빈 리스트에서 고정 일정을 삭제 시도")
+        fun deleteFixedScheduleFromEmptyListReturnException(){
+            //given
+
+            //when && then
+            Assertions.assertThrows(NotFoundPersonaScheduleException::class.java) {
+                personalSchedule.deleteFixedPersonalScheduleElementById(fixedPersonalSchedule.id) }
+        }
+
+        @Test
+        @DisplayName("10개가 존재하는 고정 일정 리스트에서 요소를 삭제")
+        fun deleteFixedScheduleFrom10ElementListReturnSuccess(){
+            //given
+            for (i in 1..9){
+                personalSchedule.fixedSchedules.add(
+                    PersonalScheduleElement(
+                        startTime = "1000${i}",
+                        endTime = "1000${i}",
+                        name = UUID.randomUUID().toString(),
+                        color = UUID.randomUUID().toString()
+                    )
+                )
+            }
+            personalSchedule.fixedSchedules.add(fixedPersonalSchedule)
+
+            //when
+            personalSchedule.deleteFixedPersonalScheduleElementById(fixedPersonalSchedule.id)
+
+            //then
+            Assertions.assertEquals(9, personalSchedule.fixedSchedules.size)
+            Assertions.assertFalse(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+    }
+
+    @Nested
     inner class DeleteFlexiblePersonalScheduleElementById{
         @BeforeEach
         fun setUp(){
