@@ -55,8 +55,13 @@ data class GroupDocument(
             throw NotFoundMemberException()
         this.members.remove(userId)
         for (groupScheduleElement in groupSchedules){
-            if(groupScheduleElement.state != GroupScheduleStateEnum.CONFIRMED)
+            if(groupScheduleElement.state != GroupScheduleStateEnum.CONFIRMED){
                 groupScheduleElement.scheduleMember.remove(userId)
+                groupScheduleElement.confirmedUser.remove(userId)
+            }
+            else{
+                groupScheduleElement.scheduleMember.remove(userId)
+            }
         }
         return this
     }

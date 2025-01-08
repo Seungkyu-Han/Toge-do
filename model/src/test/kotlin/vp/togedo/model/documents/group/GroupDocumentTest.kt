@@ -3,6 +3,7 @@ package vp.togedo.model.documents.group
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.*
 import vp.togedo.model.exception.group.AlreadyMemberException
+import vp.togedo.model.exception.group.NotFoundMemberException
 import java.util.UUID
 
 class GroupDocumentTest{
@@ -69,6 +70,141 @@ class GroupDocumentTest{
             Assertions.assertThrows(AlreadyMemberException::class.java) {
                 groupDocument.addMember(userId = userId)
             }
+        }
+    }
+
+    @Nested
+    inner class RemoveMember{
+
+        private val user1 = ObjectId.get()
+
+        @BeforeEach
+        fun setUp() {
+            groupDocument = GroupDocument(
+                name = UUID.randomUUID().toString(),
+                members = mutableSetOf(userId, user1)
+            )
+        }
+
+        @Test
+        @DisplayName("존재하는 사용자를 제거")
+        fun removeMemberFromExistMemberReturnSuccess(){
+            //when
+            groupDocument.removeMember(userId = userId)
+
+            //then
+            Assertions.assertFalse(groupDocument.members.contains(userId))
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자를 제거")
+        fun removeMemberFromNotExistMemberReturnSuccess(){
+            //when
+            Assertions.assertThrows(NotFoundMemberException::class.java) {
+                groupDocument.removeMember(userId = ObjectId.get())
+            }
+
+            //then
+            Assertions.assertEquals(2, groupDocument.members.size)
+        }
+
+        @Test
+        @DisplayName("존재하는 사용자를 삭제하며, discussing 상태의 공유 일정에서 삭제")
+        fun removeMemberThenRemoveMemberFromDiscussingScheduleReturnSuccess(){
+            //given
+            groupDocument.groupSchedules.add(
+                GroupScheduleElement(
+                    name = UUID.randomUUID().toString(),
+                    startDate = UUID.randomUUID().toString(),
+                    endDate = UUID.randomUUID().toString(),
+                    startTime = UUID.randomUUID().toString(),
+                    endTime = UUID.randomUUID().toString(),
+                    scheduleMember = mutableSetOf(userId, user1)
+                )
+            )
+
+            //when
+            groupDocument.removeMember(userId = userId)
+
+            //then
+            Assertions.assertFalse(groupDocument.members.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
+        }
+
+        @Test
+        @DisplayName("존재하는 사용자를 삭제하며, requested 상태의 공유 일정에서 삭제")
+        fun removeMemberThenRemoveMemberFromRequestedScheduleReturnSuccess(){
+            //given
+            groupDocument.groupSchedules.add(
+                GroupScheduleElement(
+                    name = UUID.randomUUID().toString(),
+                    startDate = UUID.randomUUID().toString(),
+                    endDate = UUID.randomUUID().toString(),
+                    startTime = UUID.randomUUID().toString(),
+                    endTime = UUID.randomUUID().toString(),
+                    scheduleMember = mutableSetOf(userId, user1),
+                    state = GroupScheduleStateEnum.REQUESTED,
+                    confirmedUser = mutableSetOf(userId)
+                )
+            )
+
+            //when
+            groupDocument.removeMember(userId = userId)
+
+            //then
+            Assertions.assertFalse(groupDocument.members.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].confirmedUser.contains(userId))
+        }
+
+        @Test
+        @DisplayName("존재하는 사용자를 삭제하며, rejected 상태의 공유 일정에서 삭제")
+        fun removeMemberThenRemoveMemberFromRejectedScheduleReturnSuccess(){
+            //given
+            groupDocument.groupSchedules.add(
+                GroupScheduleElement(
+                    name = UUID.randomUUID().toString(),
+                    startDate = UUID.randomUUID().toString(),
+                    endDate = UUID.randomUUID().toString(),
+                    startTime = UUID.randomUUID().toString(),
+                    endTime = UUID.randomUUID().toString(),
+                    scheduleMember = mutableSetOf(userId, user1),
+                    state = GroupScheduleStateEnum.REJECTED
+                )
+            )
+
+            //when
+            groupDocument.removeMember(userId = userId)
+
+            //then
+            Assertions.assertFalse(groupDocument.members.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
+        }
+
+        @Test
+        @DisplayName("존재하는 사용자를 삭제하며, confirmed 상태의 공유 일정에서는 스케줄 멤버에서만 삭제")
+        fun removeMemberThenRemoveMemberFromConfirmedScheduleReturnSuccess(){
+            //given
+            groupDocument.groupSchedules.add(
+                GroupScheduleElement(
+                    name = UUID.randomUUID().toString(),
+                    startDate = UUID.randomUUID().toString(),
+                    endDate = UUID.randomUUID().toString(),
+                    startTime = UUID.randomUUID().toString(),
+                    endTime = UUID.randomUUID().toString(),
+                    scheduleMember = mutableSetOf(userId, user1),
+                    state = GroupScheduleStateEnum.CONFIRMED,
+                    confirmedUser = mutableSetOf(userId, user1)
+                )
+            )
+
+            //when
+            groupDocument.removeMember(userId = userId)
+
+            //then
+            Assertions.assertFalse(groupDocument.members.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
+            Assertions.assertTrue(groupDocument.groupSchedules[0].confirmedUser.contains(userId))
         }
     }
 }
