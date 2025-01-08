@@ -26,7 +26,7 @@ data class GroupScheduleElement(
     var state: GroupScheduleStateEnum = GroupScheduleStateEnum.DISCUSSING,
 
     @JsonProperty("scheduleMember")
-    val scheduleMember: ArrayList<ObjectId>,
+    val scheduleMember: MutableList<ObjectId>,
 
     @JsonProperty("confirmedUser")
     var confirmedUser: MutableSet<ObjectId> = mutableSetOf(),
