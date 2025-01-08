@@ -12,8 +12,8 @@ class PersonalScheduleTest{
     private lateinit var personalSchedule: PersonalSchedule
 
     private val flexiblePersonalSchedule = PersonalScheduleElement(
-        startTime = "1001010000",
-        endTime = "1001010001",
+        startTime = "2501081000",
+        endTime = "2501081059",
         name = UUID.randomUUID().toString(),
         color = UUID.randomUUID().toString()
     )
@@ -34,7 +34,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("빈 리스트에 고정 스케줄 인덱스를 탐색")
-        fun getSortedIndexFromEmptyListReturnSuccess(){
+        fun getSortedIndexFixedScheduleFromEmptyListReturnSuccess(){
             //given
             val personalScheduleEnum = PersonalScheduleEnum.FIXED_PERSONAL_SCHEDULE
 
@@ -49,7 +49,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("앞에 하나의 고정 스케줄이 있는 리스트에서 인덱스를 탐색")
-        fun getSortedIndexFromOneElementAtFrontReturnSuccess(){
+        fun getSortedIndexFixedScheduleFromOneElementAtFrontReturnSuccess(){
             //given
             val beforePersonalScheduleElement = PersonalScheduleElement(
                 startTime = "10000",
@@ -71,7 +71,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("뒤에 하나의 고정 스케줄이 있는 리스트에서 인덱스를 탐색")
-        fun getSortedIndexFromOneElementAtBehindReturnSuccess(){
+        fun getSortedIndexFixedScheduleFromOneElementAtBehindReturnSuccess(){
             //given
             val afterPersonalScheduleElement = PersonalScheduleElement(
                 startTime = "30000",
@@ -93,7 +93,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("앞뒤에 하나씩 고정 스케줄이 있는 리스트에서 인덱스를 탐색")
-        fun getSortedIndexFromOneElementAtFrontAndBehindReturnSuccess(){
+        fun getSortedIndexFixedScheduleFromOneElementAtFrontAndBehindReturnSuccess(){
             //given
             val beforePersonalScheduleElement = PersonalScheduleElement(
                 startTime = "10000",
@@ -123,7 +123,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("앞뒤에 40개씩 고정 스케줄이 있는 리스트에서 인덱스를 탐색")
-        fun getSortedIndexFromOneElementAtFront40AndBehind40ReturnSuccess(){
+        fun getSortedIndexFixedScheduleFromOneElementAtFront40AndBehind40ReturnSuccess(){
             //given
             for(i in 1..40){
                 personalSchedule.fixedSchedules.add(PersonalScheduleElement(
@@ -155,7 +155,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("시작 시간이 겹치는 리스트에서 인덱스를 탐색")
-        fun getSortedIndexFromConflictStartTimeReturnException(){
+        fun getSortedIndexFixedScheduleFromConflictStartTimeReturnException(){
             //given
             personalSchedule.fixedSchedules.add(PersonalScheduleElement(
                 startTime = "20000",
@@ -175,7 +175,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("전 스케줄의 종료시간과 탐색하는 스케줄의 시작시간이 충돌하는 경우")
-        fun getSortedIndexFromConflictBeforeScheduleReturnException(){
+        fun getSortedIndexFixedScheduleFromConflictBeforeScheduleReturnException(){
             //given
             personalSchedule.fixedSchedules.add(PersonalScheduleElement(
                 startTime = "20000",
@@ -203,7 +203,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("뒤 스케줄의 시작시간과 탐색하는 스케줄의 종료시간이 충돌하는 경우")
-        fun getSortedIndexFromConflictAfterScheduleReturnException(){
+        fun getSortedIndexFixedScheduleFromConflictAfterScheduleReturnException(){
             //given
             personalSchedule.fixedSchedules.add(PersonalScheduleElement(
                 startTime = "20100",
@@ -225,6 +225,198 @@ class PersonalScheduleTest{
             Assertions.assertThrows(ConflictPersonalScheduleException::class.java){
                 personalSchedule.getSortedIndex(
                     personalScheduleElement = fixedPersonalSchedule,
+                    personalScheduleEnum = personalScheduleEnum)
+            }
+        }
+
+        @Test
+        @DisplayName("빈 리스트에 유동 스케줄 인덱스를 탐색")
+        fun getSortedIndexFlexibleScheduleFromEmptyListReturnSuccess(){
+            //given
+            val personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE
+
+            //when
+            val result = personalSchedule.getSortedIndex(
+                personalScheduleElement = flexiblePersonalSchedule,
+                personalScheduleEnum = personalScheduleEnum)
+
+            //then
+            Assertions.assertEquals(0, result)
+        }
+
+        @Test
+        @DisplayName("앞에 하나의 고정 스케줄이 있는 리스트에서 인덱스를 탐색")
+        fun getSortedIndexFlexibleScheduleFromOneElementAtFrontReturnSuccess(){
+            //given
+            val beforePersonalScheduleElement = PersonalScheduleElement(
+                startTime = "2501071000",
+                endTime = "2501071059",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.flexibleSchedules.add(beforePersonalScheduleElement)
+            val personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE
+
+            //when
+            val result = personalSchedule.getSortedIndex(
+                personalScheduleElement = flexiblePersonalSchedule,
+                personalScheduleEnum = personalScheduleEnum)
+
+            //then
+            Assertions.assertEquals(1, result)
+        }
+
+
+        @Test
+        @DisplayName("뒤에 하나의 유동 스케줄이 있는 리스트에서 인덱스를 탐색")
+        fun getSortedIndexFlexibleScheduleFromOneElementAtBehindReturnSuccess(){
+            //given
+            val afterPersonalScheduleElement = PersonalScheduleElement(
+                startTime = "2501091000",
+                endTime = "2501091059",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.flexibleSchedules.add(afterPersonalScheduleElement)
+            val personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE
+
+            //when
+            val result = personalSchedule.getSortedIndex(
+                personalScheduleElement = flexiblePersonalSchedule,
+                personalScheduleEnum = personalScheduleEnum)
+
+            //then
+            Assertions.assertEquals(0, result)
+        }
+
+
+        @Test
+        @DisplayName("앞뒤에 하나씩 유동 스케줄이 있는 리스트에서 인덱스를 탐색")
+        fun getSortedIndexFlexibleScheduleFromOneElementAtFrontAndBehindReturnSuccess(){
+            //given
+            val beforePersonalScheduleElement = PersonalScheduleElement(
+                startTime = "2501071000",
+                endTime = "2501071059",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val afterPersonalScheduleElement = PersonalScheduleElement(
+                startTime = "2501091000",
+                endTime = "2501091059",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.flexibleSchedules.add(beforePersonalScheduleElement)
+            personalSchedule.flexibleSchedules.add(afterPersonalScheduleElement)
+            val personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE
+
+            //when
+            val result = personalSchedule.getSortedIndex(
+                personalScheduleElement = flexiblePersonalSchedule,
+                personalScheduleEnum = personalScheduleEnum)
+
+            //then
+            Assertions.assertEquals(1, result)
+        }
+
+
+        @Test
+        @DisplayName("앞뒤에 40개씩 유동 스케줄이 있는 리스트에서 인덱스를 탐색")
+        fun getSortedIndexFlexibleScheduleFromOneElementAtFront40AndBehind40ReturnSuccess(){
+            //given
+            for(i in 1..40){
+                personalSchedule.flexibleSchedules.add(PersonalScheduleElement(
+                    startTime = (2501071000 + i).toString(),
+                    endTime = (2501071000 + i).toString(),
+                    name = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                ))
+            }
+
+            for(i in 1..40){
+                personalSchedule.flexibleSchedules.add(PersonalScheduleElement(
+                    startTime = (2501091000 + i).toString(),
+                    endTime = (2501091000 + i).toString(),
+                    name = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                ))
+            }
+            val personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE
+
+            //when
+            val result = personalSchedule.getSortedIndex(
+                personalScheduleElement = flexiblePersonalSchedule,
+                personalScheduleEnum = personalScheduleEnum)
+
+            //then
+            Assertions.assertEquals(40, result)
+        }
+
+        @Test
+        @DisplayName("시작 시간이 겹치는 유동 리스트에서 인덱스를 탐색")
+        fun getSortedIndexFlexibleScheduleFromConflictStartTimeReturnException(){
+            //given
+            personalSchedule.flexibleSchedules.add(PersonalScheduleElement(
+                startTime = "2501081000",
+                endTime = "2501081100",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            ))
+            val personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE
+
+            //when && then
+            Assertions.assertThrows(ConflictPersonalScheduleException::class.java){
+                personalSchedule.getSortedIndex(
+                    personalScheduleElement = flexiblePersonalSchedule,
+                    personalScheduleEnum = personalScheduleEnum)
+            }
+        }
+
+        @Test
+        @DisplayName("전 스케줄의 종료시간과 탐색하는 스케줄의 시작시간이 충돌하는 경우")
+        fun getSortedIndexFlexibleScheduleFromConflictBeforeScheduleReturnException(){
+            //given
+            personalSchedule.flexibleSchedules.add(PersonalScheduleElement(
+                startTime = "2501080900",
+                endTime = "2501081000",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            ))
+            val personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE
+
+            //when && then
+            Assertions.assertThrows(ConflictPersonalScheduleException::class.java){
+                personalSchedule.getSortedIndex(
+                    personalScheduleElement = flexiblePersonalSchedule,
+                    personalScheduleEnum = personalScheduleEnum)
+            }
+        }
+
+        @Test
+        @DisplayName("뒤 스케줄의 시작시간과 탐색하는 스케줄의 종료시간이 충돌하는 경우")
+        fun getSortedIndexFlexibleScheduleFromConflictAfterScheduleReturnException(){
+            //given
+            personalSchedule.flexibleSchedules.add(PersonalScheduleElement(
+                startTime = "2501080900",
+                endTime = "2501081000",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            ))
+
+            val flexiblePersonalSchedule = PersonalScheduleElement(
+                startTime = "2501081000",
+                endTime = "2501081059",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val personalScheduleEnum = PersonalScheduleEnum.FLEXIBLE_PERSONAL_SCHEDULE
+
+            //when && then
+            Assertions.assertThrows(ConflictPersonalScheduleException::class.java){
+                personalSchedule.getSortedIndex(
+                    personalScheduleElement = flexiblePersonalSchedule,
                     personalScheduleEnum = personalScheduleEnum)
             }
         }
