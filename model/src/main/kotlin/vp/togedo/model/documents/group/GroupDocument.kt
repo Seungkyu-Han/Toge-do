@@ -5,6 +5,7 @@ import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import vp.togedo.model.exception.group.AlreadyMemberException
+import vp.togedo.model.exception.group.NotFoundGroupScheduleException
 import vp.togedo.model.exception.group.NotFoundMemberException
 
 @Document(collection = "groups")
@@ -58,6 +59,21 @@ data class GroupDocument(
                 groupScheduleElement.scheduleMember.remove(userId)
         }
         return this
+    }
+
+    /**
+     * 그룹에서 해당 그룹 일정의 인덱스를 탐색
+     * @param groupScheduleId 탐색할 그룹 일정의 object id
+     * @return 해당 그룹 일정의 인덱스
+     * @throws NotFoundGroupScheduleException 해당 그룹 일정을 찾을 수 없음
+     */
+    fun findGroupScheduleIndexById(
+        groupScheduleId: ObjectId
+    ): Int{
+        val index = groupSchedules.indexOfFirst { it.id == groupScheduleId }
+        if (index == -1)
+            throw NotFoundGroupScheduleException()
+        return index
     }
 
 }
