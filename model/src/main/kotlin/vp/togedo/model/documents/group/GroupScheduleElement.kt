@@ -80,7 +80,7 @@ data class GroupScheduleElement(
         this.state = GroupScheduleStateEnum.REQUESTED
         this.confirmedStartDate = confirmedStartDate
         this.confirmedEndDate = confirmedEndDate
-        this.confirmedUser.add(userId)
+        this.confirmedUser = mutableSetOf(userId)
 
         return this
     }

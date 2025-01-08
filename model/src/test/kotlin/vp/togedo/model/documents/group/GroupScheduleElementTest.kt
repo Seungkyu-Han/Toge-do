@@ -52,4 +52,62 @@ class GroupScheduleElementTest{
             Assertions.assertEquals(newEndTime, groupScheduleElement.endTime)
         }
     }
+
+    @Nested
+    inner class RequestConfirmSchedule{
+        @BeforeEach
+        fun setUp() {
+            groupScheduleElement = GroupScheduleElement(
+                name = UUID.randomUUID().toString(),
+                startDate = UUID.randomUUID().toString(),
+                endDate = UUID.randomUUID().toString(),
+                startTime = UUID.randomUUID().toString(),
+                endTime = UUID.randomUUID().toString(),
+                scheduleMember = mutableListOf(userId)
+            )
+        }
+
+        @Test
+        @DisplayName("일정 확인을 요청")
+        fun requestConfirmScheduleReturnSuccess(){
+            //given
+            val confirmedStartDate = UUID.randomUUID().toString()
+            val confirmedEndDate = UUID.randomUUID().toString()
+
+            //when
+            groupScheduleElement.requestConfirmSchedule(
+                confirmedStartDate = confirmedStartDate,
+                confirmedEndDate = confirmedEndDate,
+                userId = userId
+            )
+
+            //then
+            Assertions.assertEquals(confirmedStartDate, groupScheduleElement.confirmedStartDate)
+            Assertions.assertEquals(confirmedEndDate, groupScheduleElement.confirmedEndDate)
+            Assertions.assertTrue(groupScheduleElement.confirmedUser.contains(userId))
+            Assertions.assertEquals(GroupScheduleStateEnum.REQUESTED, groupScheduleElement.state)
+        }
+
+        @Test
+        @DisplayName("CONFIRMED 상태에서 일정 확인을 요청")
+        fun requestConfirmScheduleFromConfirmedStateReturnSuccess(){
+            //given
+            groupScheduleElement.state = GroupScheduleStateEnum.CONFIRMED
+            val confirmedStartDate = UUID.randomUUID().toString()
+            val confirmedEndDate = UUID.randomUUID().toString()
+
+            //when
+            groupScheduleElement.requestConfirmSchedule(
+                confirmedStartDate = confirmedStartDate,
+                confirmedEndDate = confirmedEndDate,
+                userId = userId
+            )
+
+            //then
+            Assertions.assertEquals(confirmedStartDate, groupScheduleElement.confirmedStartDate)
+            Assertions.assertEquals(confirmedEndDate, groupScheduleElement.confirmedEndDate)
+            Assertions.assertTrue(groupScheduleElement.confirmedUser.contains(userId))
+            Assertions.assertEquals(GroupScheduleStateEnum.REQUESTED, groupScheduleElement.state)
+        }
+    }
 }
