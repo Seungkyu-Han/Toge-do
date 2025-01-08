@@ -26,6 +26,87 @@ class PersonalScheduleTest{
     )
 
     @Nested
+    inner class ModifyFlexiblePersonalScheduleElement{
+        @BeforeEach
+        fun setUp(){
+            personalSchedule = PersonalSchedule(id = userId)
+        }
+
+        @Test
+        @DisplayName("존재하는 유동 스케줄을 변경")
+        fun modifyFlexibleScheduleExistedReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(flexiblePersonalSchedule)
+            val newFlexiblePersonalSchedule = PersonalScheduleElement(
+                id = flexiblePersonalSchedule.id,
+                startTime = "2601081000",
+                endTime = "2601081000",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            personalSchedule.modifyFlexiblePersonalScheduleElement(newFlexiblePersonalSchedule)
+
+            //then
+            Assertions.assertEquals(
+                newFlexiblePersonalSchedule,
+                personalSchedule.flexibleSchedules.find { it.id == flexiblePersonalSchedule.id }
+            )
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유동 스케줄을 변경")
+        fun modifyFlexibleScheduleNotExistReturnSuccess(){
+            //given
+            val newFlexiblePersonalSchedule = PersonalScheduleElement(
+                id = flexiblePersonalSchedule.id,
+                startTime = "2601081000",
+                endTime = "2601081000",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            Assertions.assertThrows(NotFoundPersonaScheduleException::class.java) {
+                personalSchedule.modifyFlexiblePersonalScheduleElement(newFlexiblePersonalSchedule)
+            }
+
+            Assertions.assertTrue(personalSchedule.flexibleSchedules.isEmpty())
+        }
+
+        @Test
+        @DisplayName("스케줄을 변경하는 도중에 에러가 발생하고 롤백")
+        fun modifyFlexibleScheduleThrowExceptionAndRollbackReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(
+                PersonalScheduleElement(
+                    startTime = "2601081000",
+                    endTime = "2601081000",
+                    name = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                )
+            )
+            personalSchedule.flexibleSchedules.add(flexiblePersonalSchedule)
+            val newFlexiblePersonalSchedule = PersonalScheduleElement(
+                id = flexiblePersonalSchedule.id,
+                startTime = "2601081000",
+                endTime = "2601081000",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            Assertions.assertThrows(ConflictPersonalScheduleException::class.java) {
+                personalSchedule.modifyFlexiblePersonalScheduleElement(newFlexiblePersonalSchedule)
+            }
+
+            Assertions.assertEquals(2, personalSchedule.flexibleSchedules.size)
+            Assertions.assertEquals(flexiblePersonalSchedule, personalSchedule.flexibleSchedules.find { it.id == flexiblePersonalSchedule.id })
+        }
+    }
+
+    @Nested
     inner class DeleteFixedPersonalScheduleElementById{
         @BeforeEach
         fun setUp(){
