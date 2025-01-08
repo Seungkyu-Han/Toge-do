@@ -2,6 +2,8 @@ package vp.togedo.model.documents.group
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.bson.types.ObjectId
+import vp.togedo.model.exception.group.NotFoundMemberException
+import vp.togedo.model.exception.group.ScheduleNotRequestedException
 
 data class GroupScheduleElement(
     @JsonProperty("id")
@@ -26,7 +28,7 @@ data class GroupScheduleElement(
     var state: GroupScheduleStateEnum = GroupScheduleStateEnum.DISCUSSING,
 
     @JsonProperty("scheduleMember")
-    val scheduleMember: MutableList<ObjectId>,
+    val scheduleMember: MutableSet<ObjectId>,
 
     @JsonProperty("confirmedUser")
     var confirmedUser: MutableSet<ObjectId> = mutableSetOf(),
@@ -90,11 +92,19 @@ data class GroupScheduleElement(
      * @param userId 확인하는 유저의 object id
      * @param isApprove 요청 일정의 승인 여부
      * @return 변경된 group schedule element
+     * @throws ScheduleNotRequestedException 해당 스케줄이 확인 요청 상태가 아님
+     * @throws NotFoundMemberException 해당 일정의 멤버가 아님
      */
     fun checkRequestedSchedule(
         userId: ObjectId,
         isApprove: Boolean
     ): GroupScheduleElement {
+
+        if(userId !in scheduleMember)
+            throw NotFoundMemberException()
+
+        if(!(state == GroupScheduleStateEnum.REQUESTED || state == GroupScheduleStateEnum.CONFIRMED))
+            throw ScheduleNotRequestedException()
 
         if (isApprove) {
             confirmedUser.add(userId)
@@ -102,7 +112,7 @@ data class GroupScheduleElement(
                 this.state = GroupScheduleStateEnum.CONFIRMED
         }else{
             confirmedUser.clear()
-            this.state = GroupScheduleStateEnum.REQUESTED
+            this.state = GroupScheduleStateEnum.REJECTED
         }
         return this
     }
