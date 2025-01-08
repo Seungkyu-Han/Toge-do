@@ -3,6 +3,7 @@ package vp.togedo.model.documents.group
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.*
 import vp.togedo.model.exception.group.AlreadyMemberException
+import vp.togedo.model.exception.group.NotFoundGroupScheduleException
 import vp.togedo.model.exception.group.NotFoundMemberException
 import java.util.UUID
 
@@ -205,6 +206,88 @@ class GroupDocumentTest{
             Assertions.assertFalse(groupDocument.members.contains(userId))
             Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
             Assertions.assertTrue(groupDocument.groupSchedules[0].confirmedUser.contains(userId))
+        }
+    }
+
+    @Nested
+    inner class FindGroupScheduleIndexById{
+        @BeforeEach
+        fun setUp() {
+            groupDocument = GroupDocument(
+                name = UUID.randomUUID().toString(),
+            )
+        }
+
+        @Test
+        @DisplayName("하나의 공유 일정 요소만 있는 리스트에서 해당 요소의 인덱스를 탐색")
+        fun findGroupScheduleIndexByIdFromOneElementListReturnSuccess(){
+            //given
+            val groupScheduleElement = GroupScheduleElement(
+                name = UUID.randomUUID().toString(),
+                startDate = UUID.randomUUID().toString(),
+                endDate = UUID.randomUUID().toString(),
+                startTime = UUID.randomUUID().toString(),
+                endTime = UUID.randomUUID().toString(),
+                scheduleMember = mutableSetOf(userId)
+            )
+            groupDocument.groupSchedules.add(groupScheduleElement)
+
+            //when
+            val result = groupDocument.findGroupScheduleIndexById(groupScheduleId = groupScheduleElement.id)
+
+            //then
+            Assertions.assertEquals(0, result)
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 공유 일정 요소의 인덱스를 탐색")
+        fun findGroupScheduleIndexByIdFromEmptyListReturnException(){
+
+            //when && then
+            Assertions.assertThrows(NotFoundGroupScheduleException::class.java) {
+                groupDocument.findGroupScheduleIndexById(groupScheduleId = ObjectId.get())
+            }
+        }
+
+        @Test
+        @DisplayName("앞 뒤 20개씩 공유 일정 요소가 있는 공유 일정 요소의 인덱스를 탐색")
+        fun findGroupScheduleIndexByIdFromBetween20ElementsListReturnSuccess(){
+            //given
+            for(i in 1..20){
+                groupDocument.groupSchedules.add(GroupScheduleElement(
+                    name = UUID.randomUUID().toString(),
+                    startDate = UUID.randomUUID().toString(),
+                    endDate = UUID.randomUUID().toString(),
+                    startTime = UUID.randomUUID().toString(),
+                    endTime = UUID.randomUUID().toString(),
+                    scheduleMember = mutableSetOf(userId)
+                ))
+            }
+            val groupScheduleElement = GroupScheduleElement(
+                name = UUID.randomUUID().toString(),
+                startDate = UUID.randomUUID().toString(),
+                endDate = UUID.randomUUID().toString(),
+                startTime = UUID.randomUUID().toString(),
+                endTime = UUID.randomUUID().toString(),
+                scheduleMember = mutableSetOf(userId)
+            )
+            groupDocument.groupSchedules.add(groupScheduleElement)
+            for(i in 1..20){
+                groupDocument.groupSchedules.add(GroupScheduleElement(
+                    name = UUID.randomUUID().toString(),
+                    startDate = UUID.randomUUID().toString(),
+                    endDate = UUID.randomUUID().toString(),
+                    startTime = UUID.randomUUID().toString(),
+                    endTime = UUID.randomUUID().toString(),
+                    scheduleMember = mutableSetOf(userId)
+                ))
+            }
+
+            //when
+            val result = groupDocument.findGroupScheduleIndexById(groupScheduleId = groupScheduleElement.id)
+
+            //then
+            Assertions.assertEquals(20, result)
         }
     }
 }
