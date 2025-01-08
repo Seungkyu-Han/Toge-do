@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import vp.togedo.model.exception.personalSchedule.*
 
 @Document(collection = "personal_schedules")
-data class PersonalSchedule(
+data class PersonalScheduleDocument(
     @Id
     @JsonProperty("id")
     val id: ObjectId,
@@ -24,7 +24,7 @@ data class PersonalSchedule(
      * @return 고정 스케줄이 삭제된 personal schedule document
      * @throws NotFoundPersonaScheduleException 해당 스케줄이 존재하지 않음
      */
-    fun deleteFixedPersonalScheduleElementById(personalScheduleElementId: ObjectId): PersonalSchedule{
+    fun deleteFixedPersonalScheduleElementById(personalScheduleElementId: ObjectId): PersonalScheduleDocument{
         if(!fixedSchedules.removeIf { it.id == personalScheduleElementId })
             throw NotFoundPersonaScheduleException()
         return this
@@ -36,7 +36,7 @@ data class PersonalSchedule(
      * @return 유동 스케줄이 삭제된 personal schedule document
      * @throws NotFoundPersonaScheduleException 해당 스케줄이 존재하지 않음
      */
-    fun deleteFlexiblePersonalScheduleElementById(personalScheduleElementId: ObjectId): PersonalSchedule{
+    fun deleteFlexiblePersonalScheduleElementById(personalScheduleElementId: ObjectId): PersonalScheduleDocument{
         if(!flexibleSchedules.removeIf { it.id == personalScheduleElementId })
             throw NotFoundPersonaScheduleException()
         return this
@@ -51,7 +51,7 @@ data class PersonalSchedule(
      * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
      * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
-    fun modifyFixedPersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule{
+    fun modifyFixedPersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalScheduleDocument{
 
         val index = findFixedPersonalScheduleIndexById(
             fixedPersonalScheduleId = personalScheduleElement.id)
@@ -77,7 +77,7 @@ data class PersonalSchedule(
      * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
      * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
-    fun modifyFlexiblePersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule{
+    fun modifyFlexiblePersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalScheduleDocument{
 
         val index = findFlexiblePersonalScheduleIndexById(
             flexiblePersonalScheduleId = personalScheduleElement.id)
@@ -102,7 +102,7 @@ data class PersonalSchedule(
      * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
      * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
-    fun addFixedPersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule {
+    fun addFixedPersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalScheduleDocument {
         personalScheduleElement.isValidTimeForFixedSchedule()
 
         val sortedIndex = getSortedIndex(
@@ -122,7 +122,7 @@ data class PersonalSchedule(
      * @throws PersonalScheduleTimeIsNotRangeException 유효한 시간 범위가 아님
      * @throws PersonalScheduleEndTimeBeforeStartTimeException 종료 시간이 시작 시간보다 앞에 있음
      */
-    fun addFlexiblePersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalSchedule {
+    fun addFlexiblePersonalScheduleElement(personalScheduleElement: PersonalScheduleElement): PersonalScheduleDocument {
 
         personalScheduleElement.isValidTimeForFlexibleSchedule()
 

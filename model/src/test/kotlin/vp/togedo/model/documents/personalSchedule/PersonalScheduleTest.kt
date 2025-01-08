@@ -9,7 +9,7 @@ import java.util.*
 class PersonalScheduleTest{
 
     private val userId = ObjectId.get()
-    private lateinit var personalSchedule: PersonalSchedule
+    private lateinit var personalSchedule: PersonalScheduleDocument
 
     private val flexiblePersonalSchedule = PersonalScheduleElement(
         startTime = "2501081000",
@@ -30,7 +30,7 @@ class PersonalScheduleTest{
     inner class ModifyFixedPersonalScheduleElement{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
@@ -111,7 +111,7 @@ class PersonalScheduleTest{
     inner class ModifyFlexiblePersonalScheduleElement{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
@@ -192,7 +192,7 @@ class PersonalScheduleTest{
     inner class DeleteFixedPersonalScheduleElementById{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
@@ -248,7 +248,7 @@ class PersonalScheduleTest{
     inner class DeleteFlexiblePersonalScheduleElementById{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
@@ -304,7 +304,7 @@ class PersonalScheduleTest{
     inner class AddFixedPersonalScheduleElement{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
@@ -504,7 +504,7 @@ class PersonalScheduleTest{
     inner class AddFlexiblePersonalScheduleElement{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
@@ -696,7 +696,7 @@ class PersonalScheduleTest{
     inner class GetSortedIndex{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
@@ -1093,7 +1093,7 @@ class PersonalScheduleTest{
     inner class FindFixedPersonalScheduleIndexById{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
@@ -1163,7 +1163,7 @@ class PersonalScheduleTest{
     inner class FindFlexiblePersonalScheduleIndexById{
         @BeforeEach
         fun setUp(){
-            personalSchedule = PersonalSchedule(id = userId)
+            personalSchedule = PersonalScheduleDocument(id = userId)
         }
 
         @Test
