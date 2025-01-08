@@ -25,6 +25,207 @@ class PersonalScheduleTest{
         color = UUID.randomUUID().toString()
     )
 
+
+    @Nested
+    inner class AddFixedPersonalScheduleElement{
+        @BeforeEach
+        fun setUp(){
+            personalSchedule = PersonalSchedule(id = userId)
+        }
+
+        @Test
+        @DisplayName("빈 리스트에 고정 스케줄을 삽입")
+        fun addFixedScheduleInEmptyListReturnSuccess(){
+            //given
+
+            //when
+            personalSchedule.addFixedPersonalScheduleElement(fixedPersonalSchedule)
+
+            //then
+            Assertions.assertEquals(1, personalSchedule.fixedSchedules.size)
+            Assertions.assertTrue(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+
+        @Test
+        @DisplayName("앞에 하나의 고정 스케줄이 있는 리스트에 고정 스케줄을 삽입")
+        fun addFixedPersonalScheduleInOneElementAtFrontReturnSuccess(){
+            //given
+            val beforePersonalScheduleElement = PersonalScheduleElement(
+                startTime = "10000",
+                endTime = "10001",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.fixedSchedules.add(beforePersonalScheduleElement)
+
+            //when
+            personalSchedule.addFixedPersonalScheduleElement(fixedPersonalSchedule)
+
+            //then
+            Assertions.assertEquals(2, personalSchedule.fixedSchedules.size)
+            Assertions.assertTrue(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+
+        @Test
+        @DisplayName("뒤에 하나의 고정 스케줄이 있는 리스트에 고정 스케줄을 삽입")
+        fun addFixedPersonalScheduleInOneElementAtBehindReturnSuccess(){
+            //given
+            val afterPersonalScheduleElement = PersonalScheduleElement(
+                startTime = "30000",
+                endTime = "30001",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.fixedSchedules.add(afterPersonalScheduleElement)
+
+            //when
+            personalSchedule.addFixedPersonalScheduleElement(fixedPersonalSchedule)
+
+            //then
+            Assertions.assertEquals(2, personalSchedule.fixedSchedules.size)
+            Assertions.assertTrue(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+
+
+        @Test
+        @DisplayName("앞뒤에 하나씩 고정 스케줄이 있는 리스트에 고정 스케줄을 삽입")
+        fun addFixedPersonalScheduleAtFrontAndBehindReturnSuccess(){
+            //given
+            val beforePersonalScheduleElement = PersonalScheduleElement(
+                startTime = "10000",
+                endTime = "10001",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            val afterPersonalScheduleElement = PersonalScheduleElement(
+                startTime = "30000",
+                endTime = "30001",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+            personalSchedule.fixedSchedules.add(beforePersonalScheduleElement)
+            personalSchedule.fixedSchedules.add(afterPersonalScheduleElement)
+
+            //when
+            personalSchedule.addFixedPersonalScheduleElement(fixedPersonalSchedule)
+
+            //then
+            Assertions.assertEquals(3, personalSchedule.fixedSchedules.size)
+            Assertions.assertTrue(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+
+        @Test
+        @DisplayName("앞뒤에 40개씩 고정 스케줄이 있는 리스트에 고정 스케줄을 삽입")
+        fun addFixedPersonalScheduleAtFront40AndBehind40ReturnSuccess(){
+            //given
+            for(i in 1..40){
+                personalSchedule.fixedSchedules.add(PersonalScheduleElement(
+                    startTime = (10000 + i).toString(),
+                    endTime = (10100 + i).toString(),
+                    name = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                ))
+            }
+
+            for(i in 1..40){
+                personalSchedule.fixedSchedules.add(PersonalScheduleElement(
+                    startTime = (30000 + i).toString(),
+                    endTime = (30100 + i).toString(),
+                    name = UUID.randomUUID().toString(),
+                    color = UUID.randomUUID().toString()
+                ))
+            }
+
+            //when
+            personalSchedule.addFixedPersonalScheduleElement(fixedPersonalSchedule)
+
+            //then
+            Assertions.assertEquals(81, personalSchedule.fixedSchedules.size)
+            Assertions.assertTrue(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+
+
+        @Test
+        @DisplayName("시작 시간이 겹치는 리스트에 고정 스케줄을 삽입")
+        fun addFixedScheduleAtConflictStartTimeReturnException(){
+            //given
+            personalSchedule.fixedSchedules.add(PersonalScheduleElement(
+                startTime = "20000",
+                endTime = "20059",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            ))
+
+            //when
+            Assertions.assertThrows(ConflictPersonalScheduleException::class.java){
+                personalSchedule.addFixedPersonalScheduleElement(
+                    personalScheduleElement = fixedPersonalSchedule)
+            }
+
+            //then
+            Assertions.assertFalse(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+
+
+        @Test
+        @DisplayName("전 스케줄의 종료시간과 충돌하는 리스트에 고정 스케줄을 삽입")
+        fun addFixedScheduleAtConflictBeforeScheduleReturnException(){
+            //given
+            personalSchedule.fixedSchedules.add(PersonalScheduleElement(
+                startTime = "20000",
+                endTime = "20100",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            ))
+
+            val fixedPersonalSchedule = PersonalScheduleElement(
+                startTime = "20100",
+                endTime = "20159",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            Assertions.assertThrows(ConflictPersonalScheduleException::class.java){
+                personalSchedule.addFixedPersonalScheduleElement(
+                    personalScheduleElement = fixedPersonalSchedule)
+            }
+
+            //then
+            Assertions.assertFalse(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+
+        @Test
+        @DisplayName("뒤 스케줄의 시작시간과 충돌하는 리스트에 유동 스케줄을 삽입")
+        fun addFixedScheduleAtConflictAfterScheduleReturnException(){
+            //given
+            personalSchedule.fixedSchedules.add(PersonalScheduleElement(
+                startTime = "20100",
+                endTime = "20159",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            ))
+
+            val fixedPersonalSchedule = PersonalScheduleElement(
+                startTime = "20000",
+                endTime = "20100",
+                name = UUID.randomUUID().toString(),
+                color = UUID.randomUUID().toString()
+            )
+
+            //when
+            Assertions.assertThrows(ConflictPersonalScheduleException::class.java){
+                personalSchedule.addFixedPersonalScheduleElement(
+                    personalScheduleElement = fixedPersonalSchedule)
+            }
+
+            //then
+            Assertions.assertFalse(personalSchedule.fixedSchedules.contains(fixedPersonalSchedule))
+        }
+
+    }
+
     @Nested
     inner class AddFlexiblePersonalScheduleElement{
         @BeforeEach
@@ -169,7 +370,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("전 스케줄의 종료시간과 충돌하는 리스트에 유동 스케줄을 삽입")
-        fun getSortedIndexFlexibleScheduleFromConflictBeforeScheduleReturnException(){
+        fun addFixedScheduleAtConflictBeforeScheduleReturnException(){
             //given
             personalSchedule.flexibleSchedules.add(PersonalScheduleElement(
                 startTime = "2501080900",
@@ -190,7 +391,7 @@ class PersonalScheduleTest{
 
         @Test
         @DisplayName("뒤 스케줄의 시작시간과 충돌하는 리스트에 유동 스케줄을 삽입")
-        fun getSortedIndexFlexibleScheduleFromConflictAfterScheduleReturnException(){
+        fun addFixedScheduleAtConflictAfterScheduleReturnException(){
             //given
             personalSchedule.flexibleSchedules.add(PersonalScheduleElement(
                 startTime = "2501080900",
@@ -215,7 +416,6 @@ class PersonalScheduleTest{
             //then
             Assertions.assertFalse(personalSchedule.flexibleSchedules.contains(flexiblePersonalSchedule))
         }
-
     }
 
     @Nested
