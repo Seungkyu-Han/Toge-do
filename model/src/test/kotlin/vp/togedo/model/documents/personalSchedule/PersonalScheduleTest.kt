@@ -25,6 +25,61 @@ class PersonalScheduleTest{
         color = UUID.randomUUID().toString()
     )
 
+    @Nested
+    inner class DeleteFlexiblePersonalScheduleElementById{
+        @BeforeEach
+        fun setUp(){
+            personalSchedule = PersonalSchedule(id = userId)
+        }
+
+        @Test
+        @DisplayName("하나만 존재하는 유동 일정 리스트에서 요소를 삭제")
+        fun deleteFlexibleScheduleFromOneElementListReturnSuccess(){
+            //given
+            personalSchedule.flexibleSchedules.add(flexiblePersonalSchedule)
+
+            //when
+            personalSchedule.deleteFlexiblePersonalScheduleElementById(flexiblePersonalSchedule.id)
+
+            //then
+            Assertions.assertFalse(personalSchedule.flexibleSchedules.contains(flexiblePersonalSchedule))
+            Assertions.assertEquals(0, personalSchedule.flexibleSchedules.size)
+        }
+
+        @Test
+        @DisplayName("빈 리스트에서 유동 일정을 삭제 시도")
+        fun deleteFlexibleScheduleFromEmptyListReturnException(){
+            //given
+
+            //when && then
+            Assertions.assertThrows(NotFoundPersonaScheduleException::class.java) {
+                personalSchedule.deleteFlexiblePersonalScheduleElementById(flexiblePersonalSchedule.id) }
+        }
+
+        @Test
+        @DisplayName("10개가 존재하는 유동 일정 리스트에서 요소를 삭제")
+        fun deleteFlexibleScheduleFrom10ElementListReturnSuccess(){
+            //given
+            for (i in 1..9){
+                personalSchedule.flexibleSchedules.add(
+                    PersonalScheduleElement(
+                        startTime = "24010${i}1000",
+                        endTime = "24010${i}1059",
+                        name = UUID.randomUUID().toString(),
+                        color = UUID.randomUUID().toString()
+                    )
+                )
+            }
+            personalSchedule.flexibleSchedules.add(flexiblePersonalSchedule)
+
+            //when
+            personalSchedule.deleteFlexiblePersonalScheduleElementById(flexiblePersonalSchedule.id)
+
+            //then
+            Assertions.assertEquals(9, personalSchedule.flexibleSchedules.size)
+            Assertions.assertFalse(personalSchedule.flexibleSchedules.contains(flexiblePersonalSchedule))
+        }
+    }
 
     @Nested
     inner class AddFixedPersonalScheduleElement{
