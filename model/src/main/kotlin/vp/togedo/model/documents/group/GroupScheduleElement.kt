@@ -27,8 +27,8 @@ data class GroupScheduleElement(
     @JsonProperty("state")
     var state: GroupScheduleStateEnum = GroupScheduleStateEnum.DISCUSSING,
 
-    @JsonProperty("scheduleMember")
-    val scheduleMember: MutableSet<ObjectId>,
+    @JsonProperty("members")
+    val members: MutableSet<ObjectId>,
 
     @JsonProperty("confirmedUser")
     var confirmedUser: MutableSet<ObjectId> = mutableSetOf(),
@@ -100,7 +100,7 @@ data class GroupScheduleElement(
         isApprove: Boolean
     ): GroupScheduleElement {
 
-        if(userId !in scheduleMember)
+        if(userId !in members)
             throw NotFoundMemberException()
 
         if(!(state == GroupScheduleStateEnum.REQUESTED || state == GroupScheduleStateEnum.CONFIRMED))
@@ -108,7 +108,7 @@ data class GroupScheduleElement(
 
         if (isApprove) {
             confirmedUser.add(userId)
-            if (confirmedUser.size == scheduleMember.size)
+            if (confirmedUser.size == members.size)
                 this.state = GroupScheduleStateEnum.CONFIRMED
         }else{
             confirmedUser.clear()

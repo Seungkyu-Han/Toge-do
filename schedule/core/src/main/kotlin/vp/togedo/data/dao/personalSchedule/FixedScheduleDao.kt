@@ -4,8 +4,8 @@ import org.bson.types.ObjectId
 
 data class FixedScheduleDao(
     var scheduleId: ObjectId?,
-    val startTime: Long,
-    val endTime: Long,
-    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val name: String,
     val color: String
 )

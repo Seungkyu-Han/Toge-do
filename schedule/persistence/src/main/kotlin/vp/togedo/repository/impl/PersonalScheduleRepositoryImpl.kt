@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
-import vp.togedo.document.PersonalScheduleDocument
+import vp.togedo.model.documents.personalSchedule.PersonalScheduleDocument
 import vp.togedo.repository.PersonalScheduleRepository
 import vp.togedo.repository.mongo.PersonalScheduleMongoRepository
 import java.time.Duration
@@ -53,7 +53,7 @@ class PersonalScheduleRepositoryImpl(
                 objectMapper.readValue(it, PersonalScheduleDocument::class.java)
             }
             .switchIfEmpty(
-                Mono.defer{personalScheduleMongoRepository.findByUserId(userId) }
+                Mono.defer{personalScheduleMongoRepository.findById(userId) }
             )
             .publishOn(Schedulers.boundedElastic())
             .doOnSuccess {
@@ -73,7 +73,7 @@ class PersonalScheduleRepositoryImpl(
             .doOnSuccess {
                 reactiveRedisTemplate.opsForValue()
                     .set(
-                        "$redisPrefix${it.userId}",
+                        "$redisPrefix${it.id}",
                         objectMapper.writeValueAsString(it),
                         personalScheduleRedisTime
                     ).block()

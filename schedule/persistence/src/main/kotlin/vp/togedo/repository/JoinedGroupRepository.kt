@@ -2,7 +2,7 @@ package vp.togedo.repository
 
 import org.bson.types.ObjectId
 import reactor.core.publisher.Mono
-import vp.togedo.document.JoinedGroupDocument
+import vp.togedo.model.documents.joinedGroup.JoinedGroupDocument
 
 interface JoinedGroupRepository {
 

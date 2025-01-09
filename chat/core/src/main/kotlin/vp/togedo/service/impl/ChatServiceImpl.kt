@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.data.dto.MessageResDto
-import vp.togedo.document.ChatDocument
+import vp.togedo.model.documents.chat.ChatDocument
 import vp.togedo.repository.ChatRepository
 import vp.togedo.service.ChatService
 

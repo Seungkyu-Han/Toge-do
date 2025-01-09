@@ -4,42 +4,39 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers
 import vp.togedo.data.dao.groupSchedule.*
-import vp.togedo.document.GroupSchedule
-import vp.togedo.document.PersonalSchedule
-import vp.togedo.enums.GroupScheduleStateEnum
+import vp.togedo.model.documents.group.GroupScheduleElement
+import vp.togedo.model.documents.group.IndividualScheduleDocument
 import vp.togedo.repository.GroupRepository
+import vp.togedo.repository.IndividualScheduleRepository
 import vp.togedo.service.GroupScheduleService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.GroupException
 import vp.togedo.util.error.exception.GroupScheduleException
 import vp.togedo.util.exception.groupSchedule.CantCreateMoreScheduleException
 import vp.togedo.util.exception.groupSchedule.NotFoundGroupScheduleException
-import vp.togedo.util.exception.groupSchedule.NotFoundPersonalScheduleException
 
 @Service
 class GroupScheduleServiceImpl(
-    private val groupRepository: GroupRepository
+    private val groupRepository: GroupRepository,
+    private val individualScheduleRepository: IndividualScheduleRepository
 ): GroupScheduleService {
 
-    override fun createGroupSchedule(groupId: ObjectId, name: String, startDate: Long, endDate: Long, startTime: String, endTime: String): Mono<GroupScheduleDao> {
+    override fun createGroupSchedule(groupId: ObjectId, name: String, startDate: String, endDate: String, startTime: String, endTime: String): Mono<GroupScheduleDao> {
         return groupRepository.findById(groupId).flatMap{
             group ->
-            group.createGroupSchedule(
-                name = name,
-                startDate = startDate,
-                endDate = endDate,
-                startTime = startTime,
-                endTime = endTime
+            val groupScheduleElement = group.createGroupSchedule(
+                    name = name,
+                    startDate = startDate,
+                    endDate = endDate,
+                    startTime = startTime,
+                    endTime = endTime
+                )
+            groupRepository.save(group).then(
+                Mono.just(groupScheduleElement)
             )
-        }.flatMap {
-            groupRepository.save(it)
-        }.map{
-            group ->
-            val createdGroupSchedule = group.groupSchedules.last()
-            this.groupScheduleToDao(createdGroupSchedule)
-        }.onErrorMap {
+
+        }.map(::groupScheduleToDao).onErrorMap {
             when(it){
                 is CantCreateMoreScheduleException -> GroupException(ErrorCode.CANT_CREATE_MORE_SCHEDULE)
                 else -> it
@@ -61,15 +58,15 @@ class GroupScheduleServiceImpl(
                         endDate = groupSchedule.endDate,
                         startTime = groupSchedule.startTime,
                         endTime = groupSchedule.endTime,
-                        personalScheduleMap = null,
-                        confirmScheduleDao = null
+                        confirmScheduleDao = null,
+                        members = groupSchedule.members
                     )
                 }
         }
 
     override fun readGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<GroupScheduleDao> {
         return groupRepository.findById(groupId)
-            .flatMap {
+            .map {
                 it.findGroupScheduleById(scheduleId)
             }
             .map {
@@ -87,14 +84,15 @@ class GroupScheduleServiceImpl(
         return groupRepository.findById(groupId)
             .flatMap {
                 group ->
-                group.updateGroupSchedule(
-                    scheduleId = groupScheduleDao.id!!,
+                val groupSchedule = group.findGroupScheduleById(groupId).updateGroupScheduleElement(
                     name = groupScheduleDao.name,
                     startDate = groupScheduleDao.startDate,
-                    endDate = groupScheduleDao.endDate
-                ).publishOn(Schedulers.boundedElastic()).doOnSuccess {
-                    groupRepository.save(group).subscribe()
-                }
+                    endDate = groupScheduleDao.endDate,
+                    startTime = groupScheduleDao.startTime,
+                    endTime = groupScheduleDao.endTime
+                )
+                groupRepository.save(group)
+                    .thenReturn(groupSchedule)
             }.map{
                 groupScheduleToDao(it)
             }.onErrorMap {
@@ -108,8 +106,7 @@ class GroupScheduleServiceImpl(
     override fun deleteGroupSchedule(groupId: ObjectId, scheduleId: ObjectId): Mono<Void> =
         groupRepository.findById(groupId)
             .flatMap {
-                it.deleteGroupScheduleById(scheduleId)
-            }.flatMap {
+                it.deleteGroupScheduleElementById(scheduleId)
                 groupRepository.save(it)
             }
             .onErrorMap {
@@ -124,23 +121,23 @@ class GroupScheduleServiceImpl(
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,
-        personalSchedulesDao: PersonalSchedulesDao
-    ): Mono<GroupScheduleDao> {
-        return groupRepository.findById(groupId)
-            .flatMap {
-                group ->
-                group.findGroupScheduleById(scheduleId)
-                    .flatMap { groupSchedule ->
-                        val userPersonalSchedule = groupSchedule.findGroupScheduleByUserId(userId)
+        individualScheduleListDao: IndividualScheduleListDao
+    ): Mono<IndividualScheduleDao> {
+        return individualScheduleRepository.findById(groupId)
+            .flatMap { individualScheduleDocument ->
 
-                        val insertPersonalSchedules = personalSchedulesDaoToDocumentList(personalSchedulesDao)
+                val userIndividualSchedule = individualScheduleDocument.findIndividualScheduleById(userId = userId)
 
-                        userPersonalSchedule
-                            .addPersonalSchedules(insertPersonalSchedules)
-                            .then(groupRepository.save(group))
-                            .then(Mono.just(groupSchedule))
-                    }
-            }.map(::groupScheduleToDao)
+                individualScheduleListDao.individualSchedules.forEach { individualScheduleDao ->
+                    userIndividualSchedule.addIndividualSchedule(
+                        startTime = individualScheduleDao.startTime,
+                        endTime = individualScheduleDao.endTime
+                    )
+                }
+
+                individualScheduleRepository.save(individualScheduleDocument)
+            }
+            .map(::individualScheduleToDao)
             .onErrorMap {
                 when(it){
                     is GroupScheduleException -> GroupScheduleException(ErrorCode.USER_NOT_JOINED_SCHEDULE)
@@ -153,27 +150,27 @@ class GroupScheduleServiceImpl(
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,
-        personalSchedulesDao: PersonalSchedulesDao
-    ): Mono<GroupScheduleDao> {
-        return groupRepository.findById(groupId)
-            .flatMap {
-                group ->
-                group.findGroupScheduleById(scheduleId)
-                    .flatMap {
-                        groupSchedule ->
-                        val userPersonalSchedule = groupSchedule.findGroupScheduleByUserId(userId)
+        individualScheduleListDao: IndividualScheduleListDao
+    ): Mono<IndividualScheduleDao> {
+        return individualScheduleRepository.findById(groupId)
+            .flatMap { individualScheduleDocument ->
 
-                        val updatePersonalSchedules = personalSchedulesDaoToDocumentList(personalSchedulesDao)
+                val userIndividualSchedule = individualScheduleDocument.findIndividualScheduleById(userId = userId)
 
-                        userPersonalSchedule
-                            .updatePersonalSchedules(updatePersonalSchedules)
-                            .then(groupRepository.save(group))
-                            .then(Mono.just(groupSchedule))
-                    }
-            }.map(::groupScheduleToDao)
+                individualScheduleListDao.individualSchedules.forEach { individualScheduleDao ->
+                    userIndividualSchedule.removeIndividualScheduleById(individualScheduleDao.id!!)
+                    userIndividualSchedule.addIndividualSchedule(
+                        startTime = individualScheduleDao.startTime,
+                        endTime = individualScheduleDao.endTime
+                    )
+                }
+
+                individualScheduleRepository.save(individualScheduleDocument)
+            }
+            .map(::individualScheduleToDao)
             .onErrorMap {
                 when(it){
-                    is NotFoundPersonalScheduleException -> GroupScheduleException(ErrorCode.PERSONAL_SCHEDULE_CANT_FIND)
+                    is GroupScheduleException -> GroupScheduleException(ErrorCode.USER_NOT_JOINED_SCHEDULE)
                     else -> it
                 }
             }
@@ -183,24 +180,23 @@ class GroupScheduleServiceImpl(
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,
-        personalScheduleIdList: List<ObjectId>
-    ): Mono<GroupScheduleDao> {
-        return groupRepository.findById(groupId)
-            .flatMap {
-                group ->
-                group.findGroupScheduleById(scheduleId)
-                    .flatMap {
-                        groupSchedule ->
-                        val userPersonalSchedule = groupSchedule.findGroupScheduleByUserId(userId)
+        individualScheduleIdList: List<ObjectId>
+    ): Mono<IndividualScheduleDao> {
+        return individualScheduleRepository.findById(groupId)
+            .flatMap { individualScheduleDocument ->
 
-                        userPersonalSchedule.deletePersonalSchedulesById(personalScheduleIdList)
-                            .then(groupRepository.save(group))
-                            .then(Mono.just(groupSchedule))
-                    }
-            }.map(::groupScheduleToDao)
+                val userIndividualSchedule = individualScheduleDocument.findIndividualScheduleById(userId = userId)
+
+                individualScheduleIdList.forEach {
+                    userIndividualSchedule.removeIndividualScheduleById(it)
+                }
+
+                individualScheduleRepository.save(individualScheduleDocument)
+            }
+            .map(::individualScheduleToDao)
             .onErrorMap {
                 when(it){
-                    is NotFoundPersonalScheduleException -> GroupScheduleException(ErrorCode.PERSONAL_SCHEDULE_CANT_FIND)
+                    is GroupScheduleException -> GroupScheduleException(ErrorCode.USER_NOT_JOINED_SCHEDULE)
                     else -> it
                 }
             }
@@ -215,18 +211,14 @@ class GroupScheduleServiceImpl(
         return groupRepository.findById(groupId)
             .flatMap {
                 group ->
-                group.updateGroupScheduleState(
-                    scheduleId = scheduleId,
-                    state = GroupScheduleStateEnum.find(confirmScheduleDao.state.value)!!,
-                    userId = userId,
-                    confirmedStartDate = confirmScheduleDao.startTime,
-                    confirmedEndDate = confirmScheduleDao.endTime
-                )
-                    .flatMap {
-                        groupSchedule ->
-                        groupRepository.save(group)
-                            .map{groupSchedule}
-                    }
+                val groupScheduleElement = group.findGroupScheduleById(groupScheduleId = scheduleId)
+                    .requestConfirmSchedule(
+                        confirmedStartDate = confirmScheduleDao.startTime!!,
+                        confirmedEndDate = confirmScheduleDao.endTime!!,
+                        userId = userId,
+                    )
+                groupRepository.save(group)
+                    .thenReturn(groupScheduleElement)
             }.map{
                 groupScheduleToDao(it)
             }
@@ -240,74 +232,58 @@ class GroupScheduleServiceImpl(
         return groupRepository.findById(groupId)
             .flatMap{
                 group ->
-                group.acceptConfirmGroupSchedule(
-                    scheduleId = scheduleId,
-                    userId = userId
-                ).flatMap{
-                    groupSchedule ->
-                    groupRepository.save(group)
-                        .map{groupSchedule}
-                }
+                val groupScheduleElement = group.findGroupScheduleById(groupScheduleId = scheduleId).checkRequestedSchedule(
+                    userId = userId,
+                    isApprove = true
+                )
+                groupRepository.save(group)
+                    .thenReturn(groupScheduleElement)
             }.map(::groupScheduleToDao)
     }
 
     override fun rejectConfirmGroupSchedule(groupId: ObjectId, scheduleId: ObjectId, userId: ObjectId): Mono<GroupScheduleDao> {
         return groupRepository.findById(groupId)
-            .flatMap {
-                group ->
-                group.updateGroupScheduleState(
-                    scheduleId = scheduleId,
+            .flatMap{
+                    group ->
+                val groupScheduleElement = group.findGroupScheduleById(groupScheduleId = scheduleId).checkRequestedSchedule(
                     userId = userId,
-                    state = GroupScheduleStateEnum.DISCUSSING,
-                    confirmedStartDate = null,
-                    confirmedEndDate = null
-                ).flatMap {
-                    groupSchedule ->
-                    groupRepository.save(group)
-                        .map{groupSchedule}
-                }
+                    isApprove = false
+                )
+                groupRepository.save(group)
+                    .thenReturn(groupScheduleElement)
             }.map(::groupScheduleToDao)
     }
 
-    private fun personalSchedulesDaoToDocumentList(personalSchedulesDao: PersonalSchedulesDao): List<PersonalSchedule>{
-        return personalSchedulesDao.personalSchedules.map{
-            personalScheduleDao -> personalScheduleDaoToDocument(personalScheduleDao)
-        }
-    }
-
-    private fun personalScheduleDaoToDocument(personalScheduleDao: PersonalScheduleDao): PersonalSchedule =
-        PersonalSchedule(
-            id = personalScheduleDao.id ?: ObjectId.get(),
-            startTime = personalScheduleDao.startTime,
-            endTime = personalScheduleDao.endTime
-        )
-
-
-    private fun groupScheduleToDao(groupSchedule: GroupSchedule): GroupScheduleDao =
+    private fun groupScheduleToDao(groupScheduleElement: GroupScheduleElement): GroupScheduleDao =
         GroupScheduleDao(
-            id = groupSchedule.id,
-            name = groupSchedule.name,
-            startDate = groupSchedule.startDate,
-            endDate = groupSchedule.endDate,
-            startTime = groupSchedule.startTime,
-            endTime = groupSchedule.endTime,
+            id = groupScheduleElement.id,
+            name = groupScheduleElement.name,
+            startDate = groupScheduleElement.startDate,
+            endDate = groupScheduleElement.endDate,
+            startTime = groupScheduleElement.startTime,
+            endTime = groupScheduleElement.endTime,
             confirmScheduleDao = ConfirmScheduleDao(
-                state = GroupScheduleStateDaoEnum.find(groupSchedule.state.value)!!,
-                startTime = groupSchedule.confirmedStartDate,
-                endTime = groupSchedule.confirmedEndDate,
-                confirmedUser = groupSchedule.confirmedUser
+                state = GroupScheduleStateDaoEnum.find(groupScheduleElement.state.value)!!,
+                startTime = groupScheduleElement.confirmedStartDate,
+                endTime = groupScheduleElement.confirmedEndDate,
+                confirmedUser = groupScheduleElement.confirmedUser
             ),
-            personalScheduleMap = groupSchedule.personalScheduleMap.mapValues {
-                PersonalSchedulesDao(
-                    personalSchedules = it.value.personalSchedules.map{
-                        personalScheduleInGroup ->
-                        PersonalScheduleDao(
-                            id = personalScheduleInGroup.id,
-                            startTime = personalScheduleInGroup.startTime,
-                            endTime = personalScheduleInGroup.endTime,
-                        )
-                    }
-                )
-            },
+            members = groupScheduleElement.members
         )
+
+    private fun individualScheduleToDao(individualScheduleDocument: IndividualScheduleDocument): IndividualScheduleDao {
+        val individualScheduleDao = IndividualScheduleDao()
+        individualScheduleDocument.individualScheduleMap.forEach { (userId, individualScheduleList) ->
+            individualScheduleDao.individualScheduleDaoMap[userId] = IndividualScheduleListDao(
+                individualScheduleList.individualSchedules.map {
+                    IndividualScheduleElementDao(
+                        id = it.id,
+                        startTime = it.startTime,
+                        endTime = it.endTime,
+                    )
+                }
+            )
+        }
+        return individualScheduleDao
+    }
 }

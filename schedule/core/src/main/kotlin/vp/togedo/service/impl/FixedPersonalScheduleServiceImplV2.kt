@@ -5,8 +5,8 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import vp.togedo.data.dao.personalSchedule.FixedScheduleDao
-import vp.togedo.document.PersonalScheduleDocument
-import vp.togedo.document.Schedule
+import vp.togedo.model.documents.personalSchedule.PersonalScheduleDocument
+import vp.togedo.model.documents.personalSchedule.PersonalScheduleElement
 import vp.togedo.repository.PersonalScheduleRepository
 import vp.togedo.service.FixedPersonalScheduleService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -26,21 +26,21 @@ class FixedPersonalScheduleServiceImplV2(
         fixedScheduleDaoList: List<FixedScheduleDao>
     ): List<FixedScheduleDao> {
         val personalSchedule: PersonalScheduleDocument = personalScheduleRepository.findByUserId(userId)
-            .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
+            .awaitSingleOrNull() ?: PersonalScheduleDocument(id = userId)
 
         try{
             val createdScheduleDaoList = fixedScheduleDaoList.map{
                 fixedScheduleDao ->
 
-                val fixedSchedule = Schedule(
+                val fixedSchedule = PersonalScheduleElement(
                     id = ObjectId.get(),
                     startTime = fixedScheduleDao.startTime,
                     endTime = fixedScheduleDao.endTime,
-                    title = fixedScheduleDao.title,
+                    name = fixedScheduleDao.name,
                     color = fixedScheduleDao.color
                 )
 
-                personalSchedule.addFixedSchedule(fixedSchedule).awaitSingle()
+                personalSchedule.addFixedPersonalScheduleElement(fixedSchedule)
 
                 fixedScheduleDao.copy(
                     scheduleId = fixedSchedule.id
@@ -63,14 +63,14 @@ class FixedPersonalScheduleServiceImplV2(
 
     override suspend fun readSchedule(userId: ObjectId): List<FixedScheduleDao> {
         val personalSchedule = personalScheduleRepository.findByUserId(userId)
-            .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
+            .awaitSingleOrNull() ?: PersonalScheduleDocument(id = userId)
 
         return personalSchedule.fixedSchedules.map{
             FixedScheduleDao(
                 scheduleId = it.id,
                 startTime = it.startTime,
                 endTime = it.endTime,
-                title = it.title,
+                name = it.name,
                 color = it.color
             )
         }
@@ -86,15 +86,15 @@ class FixedPersonalScheduleServiceImplV2(
         try{
             fixedScheduleDaoList.forEach {
                 scheduleDao ->
-                personalSchedule.modifyFixedSchedule(
-                    Schedule(
+                personalSchedule.modifyFixedPersonalScheduleElement(
+                    PersonalScheduleElement(
                         id = scheduleDao.scheduleId!!,
                         startTime = scheduleDao.startTime,
                         endTime = scheduleDao.endTime,
-                        title = scheduleDao.title,
+                        name = scheduleDao.name,
                         color = scheduleDao.color
                     )
-                ).awaitSingle()
+                )
             }
             personalScheduleRepository.save(personalSchedule).awaitSingle()
 
@@ -111,7 +111,7 @@ class FixedPersonalScheduleServiceImplV2(
 
         try{
             scheduleIdList.forEach {
-                personalSchedule.deleteFixedScheduleById(it).awaitSingleOrNull()
+                personalSchedule.deleteFixedPersonalScheduleElementById(it)
             }
         }catch(e: ScheduleNotFoundException){
             throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)

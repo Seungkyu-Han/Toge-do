@@ -5,20 +5,10 @@ import org.bson.types.ObjectId
 data class GroupScheduleDao(
     val id: ObjectId?,
     val name: String,
-    val startDate: Long,
-    val endDate: Long,
+    val startDate: String,
+    val endDate: String,
     val startTime: String,
     val endTime: String,
-    val personalScheduleMap: Map<ObjectId, PersonalSchedulesDao>?,
-    val confirmScheduleDao: ConfirmScheduleDao?
-)
-
-data class PersonalSchedulesDao(
-    val personalSchedules: List<PersonalScheduleDao>
-)
-
-data class PersonalScheduleDao(
-    val id: ObjectId?,
-    val startTime: String,
-    val endTime: String,
+    val confirmScheduleDao: ConfirmScheduleDao?,
+    val members: MutableSet<ObjectId>?
 )
