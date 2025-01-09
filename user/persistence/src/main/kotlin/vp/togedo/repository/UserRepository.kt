@@ -4,7 +4,7 @@ import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
-import vp.togedo.document.UserDocument
+import vp.togedo.model.documents.user.UserDocument
 
 @Repository
 interface UserRepository: ReactiveMongoRepository<UserDocument, ObjectId>{
