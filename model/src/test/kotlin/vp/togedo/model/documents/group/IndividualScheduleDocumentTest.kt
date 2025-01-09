@@ -86,4 +86,37 @@ class IndividualScheduleDocumentTest{
             }
         }
     }
+
+    @Nested
+    inner class FindMemberById{
+        private val user1 = ObjectId.get()
+
+        @BeforeEach
+        fun setUp() {
+            individualScheduleDocument = IndividualScheduleDocument(
+                id = ObjectId.get(),
+                mutableMapOf(
+                    userId to IndividualScheduleList(),
+                    user1 to IndividualScheduleList()
+                )
+            )
+        }
+
+        @Test
+        @DisplayName("존재하는 유저를 조회")
+        fun findMemberByIdReturnSuccess(){
+            //when
+            val result = individualScheduleDocument.findMemberById(userId)
+
+            Assertions.assertEquals(individualScheduleDocument.individualScheduleMap[userId], result)
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저를 조회")
+        fun findMemberByIdReturnException(){
+            Assertions.assertThrows(NotFoundMemberException::class.java) {
+                individualScheduleDocument.findMemberById(ObjectId.get())
+            }
+        }
+    }
 }
