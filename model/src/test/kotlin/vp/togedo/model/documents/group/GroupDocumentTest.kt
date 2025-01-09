@@ -331,8 +331,48 @@ class GroupDocumentTest{
                 groupDocument.groupSchedules[0].scheduleMember.contains(userId) &&
                         groupDocument.groupSchedules[0].scheduleMember.size == 1
             }
+            Assertions.assertEquals(1, groupDocument.groupSchedules.size)
+        }
+    }
+
+    @Nested
+    inner class DeleteGroupScheduleElementById{
+        @BeforeEach
+        fun setUp() {
+            groupDocument = GroupDocument(
+                name = UUID.randomUUID().toString(),
+            )
         }
 
+        @Test
+        @DisplayName("존재하는 공유 일정을 삭제 시도")
+        fun deleteGroupScheduleElementByIdFromOneElementListReturnSuccess(){
+            //given
+            val groupScheduleElement = GroupScheduleElement(
+                name = UUID.randomUUID().toString(),
+                startDate = UUID.randomUUID().toString(),
+                endDate = UUID.randomUUID().toString(),
+                startTime = UUID.randomUUID().toString(),
+                endTime = UUID.randomUUID().toString(),
+                scheduleMember = mutableSetOf(userId)
+            )
+            groupDocument.groupSchedules.add(groupScheduleElement)
 
+            //when
+            groupDocument.deleteGroupScheduleElementById(groupScheduleElement.id)
+
+            //then
+            Assertions.assertFalse(groupDocument.groupSchedules.contains(groupScheduleElement))
+            Assertions.assertEquals(0, groupDocument.groupSchedules.size)
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 공유 일정을 삭제 시도")
+        fun deleteGroupScheduleElementByIdFromEmptyListReturnSuccess(){
+            //when && then
+            Assertions.assertThrows(NotFoundGroupScheduleException::class.java) {
+                groupDocument.deleteGroupScheduleElementById(ObjectId.get())
+            }
+        }
     }
 }
