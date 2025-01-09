@@ -2,8 +2,8 @@ package vp.togedo.service
 
 import org.bson.types.ObjectId
 import reactor.core.publisher.Mono
-import vp.togedo.document.UserDocument
 import vp.togedo.enums.OauthEnum
+import vp.togedo.model.documents.user.UserDocument
 
 interface UserService {
 
