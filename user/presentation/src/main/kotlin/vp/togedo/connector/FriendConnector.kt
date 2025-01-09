@@ -3,7 +3,7 @@ package vp.togedo.connector
 import org.bson.types.ObjectId
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import vp.togedo.document.UserDocument
+import vp.togedo.model.documents.user.UserDocument
 
 interface FriendConnector {
 

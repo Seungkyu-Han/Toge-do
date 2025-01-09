@@ -1,6 +1,6 @@
 package vp.togedo.dto.user
 
-import vp.togedo.document.UserDocument
+import vp.togedo.model.documents.user.UserDocument
 
 data class UserInfoResDto(
     val id: String,
@@ -11,7 +11,7 @@ data class UserInfoResDto(
 ){
     constructor(userDocument: UserDocument) :
             this(
-                id = userDocument.id!!.toString(),
+                id = userDocument.id.toString(),
                 name = userDocument.name,
                 email = userDocument.email,
                 image = userDocument.profileImageUrl,

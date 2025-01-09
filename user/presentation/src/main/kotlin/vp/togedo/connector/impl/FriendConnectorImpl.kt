@@ -12,10 +12,10 @@ import org.springframework.transaction.reactive.executeAndAwait
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.connector.FriendConnector
-import vp.togedo.document.UserDocument
 import vp.togedo.kafka.data.friend.FriendApproveEventDto
 import vp.togedo.kafka.data.friend.FriendRequestEventDto
 import vp.togedo.kafka.service.FriendKafkaService
+import vp.togedo.model.documents.user.UserDocument
 import vp.togedo.service.FriendService
 import vp.togedo.service.UserService
 
