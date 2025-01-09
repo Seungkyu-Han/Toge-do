@@ -3,6 +3,7 @@ package vp.togedo.model.documents.joinedGroup
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.*
 import vp.togedo.model.exception.joinedGroup.AlreadyJoinedGroupException
+import vp.togedo.model.exception.joinedGroup.NotJoinedGroupException
 
 class JoinedGroupDocumentTest{
 
@@ -40,9 +41,44 @@ class JoinedGroupDocumentTest{
             val groupId = ObjectId.get()
             joinedGroupDocument.groups.add(groupId)
 
-            //when
+            //when && then
             Assertions.assertThrows(AlreadyJoinedGroupException::class.java){
                 joinedGroupDocument.addGroup(groupId)
+            }
+        }
+    }
+
+    @Nested
+    inner class RemoveGroup{
+
+        @BeforeEach
+        fun setUp() {
+            joinedGroupDocument = JoinedGroupDocument(
+                id = userId
+            )
+        }
+
+        @Test
+        @DisplayName("존재하는 그룹을 삭제")
+        fun removeGroupReturnSuccess(){
+            //given
+            val groupId = ObjectId.get()
+            joinedGroupDocument.groups.add(groupId)
+
+            //when
+            joinedGroupDocument.removeGroup(groupId)
+
+            //then
+            Assertions.assertFalse(joinedGroupDocument.groups.contains(groupId))
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 그룹을 삭제")
+        fun removeGroupNotExistReturnException(){
+
+            //when && then
+            Assertions.assertThrows(NotJoinedGroupException::class.java){
+                joinedGroupDocument.removeGroup(ObjectId.get())
             }
         }
     }
