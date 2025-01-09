@@ -4,5 +4,5 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class IndividualScheduleList(
     @JsonProperty("individualSchedules")
-    val individualSchedules: MutableList<IndividualSchedule>
+    val individualSchedules: MutableList<IndividualSchedule> = mutableListOf(),
 )
