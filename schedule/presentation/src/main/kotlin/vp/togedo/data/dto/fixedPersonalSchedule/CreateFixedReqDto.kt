@@ -1,8 +1,8 @@
 package vp.togedo.data.dto.fixedPersonalSchedule
 
 data class CreateFixedReqDto(
-    val startTime: Long,
-    val endTime: Long,
-    val title: String,
+    val startTime: String,
+    val endTime: String,
+    val name: String,
     val color: String
 )

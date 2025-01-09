@@ -9,5 +9,6 @@ data class GroupScheduleDao(
     val endDate: String,
     val startTime: String,
     val endTime: String,
-    val confirmScheduleDao: ConfirmScheduleDao?
+    val confirmScheduleDao: ConfirmScheduleDao?,
+    val members: MutableSet<ObjectId>?
 )

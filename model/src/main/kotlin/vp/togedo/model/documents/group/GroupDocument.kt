@@ -56,11 +56,11 @@ data class GroupDocument(
         this.members.remove(userId)
         for (groupScheduleElement in groupSchedules){
             if(groupScheduleElement.state != GroupScheduleStateEnum.CONFIRMED){
-                groupScheduleElement.scheduleMember.remove(userId)
+                groupScheduleElement.members.remove(userId)
                 groupScheduleElement.confirmedUser.remove(userId)
             }
             else{
-                groupScheduleElement.scheduleMember.remove(userId)
+                groupScheduleElement.members.remove(userId)
             }
         }
         return this
@@ -88,7 +88,7 @@ data class GroupDocument(
             endDate = endDate,
             startTime = startTime,
             endTime = endTime,
-            scheduleMember = members
+            members = members
         )
         groupSchedules.add(groupScheduleElement)
         return groupScheduleElement

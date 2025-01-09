@@ -16,8 +16,9 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import vp.togedo.config.IdComponent
 import vp.togedo.connector.GroupScheduleConnector
-import vp.togedo.data.dao.groupSchedule.PersonalScheduleDao
-import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
+import vp.togedo.data.dao.groupSchedule.IndividualScheduleDao
+import vp.togedo.data.dao.groupSchedule.IndividualScheduleElementDao
+import vp.togedo.data.dao.groupSchedule.IndividualScheduleListDao
 import vp.togedo.data.dto.groupSchedule.*
 
 @RestController
@@ -135,14 +136,14 @@ class GroupScheduleController(
     fun createPersonalScheduleInGroupSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
         @RequestBody personalSchedule: CreatePersonalScheduleInGroupScheduleReqDto
-    ): Mono<ResponseEntity<GroupScheduleDetailDto>>{
+    ): Mono<ResponseEntity<IndividualScheduleDao>>{
         return groupScheduleConnector.createPersonalScheduleInGroupSchedule(
             groupId = ObjectId(personalSchedule.groupId),
             scheduleId = ObjectId(personalSchedule.scheduleId),
             userId = idComponent.objectIdProvider(userId),
-            personalSchedulesDao = PersonalSchedulesDao(
-                personalSchedules = personalSchedule.personalSchedules.map{
-                    PersonalScheduleDao(
+            individualScheduleListDao = IndividualScheduleListDao(
+                individualSchedules = personalSchedule.personalSchedules.map{
+                    IndividualScheduleElementDao(
                         id = null,
                         startTime = it.startTime,
                         endTime = it.endTime
@@ -166,14 +167,14 @@ class GroupScheduleController(
     fun updatePersonalScheduleInGroupSchedule(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
         @RequestBody personalSchedule: UpdatePersonalScheduleInGroupScheduleReqDto
-    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+    ): Mono<ResponseEntity<IndividualScheduleDao>> =
         groupScheduleConnector.updatePersonalSchedulesInGroupSchedule(
             groupId = ObjectId(personalSchedule.groupId),
             scheduleId = ObjectId(personalSchedule.scheduleId),
             userId = idComponent.objectIdProvider(userId),
-            personalSchedulesDao = PersonalSchedulesDao(
-                personalSchedules = personalSchedule.personalSchedules.map{
-                    PersonalScheduleDao(
+            individualScheduleListDao = IndividualScheduleListDao(
+                individualSchedules = personalSchedule.personalSchedules.map{
+                    IndividualScheduleElementDao(
                         id = ObjectId(it.personalScheduleId),
                         startTime = it.startTime,
                         endTime = it.endTime
@@ -197,13 +198,13 @@ class GroupScheduleController(
         @Parameter(hidden = true) @RequestHeader("X-VP-UserId") userId: String,
         @RequestParam groupId: String,
         @RequestParam scheduleId: String,
-        @RequestParam personalScheduleIdList: List<String>
-    ): Mono<ResponseEntity<GroupScheduleDetailDto>> =
+        @RequestParam individualScheduleIdList: List<String>
+    ): Mono<ResponseEntity<IndividualScheduleDao>> =
         groupScheduleConnector.deletePersonalSchedulesInGroupSchedule(
             groupId = ObjectId(groupId),
             scheduleId = ObjectId(scheduleId),
             userId = idComponent.objectIdProvider(userId),
-            personalScheduleIdList = personalScheduleIdList.map{ObjectId(it)}
+            individualScheduleIdList = individualScheduleIdList.map{ObjectId(it)}
         ).map{
             ResponseEntity.ok().body(it)
         }

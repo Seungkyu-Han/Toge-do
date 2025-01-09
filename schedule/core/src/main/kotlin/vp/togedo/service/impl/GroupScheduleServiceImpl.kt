@@ -58,7 +58,8 @@ class GroupScheduleServiceImpl(
                         endDate = groupSchedule.endDate,
                         startTime = groupSchedule.startTime,
                         endTime = groupSchedule.endTime,
-                        confirmScheduleDao = null
+                        confirmScheduleDao = null,
+                        members = groupSchedule.members
                     )
                 }
         }
@@ -266,7 +267,8 @@ class GroupScheduleServiceImpl(
                 startTime = groupScheduleElement.confirmedStartDate,
                 endTime = groupScheduleElement.confirmedEndDate,
                 confirmedUser = groupScheduleElement.confirmedUser
-            )
+            ),
+            members = groupScheduleElement.members
         )
 
     private fun individualScheduleToDao(individualScheduleDocument: IndividualScheduleDocument): IndividualScheduleDao {

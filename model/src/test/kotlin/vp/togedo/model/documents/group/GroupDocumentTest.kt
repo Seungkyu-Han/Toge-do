@@ -120,7 +120,7 @@ class GroupDocumentTest{
                     endDate = UUID.randomUUID().toString(),
                     startTime = UUID.randomUUID().toString(),
                     endTime = UUID.randomUUID().toString(),
-                    scheduleMember = mutableSetOf(userId, user1)
+                    members = mutableSetOf(userId, user1)
                 )
             )
 
@@ -129,7 +129,7 @@ class GroupDocumentTest{
 
             //then
             Assertions.assertFalse(groupDocument.members.contains(userId))
-            Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].members.contains(userId))
         }
 
         @Test
@@ -143,7 +143,7 @@ class GroupDocumentTest{
                     endDate = UUID.randomUUID().toString(),
                     startTime = UUID.randomUUID().toString(),
                     endTime = UUID.randomUUID().toString(),
-                    scheduleMember = mutableSetOf(userId, user1),
+                    members = mutableSetOf(userId, user1),
                     state = GroupScheduleStateEnum.REQUESTED,
                     confirmedUser = mutableSetOf(userId)
                 )
@@ -154,7 +154,7 @@ class GroupDocumentTest{
 
             //then
             Assertions.assertFalse(groupDocument.members.contains(userId))
-            Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].members.contains(userId))
             Assertions.assertFalse(groupDocument.groupSchedules[0].confirmedUser.contains(userId))
         }
 
@@ -169,7 +169,7 @@ class GroupDocumentTest{
                     endDate = UUID.randomUUID().toString(),
                     startTime = UUID.randomUUID().toString(),
                     endTime = UUID.randomUUID().toString(),
-                    scheduleMember = mutableSetOf(userId, user1),
+                    members = mutableSetOf(userId, user1),
                     state = GroupScheduleStateEnum.REJECTED
                 )
             )
@@ -179,7 +179,7 @@ class GroupDocumentTest{
 
             //then
             Assertions.assertFalse(groupDocument.members.contains(userId))
-            Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].members.contains(userId))
         }
 
         @Test
@@ -193,7 +193,7 @@ class GroupDocumentTest{
                     endDate = UUID.randomUUID().toString(),
                     startTime = UUID.randomUUID().toString(),
                     endTime = UUID.randomUUID().toString(),
-                    scheduleMember = mutableSetOf(userId, user1),
+                    members = mutableSetOf(userId, user1),
                     state = GroupScheduleStateEnum.CONFIRMED,
                     confirmedUser = mutableSetOf(userId, user1)
                 )
@@ -204,7 +204,7 @@ class GroupDocumentTest{
 
             //then
             Assertions.assertFalse(groupDocument.members.contains(userId))
-            Assertions.assertFalse(groupDocument.groupSchedules[0].scheduleMember.contains(userId))
+            Assertions.assertFalse(groupDocument.groupSchedules[0].members.contains(userId))
             Assertions.assertTrue(groupDocument.groupSchedules[0].confirmedUser.contains(userId))
         }
     }
@@ -228,7 +228,7 @@ class GroupDocumentTest{
                 endDate = UUID.randomUUID().toString(),
                 startTime = UUID.randomUUID().toString(),
                 endTime = UUID.randomUUID().toString(),
-                scheduleMember = mutableSetOf(userId)
+                members = mutableSetOf(userId)
             )
             groupDocument.groupSchedules.add(groupScheduleElement)
 
@@ -260,7 +260,7 @@ class GroupDocumentTest{
                     endDate = UUID.randomUUID().toString(),
                     startTime = UUID.randomUUID().toString(),
                     endTime = UUID.randomUUID().toString(),
-                    scheduleMember = mutableSetOf(userId)
+                    members = mutableSetOf(userId)
                 ))
             }
             val groupScheduleElement = GroupScheduleElement(
@@ -269,7 +269,7 @@ class GroupDocumentTest{
                 endDate = UUID.randomUUID().toString(),
                 startTime = UUID.randomUUID().toString(),
                 endTime = UUID.randomUUID().toString(),
-                scheduleMember = mutableSetOf(userId)
+                members = mutableSetOf(userId)
             )
             groupDocument.groupSchedules.add(groupScheduleElement)
             for(i in 1..20){
@@ -279,7 +279,7 @@ class GroupDocumentTest{
                     endDate = UUID.randomUUID().toString(),
                     startTime = UUID.randomUUID().toString(),
                     endTime = UUID.randomUUID().toString(),
-                    scheduleMember = mutableSetOf(userId)
+                    members = mutableSetOf(userId)
                 ))
             }
 
@@ -328,8 +328,8 @@ class GroupDocumentTest{
             Assertions.assertEquals(endTime, result.endTime)
             Assertions.assertEquals(result, groupDocument.groupSchedules.last())
             Assertions.assertTrue{
-                groupDocument.groupSchedules[0].scheduleMember.contains(userId) &&
-                        groupDocument.groupSchedules[0].scheduleMember.size == 1
+                groupDocument.groupSchedules[0].members.contains(userId) &&
+                        groupDocument.groupSchedules[0].members.size == 1
             }
             Assertions.assertEquals(1, groupDocument.groupSchedules.size)
         }
@@ -354,7 +354,7 @@ class GroupDocumentTest{
                 endDate = UUID.randomUUID().toString(),
                 startTime = UUID.randomUUID().toString(),
                 endTime = UUID.randomUUID().toString(),
-                scheduleMember = mutableSetOf(userId)
+                members = mutableSetOf(userId)
             )
             groupDocument.groupSchedules.add(groupScheduleElement)
 

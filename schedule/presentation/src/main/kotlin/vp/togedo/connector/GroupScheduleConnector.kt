@@ -3,7 +3,8 @@ package vp.togedo.connector
 import org.bson.types.ObjectId
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import vp.togedo.data.dao.groupSchedule.PersonalSchedulesDao
+import vp.togedo.data.dao.groupSchedule.IndividualScheduleDao
+import vp.togedo.data.dao.groupSchedule.IndividualScheduleListDao
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDetailDto
 import vp.togedo.data.dto.groupSchedule.GroupScheduleDto
 import vp.togedo.data.dto.groupSchedule.UpdateGroupScheduleReqDto
@@ -14,8 +15,8 @@ interface GroupScheduleConnector {
         userId: ObjectId,
         groupId: ObjectId,
         name: String,
-        startDate: Long,
-        endDate: Long,
+        startDate: String,
+        endDate: String,
         startTime: String,
         endTime: String,
     ): Mono<GroupScheduleDetailDto>
@@ -32,22 +33,22 @@ interface GroupScheduleConnector {
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,
-        personalSchedulesDao: PersonalSchedulesDao
-    ):Mono<GroupScheduleDetailDto>
+        individualScheduleListDao: IndividualScheduleListDao
+    ): Mono<IndividualScheduleDao>
 
     fun updatePersonalSchedulesInGroupSchedule(
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,
-        personalSchedulesDao: PersonalSchedulesDao
-    ): Mono<GroupScheduleDetailDto>
+        individualScheduleListDao: IndividualScheduleListDao
+    ): Mono<IndividualScheduleDao>
 
     fun deletePersonalSchedulesInGroupSchedule(
         groupId: ObjectId,
         scheduleId: ObjectId,
         userId: ObjectId,
-        personalScheduleIdList: List<ObjectId>
-    ): Mono<GroupScheduleDetailDto>
+        individualScheduleIdList: List<ObjectId>
+    ): Mono<IndividualScheduleDao>
 
     fun createSuggestGroupSchedule(
         groupId: ObjectId,

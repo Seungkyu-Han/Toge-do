@@ -23,7 +23,7 @@ class GroupScheduleElementTest{
                 endDate = UUID.randomUUID().toString(),
                 startTime = UUID.randomUUID().toString(),
                 endTime = UUID.randomUUID().toString(),
-                scheduleMember = mutableSetOf(userId)
+                members = mutableSetOf(userId)
             )
         }
 
@@ -65,7 +65,7 @@ class GroupScheduleElementTest{
                 endDate = UUID.randomUUID().toString(),
                 startTime = UUID.randomUUID().toString(),
                 endTime = UUID.randomUUID().toString(),
-                scheduleMember = mutableSetOf(userId)
+                members = mutableSetOf(userId)
             )
         }
 
@@ -126,7 +126,7 @@ class GroupScheduleElementTest{
                 endDate = UUID.randomUUID().toString(),
                 startTime = UUID.randomUUID().toString(),
                 endTime = UUID.randomUUID().toString(),
-                scheduleMember = mutableSetOf(userId, user1)
+                members = mutableSetOf(userId, user1)
             )
         }
 
