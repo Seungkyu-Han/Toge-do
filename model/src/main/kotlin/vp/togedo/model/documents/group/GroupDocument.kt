@@ -56,11 +56,11 @@ data class GroupDocument(
         this.members.remove(userId)
         for (groupScheduleElement in groupSchedules){
             if(groupScheduleElement.state != GroupScheduleStateEnum.CONFIRMED){
-                groupScheduleElement.scheduleMember.remove(userId)
+                groupScheduleElement.members.remove(userId)
                 groupScheduleElement.confirmedUser.remove(userId)
             }
             else{
-                groupScheduleElement.scheduleMember.remove(userId)
+                groupScheduleElement.members.remove(userId)
             }
         }
         return this
@@ -88,7 +88,7 @@ data class GroupDocument(
             endDate = endDate,
             startTime = startTime,
             endTime = endTime,
-            scheduleMember = members
+            members = members
         )
         groupSchedules.add(groupScheduleElement)
         return groupScheduleElement
@@ -108,18 +108,18 @@ data class GroupDocument(
     }
 
     /**
-     * 그룹에서 해당 그룹 일정의 인덱스를 탐색
+     * 그룹에서 해당 그룹 일정을 탐색
      * @param groupScheduleId 탐색할 그룹 일정의 object id
-     * @return 해당 그룹 일정의 인덱스
+     * @return 해당 그룹 일정
      * @throws NotFoundGroupScheduleException 해당 그룹 일정을 찾을 수 없음
      */
-    fun findGroupScheduleIndexById(
+    fun findGroupScheduleById(
         groupScheduleId: ObjectId
-    ): Int{
+    ): GroupScheduleElement{
         val index = groupSchedules.indexOfFirst { it.id == groupScheduleId }
         if (index == -1)
             throw NotFoundGroupScheduleException()
-        return index
+        return groupSchedules[index]
     }
 
 }

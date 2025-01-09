@@ -121,7 +121,7 @@ class FlexiblePersonalScheduleController(
                     id = scheduleDao.scheduleId!!.toString(),
                     startTime = scheduleDao.startTime,
                     endTime = scheduleDao.endTime,
-                    title = scheduleDao.title,
+                    name = scheduleDao.name,
                     color = scheduleDao.color
                 )
             }

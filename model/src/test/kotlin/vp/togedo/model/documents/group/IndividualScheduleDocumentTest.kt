@@ -106,7 +106,7 @@ class IndividualScheduleDocumentTest{
         @DisplayName("존재하는 유저를 조회")
         fun findMemberByIdReturnSuccess(){
             //when
-            val result = individualScheduleDocument.findMemberById(userId)
+            val result = individualScheduleDocument.findIndividualScheduleById(userId)
 
             Assertions.assertEquals(individualScheduleDocument.individualScheduleMap[userId], result)
         }
@@ -115,7 +115,7 @@ class IndividualScheduleDocumentTest{
         @DisplayName("존재하지 않는 유저를 조회")
         fun findMemberByIdReturnException(){
             Assertions.assertThrows(NotFoundMemberException::class.java) {
-                individualScheduleDocument.findMemberById(ObjectId.get())
+                individualScheduleDocument.findIndividualScheduleById(ObjectId.get())
             }
         }
     }

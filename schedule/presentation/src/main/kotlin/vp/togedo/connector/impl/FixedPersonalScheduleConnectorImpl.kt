@@ -21,7 +21,7 @@ class FixedPersonalScheduleConnectorImpl(
                     scheduleId = null,
                     startTime = it.startTime,
                     endTime = it.endTime,
-                    title = it.title,
+                    name = it.name,
                     color = it.color
                 )
             }
@@ -40,7 +40,7 @@ class FixedPersonalScheduleConnectorImpl(
                     scheduleId = ObjectId(it.id),
                     startTime = it.startTime,
                     endTime = it.endTime,
-                    title = it.title,
+                    name = it.name,
                     color = it.color
                 )
             }

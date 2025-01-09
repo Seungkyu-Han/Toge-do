@@ -115,7 +115,7 @@ class FixedPersonalScheduleController(
                     id = it.scheduleId!!.toString(),
                     startTime = it.startTime,
                     endTime = it.endTime,
-                    title = it.title,
+                    name = it.name,
                     color = it.color,
                 )
             }

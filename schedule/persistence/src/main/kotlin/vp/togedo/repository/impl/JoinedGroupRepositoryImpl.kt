@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
-import vp.togedo.document.JoinedGroupDocument
+import vp.togedo.model.documents.joinedGroup.JoinedGroupDocument
 import vp.togedo.repository.JoinedGroupRepository
 import vp.togedo.repository.mongo.JoinedGroupMongoRepository
 import java.time.Duration

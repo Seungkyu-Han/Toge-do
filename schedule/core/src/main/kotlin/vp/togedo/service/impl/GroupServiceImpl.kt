@@ -4,11 +4,10 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.scheduler.Schedulers
 import vp.togedo.data.dao.group.GroupDao
 import vp.togedo.data.dao.group.JoinedGroupDao
-import vp.togedo.document.GroupDocument
-import vp.togedo.document.JoinedGroupDocument
+import vp.togedo.model.documents.group.GroupDocument
+import vp.togedo.model.documents.joinedGroup.JoinedGroupDocument
 import vp.togedo.repository.GroupRepository
 import vp.togedo.repository.JoinedGroupRepository
 import vp.togedo.service.GroupService
@@ -45,10 +44,9 @@ class GroupServiceImpl(
     }
 
     override fun addUserToGroup(userId: ObjectId, groupId: ObjectId): Mono<GroupDao> {
-        return groupRepository.findById(groupId)
-            .flatMap {
+        return groupRepository.findById(groupId).
+        flatMap {
                 it.addMember(userId)
-            }.flatMap {
                 groupRepository.save(it)
             }.map{
             GroupDao(
@@ -69,14 +67,12 @@ class GroupServiceImpl(
             .flatMap {
                 group ->
                 group.removeMember(userId)
-                    .publishOn(Schedulers.boundedElastic())
-                    .doOnNext{
-                        removedGroup ->
-                        (if(removedGroup.members.isNotEmpty())
-                            groupRepository.save(removedGroup)
-                        else
-                            groupRepository.delete(removedGroup)).subscribe()
-                    }
+
+                (if(group.members.isNotEmpty())
+                    groupRepository.save(group)
+                else
+                    groupRepository.delete(group))
+                    .thenReturn(group)
             }
             .onErrorMap{
                 when(it){
@@ -94,13 +90,12 @@ class GroupServiceImpl(
     }
 
         override fun addGroupToJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDao> {
-        return joinedGroupRepository.findById(userId)
-            .switchIfEmpty(
-                Mono.defer{joinedGroupRepository.save(JoinedGroupDocument(id = userId))}
-            )
+            return joinedGroupRepository.findById(userId)
+                .switchIfEmpty(
+                    Mono.defer{joinedGroupRepository.save(JoinedGroupDocument(id = userId))}
+                )
             .flatMap{
                 it.addGroup(groupId)
-            }.flatMap{
                 joinedGroupRepository.save(it)
             }.map{
                 JoinedGroupDao(
@@ -118,7 +113,7 @@ class GroupServiceImpl(
 
     override fun removeGroupFromJoinedGroup(userId: ObjectId, groupId: ObjectId): Mono<JoinedGroupDao> {
         return joinedGroupRepository.findById(userId)
-            .flatMap {
+            .map {
                 it.removeGroup(groupId)
             }
             .switchIfEmpty(
@@ -145,10 +140,8 @@ class GroupServiceImpl(
             .switchIfEmpty(
                 Mono.defer{Mono.error(GroupException(ErrorCode.NOT_EXIST_GROUP))}
             )
-            .flatMap{
-                it.changeName(groupDao.name)
-            }
             .flatMap {
+                it.updateGroup(name = groupDao.name)
                 groupRepository.save(it)
             }.map{
                 GroupDao(
