@@ -67,6 +67,47 @@ data class GroupDocument(
     }
 
     /**
+     * 그룹에 공유 일정을 생성
+     * @param name 공유 일정의 이름
+     * @param startDate 공유 일정 시작일의 기간
+     * @param endDate 공유 일정 종료일의 기간
+     * @param startTime 공유 일정 시작 시간 범위
+     * @param endTime 공유 일정 종료 시간 범위
+     * @return 생성된 공유 일정 요소
+     */
+    fun createGroupSchedule(
+        name: String,
+        startDate: String,
+        endDate: String,
+        startTime: String,
+        endTime: String
+    ): GroupScheduleElement {
+        val groupScheduleElement = GroupScheduleElement(
+            name = name,
+            startDate = startDate,
+            endDate = endDate,
+            startTime = startTime,
+            endTime = endTime,
+            scheduleMember = members
+        )
+        groupSchedules.add(groupScheduleElement)
+        return groupScheduleElement
+    }
+
+    /**
+     * 그룹에 공유 일정을 삭제
+     * @param groupScheduleElementId 공유 일정 요소의 아이디
+     * @return 변경된 그룹
+     * @throws NotFoundGroupScheduleException 해당 그룹 일정을 찾을 수 없음
+     */
+    fun deleteGroupScheduleElementById(groupScheduleElementId: ObjectId): GroupDocument{
+        if(groupSchedules.removeIf{it.id == groupScheduleElementId})
+            return this
+        else
+            throw NotFoundGroupScheduleException()
+    }
+
+    /**
      * 그룹에서 해당 그룹 일정의 인덱스를 탐색
      * @param groupScheduleId 탐색할 그룹 일정의 object id
      * @return 해당 그룹 일정의 인덱스
