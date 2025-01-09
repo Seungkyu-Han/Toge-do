@@ -290,4 +290,49 @@ class GroupDocumentTest{
             Assertions.assertEquals(20, result)
         }
     }
+
+    @Nested
+    inner class CreateGroupSchedule{
+        @BeforeEach
+        fun setUp() {
+            groupDocument = GroupDocument(
+                name = UUID.randomUUID().toString(),
+                members = mutableSetOf(userId)
+            )
+        }
+
+        @Test
+        @DisplayName("빈 공유 일정 목록에 새로운 공유 일정을 생성")
+        fun createGroupScheduleInEmptyListReturnSuccess(){
+            //given
+            val name = UUID.randomUUID().toString()
+            val startDate = UUID.randomUUID().toString()
+            val endDate = UUID.randomUUID().toString()
+            val startTime = UUID.randomUUID().toString()
+            val endTime = UUID.randomUUID().toString()
+
+            //when
+            val result = groupDocument.createGroupSchedule(
+                name = name,
+                startDate = startDate,
+                endDate = endDate,
+                startTime = startTime,
+                endTime = endTime
+            )
+
+            //then
+            Assertions.assertEquals(name, result.name)
+            Assertions.assertEquals(startDate, result.startDate)
+            Assertions.assertEquals(endDate, result.endDate)
+            Assertions.assertEquals(startTime, result.startTime)
+            Assertions.assertEquals(endTime, result.endTime)
+            Assertions.assertEquals(result, groupDocument.groupSchedules.last())
+            Assertions.assertTrue{
+                groupDocument.groupSchedules[0].scheduleMember.contains(userId) &&
+                        groupDocument.groupSchedules[0].scheduleMember.size == 1
+            }
+        }
+
+
+    }
 }
