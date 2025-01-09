@@ -3,6 +3,7 @@ package vp.togedo.model.documents.group
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.*
 import vp.togedo.model.exception.group.AlreadyMemberException
+import vp.togedo.model.exception.group.NotFoundMemberException
 
 class IndividualScheduleDocumentTest{
 
@@ -41,10 +42,47 @@ class IndividualScheduleDocumentTest{
 
         @Test
         @DisplayName("존재하는 유저를 추가")
-        fun addMemberExistMemberReturnSuccess(){
+        fun addMemberExistMemberReturnException(){
             //when && then
             Assertions.assertThrows(AlreadyMemberException::class.java) {
                 individualScheduleDocument.addMember(userId)
+            }
+        }
+    }
+
+    @Nested
+    inner class RemoveMember{
+        private val user1 = ObjectId.get()
+
+        @BeforeEach
+        fun setUp() {
+            individualScheduleDocument = IndividualScheduleDocument(
+                id = ObjectId.get(),
+                mutableMapOf(
+                    userId to IndividualScheduleList(),
+                    user1 to IndividualScheduleList()
+                )
+            )
+        }
+
+        @Test
+        @DisplayName("존재하는 유저를 삭제")
+        fun removeMemberExistMemberReturnSuccess(){
+            //given
+
+            //when
+            individualScheduleDocument.removeMember(userId)
+
+            //then
+            Assertions.assertFalse(individualScheduleDocument.individualScheduleMap.containsKey(userId))
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저를 삭제")
+        fun removeMemberNotExistMemberReturnException(){
+            //when && then
+            Assertions.assertThrows(NotFoundMemberException::class.java) {
+                individualScheduleDocument.removeMember(ObjectId.get())
             }
         }
     }
