@@ -47,7 +47,7 @@ data class IndividualScheduleDocument(
      * @return [IndividualScheduleList]
      * @throws NotFoundMemberException 해당 사용자가 존재하지 않습니다.
      */
-    fun findMemberById(userId: ObjectId): IndividualScheduleList {
+    fun findIndividualScheduleById(userId: ObjectId): IndividualScheduleList {
         return individualScheduleMap[userId] ?: throw NotFoundMemberException()
     }
 }

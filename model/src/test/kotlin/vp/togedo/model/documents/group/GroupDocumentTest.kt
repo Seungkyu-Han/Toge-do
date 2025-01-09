@@ -210,7 +210,7 @@ class GroupDocumentTest{
     }
 
     @Nested
-    inner class FindGroupScheduleIndexById{
+    inner class FindGroupScheduleById{
         @BeforeEach
         fun setUp() {
             groupDocument = GroupDocument(
@@ -233,10 +233,10 @@ class GroupDocumentTest{
             groupDocument.groupSchedules.add(groupScheduleElement)
 
             //when
-            val result = groupDocument.findGroupScheduleIndexById(groupScheduleId = groupScheduleElement.id)
+            val result = groupDocument.findGroupScheduleById(groupScheduleId = groupScheduleElement.id)
 
             //then
-            Assertions.assertEquals(0, result)
+            Assertions.assertEquals(groupScheduleElement, result)
         }
 
         @Test
@@ -245,7 +245,7 @@ class GroupDocumentTest{
 
             //when && then
             Assertions.assertThrows(NotFoundGroupScheduleException::class.java) {
-                groupDocument.findGroupScheduleIndexById(groupScheduleId = ObjectId.get())
+                groupDocument.findGroupScheduleById(groupScheduleId = ObjectId.get())
             }
         }
 
@@ -284,10 +284,10 @@ class GroupDocumentTest{
             }
 
             //when
-            val result = groupDocument.findGroupScheduleIndexById(groupScheduleId = groupScheduleElement.id)
+            val result = groupDocument.findGroupScheduleById(groupScheduleId = groupScheduleElement.id)
 
             //then
-            Assertions.assertEquals(20, result)
+            Assertions.assertEquals(groupScheduleElement, result)
         }
     }
 

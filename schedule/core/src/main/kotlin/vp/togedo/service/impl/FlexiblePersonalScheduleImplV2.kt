@@ -5,8 +5,8 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import vp.togedo.data.dao.personalSchedule.FlexibleScheduleDao
-import vp.togedo.document.PersonalScheduleDocument
-import vp.togedo.document.Schedule
+import vp.togedo.model.documents.personalSchedule.PersonalScheduleDocument
+import vp.togedo.model.documents.personalSchedule.PersonalScheduleElement
 import vp.togedo.repository.PersonalScheduleRepository
 import vp.togedo.service.FlexiblePersonalScheduleService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -27,23 +27,23 @@ class FlexiblePersonalScheduleImplV2(
     ): List<FlexibleScheduleDao> {
         println(userId)
         val personalSchedule = personalScheduleRepository.findByUserId(userId)
-            .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
+            .awaitSingleOrNull() ?: PersonalScheduleDocument(id = userId)
 
         try{
             val createdScheduleDaoList = flexibleScheduleDaoList.map {
                 flexibleScheduleDao ->
-                val schedule = Schedule(
+                val personalScheduleElement = PersonalScheduleElement(
                     id = ObjectId.get(),
                     startTime = flexibleScheduleDao.startTime,
                     endTime = flexibleScheduleDao.endTime,
-                    title = flexibleScheduleDao.title,
+                    name = flexibleScheduleDao.name,
                     color = flexibleScheduleDao.color
                 )
 
-                personalSchedule.addFlexibleSchedule(schedule).awaitSingle()
+                personalSchedule.addFlexiblePersonalScheduleElement(personalScheduleElement)
 
                 flexibleScheduleDao.copy(
-                    scheduleId = schedule.id
+                    scheduleId = personalScheduleElement.id
                 )
             }
 
@@ -64,14 +64,14 @@ class FlexiblePersonalScheduleImplV2(
 
     override suspend fun readSchedule(userId: ObjectId): List<FlexibleScheduleDao> {
         val personalSchedule = personalScheduleRepository.findByUserId(userId)
-            .awaitSingleOrNull() ?: PersonalScheduleDocument(userId = userId)
+            .awaitSingleOrNull() ?: PersonalScheduleDocument(id = userId)
 
         return personalSchedule.flexibleSchedules.map{
             FlexibleScheduleDao(
                 scheduleId = it.id,
                 startTime = it.startTime,
                 endTime = it.endTime,
-                title = it.title,
+                name = it.name,
                 color = it.color
             )
         }
@@ -86,15 +86,15 @@ class FlexiblePersonalScheduleImplV2(
 
         try{
             flexibleScheduleDaoList.forEach {
-                personalSchedule.modifyFlexibleSchedule(
-                    Schedule(
+                personalSchedule.modifyFixedPersonalScheduleElement(
+                    PersonalScheduleElement(
                         id = it.scheduleId!!,
                         startTime = it.startTime,
                         endTime = it.endTime,
-                        title = it.title,
+                        name = it.name,
                         color = it.color,
                     )
-                ).awaitSingle()
+                )
             }
 
             personalScheduleRepository.save(personalSchedule).awaitSingle()
@@ -111,7 +111,7 @@ class FlexiblePersonalScheduleImplV2(
 
         try{
             scheduleIdList.forEach {
-                personalSchedule.deleteFlexibleScheduleById(it).awaitSingle()
+                personalSchedule.deleteFlexiblePersonalScheduleElementById(it)
             }
         }catch(e: ScheduleNotFoundException){
             throw ScheduleException(ErrorCode.SCHEDULE_NOT_FOUND)
