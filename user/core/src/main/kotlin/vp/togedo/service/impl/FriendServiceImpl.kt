@@ -4,8 +4,8 @@ import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import vp.togedo.model.documents.user.UserDocument
 import vp.togedo.repository.UserRepository
-import vp.togedo.document.UserDocument
 import vp.togedo.service.FriendService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.FriendException
@@ -35,7 +35,7 @@ class FriendServiceImpl(
      */
     override fun requestFriend(userId: ObjectId, friendUserDocument: UserDocument): Mono<UserDocument> {
         try{
-            friendUserDocument.requestFriend(userId)
+            friendUserDocument.addFriendRequest(userId)
         }catch(e: AlreadyFriendException){
             return Mono.error(FriendException(
                 errorCode = ErrorCode.ALREADY_FRIEND, state = 0
@@ -56,10 +56,8 @@ class FriendServiceImpl(
      */
     override fun removeFriend(userId: ObjectId, friendId: ObjectId): Mono<UserDocument> {
         return userRepository.findById(userId)
-            .flatMap {
-                it.removeFriend(friendId)
-            }
             .flatMap{
+                it.removeFriend(friendId)
                 userRepository.save(it)
             }.onErrorMap{
                 when(it){
@@ -80,9 +78,7 @@ class FriendServiceImpl(
     override fun approveFriend(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument> {
         return userRepository.findById(receiverId)
             .flatMap {
-                it.approveFriend(senderId)
-            }
-            .flatMap {
+                it.approveFriendRequest(senderId)
                 userRepository.save(it)
             }.onErrorMap {
                 when(it){
@@ -97,9 +93,7 @@ class FriendServiceImpl(
     override fun rejectRequest(receiverId: ObjectId, senderId: ObjectId): Mono<UserDocument> {
         return userRepository.findById(receiverId)
             .flatMap {
-                it.removeRequest(senderId)
-            }
-            .flatMap {
+                it.removeFriendRequest(senderId)
                 userRepository.save(it)
             }
             .onErrorMap {
@@ -122,8 +116,6 @@ class FriendServiceImpl(
         return userRepository.findById(receiverId)
             .flatMap {
                 it.addFriend(senderId)
-            }
-            .flatMap {
                 userRepository.save(it)
             }.onErrorMap {
                 if (it is AlreadyFriendException)

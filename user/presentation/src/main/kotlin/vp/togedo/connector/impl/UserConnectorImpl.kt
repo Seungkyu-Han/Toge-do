@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import reactor.core.scheduler.Schedulers
 import vp.togedo.connector.UserConnector
-import vp.togedo.document.UserDocument
 import vp.togedo.dto.user.LoginRes
 import vp.togedo.dto.user.UserInfoReqDto
 import vp.togedo.dto.user.UserInfoResDto
 import vp.togedo.enums.OauthEnum
+import vp.togedo.model.documents.user.UserDocument
 import vp.togedo.service.GoogleService
 import vp.togedo.service.KakaoService
 import vp.togedo.service.S3Service
@@ -69,8 +69,8 @@ class UserConnectorImpl(
             }
             .map {
                 LoginRes(
-                    accessToken = userService.createJwtAccessToken(it.id!!),
-                    refreshToken = userService.createJwtRefreshToken(it.id!!)
+                    accessToken = userService.createJwtAccessToken(it.id),
+                    refreshToken = userService.createJwtRefreshToken(it.id)
                 )
             }
 
@@ -100,8 +100,8 @@ class UserConnectorImpl(
             }
             .map {
                 LoginRes(
-                    accessToken = userService.createJwtAccessToken(it.id!!),
-                    refreshToken = userService.createJwtRefreshToken(it.id!!)
+                    accessToken = userService.createJwtAccessToken(it.id),
+                    refreshToken = userService.createJwtRefreshToken(it.id)
                 )
             }
 

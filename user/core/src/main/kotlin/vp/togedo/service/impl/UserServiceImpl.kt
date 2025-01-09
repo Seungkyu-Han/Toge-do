@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
 import vp.togedo.repository.UserRepository
-import vp.togedo.document.Oauth
-import vp.togedo.document.UserDocument
 import vp.togedo.enums.OauthEnum
+import vp.togedo.model.documents.user.Oauth
+import vp.togedo.model.documents.user.UserDocument
 import vp.togedo.security.config.JwtTokenProvider
 import vp.togedo.service.UserService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -95,7 +95,6 @@ class UserServiceImpl(
         )
 
         val user = UserDocument(
-            id = null,
             oauth = oauth,
             name = name ?: "사용자${(100..999).random()}",
             email = email,

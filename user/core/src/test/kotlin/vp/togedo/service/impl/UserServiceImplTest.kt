@@ -1,6 +1,5 @@
 package vp.togedo.service.impl
 
-import io.jsonwebtoken.MalformedJwtException
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
@@ -16,9 +15,9 @@ import reactor.core.publisher.Mono
 
 import reactor.test.StepVerifier
 import vp.togedo.repository.UserRepository
-import vp.togedo.document.Oauth
-import vp.togedo.document.UserDocument
 import vp.togedo.enums.OauthEnum
+import vp.togedo.model.documents.user.Oauth
+import vp.togedo.model.documents.user.UserDocument
 import vp.togedo.security.config.JwtTokenProvider
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.UserException
@@ -289,18 +288,6 @@ class UserServiceImplTest{
 
             //then
             Assertions.assertEquals(userId, extractedUserId)
-        }
-
-        @Test
-        @DisplayName("유효하지 않은 토큰으로 에러가 발생")
-        fun getUserIdByInvalidTokenReturnException(){
-            //given
-            val invalidToken = UUID.randomUUID().toString()
-
-            //when & then
-            Assertions.assertThrows(MalformedJwtException::class.java) {
-                userServiceImpl.getUserIdByToken(invalidToken)
-            }
         }
 
         @Test

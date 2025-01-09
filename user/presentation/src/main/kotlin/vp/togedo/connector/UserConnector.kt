@@ -2,10 +2,10 @@ package vp.togedo.connector
 
 import org.bson.types.ObjectId
 import reactor.core.publisher.Mono
-import vp.togedo.document.UserDocument
 import vp.togedo.dto.user.LoginRes
 import vp.togedo.dto.user.UserInfoReqDto
 import vp.togedo.dto.user.UserInfoResDto
+import vp.togedo.model.documents.user.UserDocument
 
 interface UserConnector {
 

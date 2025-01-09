@@ -13,9 +13,9 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import vp.togedo.model.documents.user.Oauth
+import vp.togedo.model.documents.user.UserDocument
 import vp.togedo.repository.UserRepository
-import vp.togedo.document.Oauth
-import vp.togedo.document.UserDocument
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.FriendException
 import java.util.*
@@ -134,10 +134,10 @@ class FriendServiceImplTest{
                 id = ObjectId.get(),
                 oauth = Oauth(),
                 name = UUID.randomUUID().toString(),
-                friendRequests = mutableSetOf(senderDocument.id!!),
+                friendRequests = mutableSetOf(senderDocument.id),
             )
 
-            `when`(userRepository.findById(receiverDocument.id!!))
+            `when`(userRepository.findById(receiverDocument.id))
                 .thenReturn(Mono.just(receiverDocument))
 
             `when`(userRepository.save(receiverDocument))
@@ -145,17 +145,17 @@ class FriendServiceImplTest{
 
             //when
             StepVerifier.create(friendService.approveFriend(
-                receiverId = receiverDocument.id!!,
-                senderId = senderDocument.id!!,
+                receiverId = receiverDocument.id,
+                senderId = senderDocument.id,
             )).expectNextMatches{
                 it == receiverDocument
             }.verifyComplete()
 
             //then
-            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+            verify(userRepository, times(1)).findById(receiverDocument.id)
             verify(userRepository, times(1)).save(receiverDocument)
-            Assertions.assertFalse(receiverDocument.friendRequests.contains(senderDocument.id!!))
-            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id!!))
+            Assertions.assertFalse(receiverDocument.friendRequests.contains(senderDocument.id))
+            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id))
         }
 
         @Test
@@ -172,22 +172,22 @@ class FriendServiceImplTest{
                 id = ObjectId.get(),
                 oauth = Oauth(),
                 name = UUID.randomUUID().toString(),
-                friends = mutableSetOf(senderDocument.id!!),
+                friends = mutableSetOf(senderDocument.id),
             )
 
-            `when`(userRepository.findById(receiverDocument.id!!))
+            `when`(userRepository.findById(receiverDocument.id))
                 .thenReturn(Mono.just(receiverDocument))
 
             //when
             StepVerifier.create(friendService.approveFriend(
-                receiverId = receiverDocument.id!!,
-                senderId = senderDocument.id!!,
+                receiverId = receiverDocument.id,
+                senderId = senderDocument.id,
             )).expectErrorMatches {
                 it is FriendException && it.errorCode == ErrorCode.ALREADY_FRIEND
             }.verify()
 
             //then
-            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+            verify(userRepository, times(1)).findById(receiverDocument.id)
         }
 
 
@@ -207,19 +207,19 @@ class FriendServiceImplTest{
                 name = UUID.randomUUID().toString()
             )
 
-            `when`(userRepository.findById(receiverDocument.id!!))
+            `when`(userRepository.findById(receiverDocument.id))
                 .thenReturn(Mono.just(receiverDocument))
 
             //when
             StepVerifier.create(friendService.approveFriend(
-                receiverId = receiverDocument.id!!,
-                senderId = senderDocument.id!!,
+                receiverId = receiverDocument.id,
+                senderId = senderDocument.id,
             )).expectErrorMatches {
                 it is FriendException && it.errorCode == ErrorCode.NO_REQUESTED
             }.verify()
 
             //then
-            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+            verify(userRepository, times(1)).findById(receiverDocument.id)
         }
     }
 
@@ -241,7 +241,7 @@ class FriendServiceImplTest{
                 name = UUID.randomUUID().toString(),
             )
 
-            `when`(userRepository.findById(receiverDocument.id!!))
+            `when`(userRepository.findById(receiverDocument.id))
                 .thenReturn(Mono.just(receiverDocument))
 
             `when`(userRepository.save(receiverDocument))
@@ -249,16 +249,16 @@ class FriendServiceImplTest{
 
             //when
             StepVerifier.create(friendService.addFriend(
-                receiverId = receiverDocument.id!!,
-                senderId = senderDocument.id!!,
+                receiverId = receiverDocument.id,
+                senderId = senderDocument.id,
             )).expectNextMatches{
                 it == receiverDocument
             }.verifyComplete()
 
             //then
-            verify(userRepository, times(1)).findById(receiverDocument.id!!)
+            verify(userRepository, times(1)).findById(receiverDocument.id)
             verify(userRepository, times(1)).save(receiverDocument)
-            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id!!))
+            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id))
         }
 
         @Test
@@ -275,10 +275,10 @@ class FriendServiceImplTest{
                 id = ObjectId.get(),
                 oauth = Oauth(),
                 name = UUID.randomUUID().toString(),
-                friends = mutableSetOf(senderDocument.id!!),
+                friends = mutableSetOf(senderDocument.id),
             )
 
-            `when`(userRepository.findById(receiverDocument.id!!))
+            `when`(userRepository.findById(receiverDocument.id))
                 .thenReturn(Mono.just(receiverDocument))
 
             `when`(userRepository.save(receiverDocument))
@@ -286,15 +286,15 @@ class FriendServiceImplTest{
 
             //when
             StepVerifier.create(friendService.addFriend(
-                receiverId = receiverDocument.id!!,
-                senderId = senderDocument.id!!,
+                receiverId = receiverDocument.id,
+                senderId = senderDocument.id,
             )).expectErrorMatches{
                 it is FriendException && it.errorCode == ErrorCode.ALREADY_FRIEND
             }.verify()
 
             //then
-            verify(userRepository, times(1)).findById(receiverDocument.id!!)
-            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id!!))
+            verify(userRepository, times(1)).findById(receiverDocument.id)
+            Assertions.assertTrue(receiverDocument.friends.contains(senderDocument.id))
         }
     }
 
@@ -313,7 +313,7 @@ class FriendServiceImplTest{
                 friends = mutableSetOf(friendId)
             )
 
-            `when`(userRepository.findById(userDocument.id!!))
+            `when`(userRepository.findById(userDocument.id))
                 .thenReturn(Mono.just(userDocument))
 
             `when`(userRepository.save(userDocument))
@@ -321,7 +321,7 @@ class FriendServiceImplTest{
 
             //when
             StepVerifier.create(friendService.removeFriend(
-                userId = userDocument.id!!,
+                userId = userDocument.id,
                 friendId = friendId))
                 .expectNextMatches {
                     it == userDocument
@@ -330,7 +330,7 @@ class FriendServiceImplTest{
             //then
             Assertions.assertFalse(userDocument.friends.contains(friendId))
 
-            verify(userRepository, times(1)).findById(userDocument.id!!)
+            verify(userRepository, times(1)).findById(userDocument.id)
             verify(userRepository, times(1)).save(userDocument)
         }
 
@@ -347,12 +347,12 @@ class FriendServiceImplTest{
                 friends = mutableSetOf()
             )
 
-            `when`(userRepository.findById(userDocument.id!!))
+            `when`(userRepository.findById(userDocument.id))
                 .thenReturn(Mono.just(userDocument))
 
             //when
             StepVerifier.create(friendService.removeFriend(
-                userId = userDocument.id!!,
+                userId = userDocument.id,
                 friendId = friendId))
                 .expectErrorMatches {
                     it is FriendException && it.errorCode == ErrorCode.NOT_FRIEND
@@ -361,7 +361,7 @@ class FriendServiceImplTest{
             //then
             Assertions.assertFalse(userDocument.friends.contains(friendId))
 
-            verify(userRepository, times(1)).findById(userDocument.id!!)
+            verify(userRepository, times(1)).findById(userDocument.id)
         }
     }
 
@@ -382,10 +382,10 @@ class FriendServiceImplTest{
                 id = ObjectId.get(),
                 oauth = Oauth(),
                 name = UUID.randomUUID().toString(),
-                friendRequests = mutableSetOf(senderDocument.id!!),
+                friendRequests = mutableSetOf(senderDocument.id),
             )
 
-            `when`(userRepository.findById(receiveDocument.id!!))
+            `when`(userRepository.findById(receiveDocument.id))
                 .thenReturn(Mono.just(receiveDocument))
 
             `when`(userRepository.save(receiveDocument))
@@ -393,15 +393,15 @@ class FriendServiceImplTest{
 
             //when
             StepVerifier.create(friendService.rejectRequest(
-                receiverId = receiveDocument.id!!,
-                senderId = senderDocument.id!!,
+                receiverId = receiveDocument.id,
+                senderId = senderDocument.id,
             )).expectNextMatches {
                 it == receiveDocument
             }.verifyComplete()
 
             //then
-            Assertions.assertFalse(receiveDocument.friends.contains(senderDocument.id!!))
-            verify(userRepository, times(1)).findById(receiveDocument.id!!)
+            Assertions.assertFalse(receiveDocument.friends.contains(senderDocument.id))
+            verify(userRepository, times(1)).findById(receiveDocument.id)
             verify(userRepository, times(1)).save(receiveDocument)
         }
 
@@ -423,20 +423,20 @@ class FriendServiceImplTest{
                 friendRequests = mutableSetOf(),
             )
 
-            `when`(userRepository.findById(receiveDocument.id!!))
+            `when`(userRepository.findById(receiveDocument.id))
                 .thenReturn(Mono.just(receiveDocument))
 
             //when
             StepVerifier.create(friendService.rejectRequest(
-                receiverId = receiveDocument.id!!,
-                senderId = senderDocument.id!!,
+                receiverId = receiveDocument.id,
+                senderId = senderDocument.id,
             )).expectErrorMatches {
                 it is FriendException && it.errorCode == ErrorCode.NO_REQUESTED
             }.verify()
 
             //then
-            Assertions.assertFalse(receiveDocument.friends.contains(senderDocument.id!!))
-            verify(userRepository, times(1)).findById(receiveDocument.id!!)
+            Assertions.assertFalse(receiveDocument.friends.contains(senderDocument.id))
+            verify(userRepository, times(1)).findById(receiveDocument.id)
         }
     }
 }

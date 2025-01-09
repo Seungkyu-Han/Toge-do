@@ -13,6 +13,9 @@ dependencies {
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
+    //MODEL
+    implementation(project(":model"))
+
     //MONGODB
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
