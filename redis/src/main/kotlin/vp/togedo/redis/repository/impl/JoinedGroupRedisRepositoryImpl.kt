@@ -3,12 +3,14 @@ package vp.togedo.redis.repository.impl
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.bson.types.ObjectId
 import org.springframework.data.redis.core.ReactiveRedisTemplate
+import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 import vp.togedo.model.documents.joinedGroup.JoinedGroupDocument
 import vp.togedo.redis.config.ObjectIdModule
 import vp.togedo.redis.repository.JoinedGroupRedisRepository
 import java.time.Duration
 
+@Repository
 class JoinedGroupRedisRepositoryImpl(
     private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>,
     private val objectMapper: ObjectMapper
