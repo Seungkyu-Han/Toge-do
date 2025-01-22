@@ -26,8 +26,8 @@ import java.util.UUID
 @ContextConfiguration(classes = [PersonalScheduleRedisRepositoryImpl::class, ObjectMapper::class])
 class PersonalScheduleRedisRepositoryImplTest{
 
-    private val personalScheduleRedisDuration = Duration.ofMinutes(20)
-    private val personalSchedulePrefix = "personalSchedule:document:"
+    private lateinit var personalScheduleRedisDuration: Duration
+    private lateinit var personalSchedulePrefix: String
 
     @MockBean
     private lateinit var reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
@@ -48,6 +48,8 @@ class PersonalScheduleRedisRepositoryImplTest{
         )
         `when`(reactiveRedisTemplate.opsForValue())
             .thenReturn(reactiveValueOperations)
+        personalSchedulePrefix = personalScheduleRedisRepository.personalSchedulePrefix
+        personalScheduleRedisDuration = personalScheduleRedisRepository.personalScheduleRedisDuration
     }
 
     @Nested

@@ -20,8 +20,8 @@ class JoinedGroupRedisRepositoryImpl(
         this.objectMapper.registerModule(ObjectIdModule())
     }
 
-    private val joinedGroupRedisDuration = Duration.ofMinutes(20)
-    private val joinedGroupPrefix = "joinedGroup:document:"
+    val joinedGroupRedisDuration:Duration = Duration.ofMinutes(20)
+    val joinedGroupPrefix = "joinedGroup:document:"
 
     override fun findById(id: ObjectId): Mono<JoinedGroupDocument> =
         reactiveRedisTemplate.opsForValue()

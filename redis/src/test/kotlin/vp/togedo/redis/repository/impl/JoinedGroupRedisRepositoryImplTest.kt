@@ -24,8 +24,8 @@ import java.time.Duration
 @ContextConfiguration(classes = [JoinedGroupRedisRepositoryImpl::class, ObjectMapper::class])
 class JoinedGroupRedisRepositoryImplTest{
 
-    private val joinedGroupRedisDuration = Duration.ofMinutes(20)
-    private val joinedGroupPrefix = "joinedGroup:document:"
+    private lateinit var joinedGroupRedisDuration: Duration
+    private lateinit var joinedGroupPrefix: String
 
     @MockBean
     private lateinit var reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
@@ -46,6 +46,8 @@ class JoinedGroupRedisRepositoryImplTest{
         )
         `when`(reactiveRedisTemplate.opsForValue())
             .thenReturn(reactiveValueOperations)
+        joinedGroupRedisDuration = joinedGroupRedisRepository.joinedGroupRedisDuration
+        joinedGroupPrefix = joinedGroupRedisRepository.joinedGroupPrefix
     }
 
     @Nested

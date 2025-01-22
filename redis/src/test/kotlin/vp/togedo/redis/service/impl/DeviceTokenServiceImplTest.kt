@@ -20,7 +20,7 @@ import java.util.*
 @ContextConfiguration(classes = [DeviceTokenServiceImpl::class])
 class DeviceTokenServiceImplTest{
 
-    private val deviceTokenPrefix = "deviceToken:"
+    private lateinit var deviceTokenPrefix: String
 
     @MockBean
     private lateinit var reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
@@ -37,6 +37,7 @@ class DeviceTokenServiceImplTest{
         )
         `when`(reactiveRedisTemplate.opsForValue())
             .thenReturn(reactiveValueOperations)
+        deviceTokenPrefix = deviceTokenService.deviceTokenPrefix
     }
 
     @Nested

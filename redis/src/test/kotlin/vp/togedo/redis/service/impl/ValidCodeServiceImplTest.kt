@@ -20,9 +20,6 @@ import java.util.*
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [ValidCodeServiceImpl::class])
 class ValidCodeServiceImplTest{
-
-    private val validCodePrefix = "email:validation:"
-
     @MockBean
     private lateinit var reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
 
@@ -31,6 +28,8 @@ class ValidCodeServiceImplTest{
 
     private lateinit var validCodeService: ValidCodeServiceImpl
 
+    private lateinit var validCodePrefix: String
+
     @BeforeEach
     fun setUp() {
         validCodeService = ValidCodeServiceImpl(
@@ -38,6 +37,8 @@ class ValidCodeServiceImplTest{
         )
         `when`(reactiveRedisTemplate.opsForValue())
             .thenReturn(reactiveValueOperations)
+
+        validCodePrefix = validCodeService.validCodePrefix
     }
 
     @Nested
