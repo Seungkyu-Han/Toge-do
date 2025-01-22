@@ -10,11 +10,16 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":model"))
+
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     //REDIS
     implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.2")
+
+    //MONGODB
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
     //COROUTINE
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
