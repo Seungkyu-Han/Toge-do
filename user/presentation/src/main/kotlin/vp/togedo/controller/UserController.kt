@@ -113,11 +113,11 @@ class UserController(
         ApiResponse(responseCode = "200", description = "이메일 전송 성공",
             content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE)])
     )
-    suspend fun requestValidCode(
+    fun requestValidCode(
         @RequestBody validCodeReqDto: ValidCodeReqDto
-    ): ResponseEntity<HttpStatus>{
-        emailConnector.requestValidCode(validCodeReqDto.email)
-        return ResponseEntity.ok().build()
+    ): Mono<ResponseEntity<HttpStatus>>{
+        return emailConnector.requestValidCode(validCodeReqDto.email)
+            .thenReturn(ResponseEntity.ok().build())
     }
 
     @GetMapping("/check-valid")
@@ -131,12 +131,14 @@ class UserController(
             content = [Content(schema = Schema(implementation = CheckValidResDto::class),
                 mediaType = MediaType.APPLICATION_JSON_VALUE)])
     )
-    suspend fun checkValidCode(
+    fun checkValidCode(
         @RequestParam code: String,
-        @RequestParam email: String): ResponseEntity<CheckValidResDto>{
-        return ResponseEntity.ok()
-            .body(CheckValidResDto(result = emailConnector.checkValidCode(code = code, email = email)))
-    }
+        @RequestParam email: String): Mono<ResponseEntity<CheckValidResDto>> =
+        emailConnector.checkValidCode(code = code, email = email)
+            .map {
+                ResponseEntity.ok().body(CheckValidResDto(it))
+            }
+
 
     @PatchMapping("/send-notification")
     @Operation(summary = "앱 푸쉬 알림 동의 여부")

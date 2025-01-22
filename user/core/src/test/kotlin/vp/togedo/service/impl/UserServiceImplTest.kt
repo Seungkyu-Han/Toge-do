@@ -8,7 +8,6 @@ import org.mockito.kotlin.any
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.dao.DuplicateKeyException
-import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
@@ -33,15 +32,13 @@ class UserServiceImplTest{
     @MockBean
     private lateinit var userRepository: UserRepository
 
-    @MockBean
-    private lateinit var reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
 
     private lateinit var userServiceImpl: UserServiceImpl
 
     @BeforeEach
     fun setUp() {
         userServiceImpl = UserServiceImpl(
-            jwtTokenProvider, userRepository, reactiveRedisTemplate)
+            jwtTokenProvider, userRepository)
     }
 
     @Nested

@@ -1,33 +1,41 @@
 package vp.togedo.connector.impl
 
-import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Mono
 import vp.togedo.connector.EmailConnector
 import vp.togedo.kafka.data.email.ValidCodeEventDto
 import vp.togedo.kafka.service.EmailKafkaService
-import vp.togedo.service.EmailService
+import vp.togedo.redis.service.ValidCodeService
+import vp.togedo.util.ValidationUtil
 
 @Service
 class EmailConnectorImpl(
-    private val emailService: EmailService,
-    private val emailKafkaService: EmailKafkaService
+    private val validCodeService: ValidCodeService,
+    private val emailKafkaService: EmailKafkaService,
+    private val validationUtil: ValidationUtil
 ): EmailConnector {
 
-    override suspend fun requestValidCode(email: String){
+    override fun requestValidCode(email: String): Mono<Void> {
 
-        val code = emailService.createValidationCode(email).awaitSingle()
+        val code = validationUtil.verificationCode()
 
-        emailKafkaService.publishSendValidCodeEvent(
-            ValidCodeEventDto(
-                code = code,
-                email = email
+        return validCodeService.saveCodeByEmail(
+            email = email,
+            code = code,
+        ).then(
+            emailKafkaService.publishSendValidCodeEvent(
+                ValidCodeEventDto(
+                    code = code,
+                    email = email
+                )
             )
-        ).awaitSingle()
+        ).then()
     }
 
-    override suspend fun checkValidCode(code: String, email: String): Boolean {
-        return emailService.checkValidEmail(
-            code = code, email = email
-        ).awaitSingle()
+    override fun checkValidCode(code: String, email: String): Mono<Boolean> {
+        return validCodeService.findCodeByEmail(email)
+            .map{
+                it == code
+            }
     }
 }

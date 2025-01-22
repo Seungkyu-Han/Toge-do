@@ -38,6 +38,4 @@ interface UserService {
     fun findUserByEmail(email: String): Mono<UserDocument>
 
     fun saveUser(userDocument: UserDocument): Mono<UserDocument>
-
-    fun saveDeviceTokenToRedis(userDocument: UserDocument): Mono<UserDocument>
 }

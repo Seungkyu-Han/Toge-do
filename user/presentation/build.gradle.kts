@@ -9,14 +9,13 @@ repositories {
     mavenCentral()
 }
 
-
-
 dependencies {
     //PROJECT
     implementation(project(":user:core"))
     implementation(project(":user:persistence"))
     implementation(project(":kafka"))
     implementation(project(":model"))
+    implementation(project(":redis"))
 
 
     //WEBFLUX
