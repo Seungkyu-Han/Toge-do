@@ -9,8 +9,8 @@ import com.google.firebase.messaging.Notification
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Service
+import vp.togedo.redis.service.DeviceTokenService
 import vp.togedo.service.FCMService
 import java.io.FileInputStream
 
@@ -18,10 +18,8 @@ import java.io.FileInputStream
 class FCMServiceImpl(
     @Value("\${FCM.CREDENTIALS}")
     private val credentials: String,
-    private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
+    private val deviceTokenService: DeviceTokenService
 ): FCMService {
-
-    private val deviceTokenPrefix = "deviceToken:"
 
     init{
         val serviceAccount = FileInputStream(credentials)
@@ -39,7 +37,7 @@ class FCMServiceImpl(
                 .setBody(content)
                 .build()
 
-            val deviceToken = reactiveRedisTemplate.opsForValue().get("$deviceTokenPrefix$userId").awaitSingleOrNull()
+            val deviceToken = deviceTokenService.findById(id = userId).awaitSingleOrNull()
 
             if(deviceToken != null) {
                 println("This is deviceToken: $deviceToken")
