@@ -1,9 +1,11 @@
 package vp.togedo.connector
 
+import reactor.core.publisher.Mono
+
 
 interface EmailConnector {
 
-    suspend fun requestValidCode(email: String)
+    fun requestValidCode(email: String): Mono<Void>
 
-    suspend fun checkValidCode(code: String, email: String): Boolean
+    fun checkValidCode(code: String, email: String): Mono<Boolean>
 }

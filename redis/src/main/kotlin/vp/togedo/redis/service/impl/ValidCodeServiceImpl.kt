@@ -11,7 +11,7 @@ class ValidCodeServiceImpl(
     private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>,
 ): ValidCodeService {
 
-    private val validCodePrefix = "email:validation:"
+    val validCodePrefix = "email:validation:"
 
     override fun saveCodeByEmail(email: String, code: String): Mono<Void> =
         reactiveRedisTemplate.opsForValue()

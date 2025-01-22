@@ -10,7 +10,7 @@ class DeviceTokenServiceImpl(
     private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>
 ): DeviceTokenService {
 
-    private val deviceTokenPrefix = "deviceToken:"
+    val deviceTokenPrefix = "deviceToken:"
 
     override fun saveDeviceToken(id: String, deviceToken: String): Mono<Void> =
         reactiveRedisTemplate.opsForValue()

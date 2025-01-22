@@ -13,6 +13,7 @@ import vp.togedo.dto.user.UserInfoReqDto
 import vp.togedo.dto.user.UserInfoResDto
 import vp.togedo.enums.OauthEnum
 import vp.togedo.model.documents.user.UserDocument
+import vp.togedo.redis.service.DeviceTokenService
 import vp.togedo.service.GoogleService
 import vp.togedo.service.KakaoService
 import vp.togedo.service.S3Service
@@ -26,6 +27,7 @@ class UserConnectorImpl(
     private val kakaoService: KakaoService,
     private val googleService: GoogleService,
     private val s3Service: S3Service,
+    private val deviceTokenService: DeviceTokenService
 ): UserConnector {
 
     override fun extractUserIdByToken(token: String?): ObjectId{
@@ -165,7 +167,16 @@ class UserConnectorImpl(
                 userService.saveUser(it)
             }.publishOn(Schedulers.boundedElastic())
             .doOnSuccess {
-                userService.saveDeviceTokenToRedis(it).subscribe()
+                if (isAgree){
+                    deviceTokenService.saveDeviceToken(
+                        id = id.toString(),
+                        deviceToken = deviceToken
+                    ).subscribe()
+                }else{
+                    deviceTokenService.deleteById(
+                        id = id.toString()
+                    ).subscribe()
+                }
             }
     }
 }

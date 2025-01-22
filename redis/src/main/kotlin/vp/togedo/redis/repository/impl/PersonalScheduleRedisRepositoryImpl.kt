@@ -20,8 +20,8 @@ class PersonalScheduleRedisRepositoryImpl(
         this.objectMapper.registerModule(ObjectIdModule())
     }
 
-    private val personalScheduleRedisDuration = Duration.ofMinutes(20)
-    private val personalSchedulePrefix = "personalSchedule:document:"
+    val personalScheduleRedisDuration:Duration = Duration.ofMinutes(20)
+    val personalSchedulePrefix = "personalSchedule:document:"
 
     override fun findById(id: ObjectId): Mono<PersonalScheduleDocument> =
         reactiveRedisTemplate.opsForValue()
