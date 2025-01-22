@@ -16,6 +16,9 @@ dependencies {
     //REDIS
     implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.2")
 
+    //MONGODB
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+
     //COROUTINE
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
