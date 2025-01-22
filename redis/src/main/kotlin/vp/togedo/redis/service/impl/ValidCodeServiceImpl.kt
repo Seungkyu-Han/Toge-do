@@ -1,9 +1,9 @@
-package vp.togedo.redis.validCode.impl
+package vp.togedo.redis.service.impl
 
 import org.springframework.data.redis.core.ReactiveRedisTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import vp.togedo.redis.validCode.ValidCodeService
+import vp.togedo.redis.service.ValidCodeService
 import java.time.Duration
 
 @Service
