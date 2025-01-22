@@ -10,6 +10,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":model"))
+
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
