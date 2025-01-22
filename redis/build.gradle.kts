@@ -10,32 +10,29 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":redis"))
+    implementation(project(":model"))
 
     //WEBFLUX
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    //REFLECT
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    //REDIS
+    implementation ("org.springframework.boot:spring-boot-starter-data-redis-reactive:3.1.2")
 
-    //MAIL
-    implementation("org.springframework.boot:spring-boot-starter-mail:3.4.0")
-
-    //KAFKA
-    implementation(project(":kafka"))
-    implementation("io.projectreactor.kafka:reactor-kafka")
-    implementation("org.springframework.kafka:spring-kafka")
-
-    //FCM
-    implementation("com.google.firebase:firebase-admin:9.4.2")
-
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
+    //MONGODB
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
     //COROUTINE
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3")
+
+    //TEST
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    testImplementation("io.projectreactor:reactor-test")
+    testImplementation ("org.mockito:mockito-core")
 }
 
 tasks.test {

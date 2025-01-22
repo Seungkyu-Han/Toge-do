@@ -41,7 +41,7 @@ class FriendController(
             friendConnector.getFriendsInfo(idConfig.objectIdProvider(userId))
                 .map{
                     FriendInfoResDto(
-                        id = it.id!!.toString(),
+                        id = it.id.toString(),
                         name = it.name,
                         image = it.profileImageUrl,
                         email = it.email,

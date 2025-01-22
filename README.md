@@ -42,12 +42,30 @@
 <img src="https://img.shields.io/badge/swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white" alt="SWAGGER">
 
 ---
-### 데이터베이스 설계(2025.01.05)
+### 데이터베이스 설계(2025.01.21)
 ##### MongoDB
 ![](image/database.png)
 
 ---
 ### 기록
+##### 스프린트 12 (redis module 리펙토링)
+기간: 2025.01.20-2025.01.22
+
+![](image/스프린트12.png)
+
+- redis module 리펙토링
+
+<br>
+
+##### 스프린트 11 (model module 리펙토링)
+기간: 2025.01.07-2025.01.15
+
+![](image/스프린트11.png)
+
+- model module 리펙토링
+
+<br>
+
 ##### 스프린트 10 (security module 리펙토링)
 기간: 2025.01.05-2025.01.05
 

@@ -1,15 +1,21 @@
 package vp.togedo.model.documents.personalSchedule
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.bson.types.ObjectId
 import vp.togedo.model.exception.personalSchedule.PersonalScheduleEndTimeBeforeStartTimeException
 import vp.togedo.model.exception.personalSchedule.PersonalScheduleTimeIsNotRangeException
 
 data class PersonalScheduleElement(
+    @JsonProperty("id")
     val id: ObjectId = ObjectId.get(),
+    @JsonProperty("startTime")
     val startTime: String,
+    @JsonProperty("endTime")
     val endTime: String,
+    @JsonProperty("name")
     val name: String,
+    @JsonProperty("color")
     val color: String
 ){
     /**
