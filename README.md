@@ -47,6 +47,11 @@
 ![](image/database.png)
 
 ---
+### 사용한 아키텍쳐(2025.01.23)
+##### Hexagonal Architecture
+![](image/Hexagonal_Architecture.png)
+
+---
 ### 기록
 ##### 스프린트 12 (redis module 리펙토링)
 기간: 2025.01.20-2025.01.22
