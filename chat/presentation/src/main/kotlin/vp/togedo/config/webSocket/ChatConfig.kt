@@ -6,13 +6,12 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
-import vp.togedo.security.config.JwtTokenProvider
 
 @Configuration
 @EnableWebSocketMessageBroker
 class ChatConfig(
-    private val jwtTokenProvider: JwtTokenProvider,
-    private val stompErrorHandler: StompErrorHandler
+    private val stompErrorHandler: StompErrorHandler,
+    private val filterChannelInterceptor: FilterChannelInterceptor
 ): WebSocketMessageBrokerConfigurer {
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
@@ -30,9 +29,6 @@ class ChatConfig(
     }
 
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
-        registration.interceptors(
-            FilterChannelInterceptor(
-            jwtTokenProvider = jwtTokenProvider)
-        )
+        registration.interceptors(filterChannelInterceptor)
     }
 }
