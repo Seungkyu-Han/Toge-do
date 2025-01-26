@@ -90,11 +90,33 @@ class UserServiceImpl(
             )
     }
 
-    /**
-     * 조회한 사용자의 정보를 데이터베이스에 저장
-     * @param userDocument 저장할 UserDocument
-     * @return 저장된 UserDocument
-     */
+    override fun updateUserNotification(id: ObjectId, deviceToken: String?): Mono<UserDocument> {
+        return userRepository.findById(id)
+            .flatMap{
+                userDocument ->
+                userDocument.deviceToken = deviceToken
+                userRepository.save(userDocument)
+            }
+    }
+
+    override fun updateUser(
+        id: ObjectId,
+        name: String,
+        email: String,
+        isImageUpdate: Boolean,
+        profileImageUrl: String?
+    ): Mono<UserDocument> {
+        return userRepository.findById(id)
+            .flatMap {
+                userDocument ->
+                userDocument.name = name
+                userDocument.email = email
+                if (isImageUpdate)
+                    userDocument.profileImageUrl = profileImageUrl
+                userRepository.save(userDocument)
+            }
+    }
+
     override fun saveUser(userDocument: UserDocument): Mono<UserDocument> {
         return userRepository.save(userDocument)
     }

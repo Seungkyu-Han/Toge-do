@@ -54,5 +54,29 @@ interface UserService {
      */
     fun findUserByEmail(email: String): Mono<UserDocument>
 
+    /**
+     * 사용자의 알림 설정을 변경
+     * @param id 변경할 사용자의 object id
+     * @param deviceToken 사용자의 device token
+     * @return 해당 사용자의 document
+     */
+    fun updateUserNotification(id: ObjectId, deviceToken: String?): Mono<UserDocument>
+
+    /**
+     * 사용자의 정보를 수정
+     * @param id 변경할 사용자의 object id
+     * @param name 변경할 사용자의 이름
+     * @param email 변경할 사용자의 이메일
+     * @param isImageUpdate 사용자의 프로필 이미지 변경 여부
+     * @param profileImageUrl 변경할 사용자의 프로필 이미지
+     * @return 해당 사용자의 document
+     */
+    fun updateUser(
+        id: ObjectId,
+        name: String,
+        email: String,
+        isImageUpdate: Boolean,
+        profileImageUrl: String?): Mono<UserDocument>
+
     fun saveUser(userDocument: UserDocument): Mono<UserDocument>
 }
