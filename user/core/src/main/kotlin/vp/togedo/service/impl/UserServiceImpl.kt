@@ -1,7 +1,6 @@
 package vp.togedo.service.impl
 
 import org.bson.types.ObjectId
-import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
@@ -35,17 +34,7 @@ class UserServiceImpl(
             )
     }
 
-    /**
-     * Oauth를 사용하여 사용자를 생성
-     * @param oauthEnum kakao, google
-     * @param kakaoId kakao oauth라면 kakao의 유저아이디
-     * @param googleId google oauth라면 google의 유저아이디
-     * @param name 사용자 이름
-     * @param email 사용자 이메일
-     * @param profileImageUrl 사용자 프로필 이미지 url
-     * @return 유저 정보
-     * @throws DuplicateKeyException 해당 이메일이 이미 존재하는 경우
-     */
+
     @Transactional
     override fun createUser(
         oauthEnum: OauthEnum,
@@ -55,49 +44,36 @@ class UserServiceImpl(
         email: String?,
         profileImageUrl: String?): Mono<UserDocument>{
 
-    val oauth = Oauth(
-            kakaoId = kakaoId,
-            googleId = googleId
-        )
-
-        val user = UserDocument(
-            oauth = oauth,
-            name = name ?: "사용자${(100..999).random()}",
-            email = email,
-            profileImageUrl = profileImageUrl
-        )
-
-        return userRepository.save(user)
-            .onErrorResume{
-                if(it is DuplicateKeyException){
-                    insertOauthIdByEmail(
-                        oauthEnum = oauthEnum,
+        val userDocument = Mono.defer {
+            Mono.just(
+                UserDocument(
+                    oauth = Oauth(
                         kakaoId = kakaoId,
-                        googleId = googleId,
-                        email = email!!
-                    )
-                }else{
-                    throw it
-                }
-            }
-    }
+                        googleId = googleId
+                    ),
+                    name = name ?: "사용자${(100..999).random()}",
+                    email = email,
+                    profileImageUrl = profileImageUrl
+                )
+            )
+        }
 
-    private fun insertOauthIdByEmail(
-        oauthEnum: OauthEnum,
-        kakaoId: Long?,
-        googleId: String?,
-        email: String
-    ): Mono<UserDocument> {
-        return userRepository.findByEmail(email)
-            .flatMap{
-                if (oauthEnum == OauthEnum.KAKAO) {
-                    it.oauth.kakaoId = kakaoId
+        return if (email != null){
+            return userRepository.findByEmail(email)
+                .switchIfEmpty(
+                    userDocument
+                )
+                .flatMap{
+                    it.oauth.kakaoId = it.oauth.kakaoId ?: kakaoId
+                    it.oauth.googleId = it.oauth.googleId ?: googleId
+                    userRepository.save(it)
                 }
-                else{
-                    it.oauth.googleId = googleId
-                }
+        }
+        else{
+            userDocument.flatMap {
                 userRepository.save(it)
             }
+        }
     }
 
     /**

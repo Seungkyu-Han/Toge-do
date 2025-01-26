@@ -21,6 +21,15 @@ interface UserService {
         kakaoId: Long? = null,
         googleId: String? = null): Mono<UserDocument>
 
+    /**
+     * 해당 사용자 정보로 새로운 유저를 생성
+     * @param oauthEnum 가입하는 oauth의 종류
+     * @param kakaoId kakao oauth id
+     * @param googleId google oauth id
+     * @param name 사용자의 이름
+     * @param email 회원가입하는 사용자의 이메일
+     * @param profileImageUrl 사용자의 프로필 이미지
+     */
     fun createUser(
         oauthEnum: OauthEnum,
         kakaoId: Long? = null,
