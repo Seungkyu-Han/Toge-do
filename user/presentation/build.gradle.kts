@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":user:core"))
     implementation(project(":user:persistence"))
     implementation(project(":kafka"))
+    implementation(project(":security"))
     implementation(project(":model"))
     implementation(project(":redis"))
 
