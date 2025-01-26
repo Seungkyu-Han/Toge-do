@@ -18,14 +18,6 @@ class UserServiceImpl(
     private val userRepository: UserRepository
 ): UserService {
 
-    /**
-     * Oauth로부터 받은 정보로 사용자를 조회
-     * @param oauthEnum kakao, google
-     * @param kakaoId kakao oauth라면 kakao의 유저아이디
-     * @param googleId google oauth라면 google의 유저아이디
-     * @return 유저 정보
-     */
-    @Transactional(readOnly = true)
     override fun getUserInfoByOauth(
         oauthEnum: OauthEnum,
         kakaoId: Long?,
@@ -90,16 +82,7 @@ class UserServiceImpl(
             }
     }
 
-    /**
-     * email 중복이면 해당 계정에 Oauth 추가
-     * @param oauthEnum oauth Type
-     * @param kakaoId 카카오 oauth Id
-     * @param googleId 구글 oauth Id
-     * @param email 이메일
-     * @return 유저 정보
-     */
-    @Transactional
-    override fun insertOauthIdByEmail(
+    private fun insertOauthIdByEmail(
         oauthEnum: OauthEnum,
         kakaoId: Long?,
         googleId: String?,
