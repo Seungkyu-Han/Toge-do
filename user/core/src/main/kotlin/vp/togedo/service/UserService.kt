@@ -7,12 +7,6 @@ import vp.togedo.model.documents.user.UserDocument
 
 interface UserService {
 
-    fun createJwtAccessToken(id: ObjectId): String
-
-    fun createJwtRefreshToken(id: ObjectId): String
-
-    fun getUserIdByToken(token: String): ObjectId
-
     fun getUserInfoByOauth(
         oauthEnum: OauthEnum,
         kakaoId: Long? = null,

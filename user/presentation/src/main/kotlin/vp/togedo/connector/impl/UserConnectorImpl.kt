@@ -36,7 +36,7 @@ class UserConnectorImpl(
         if(token == null || !token.startsWith("Bearer "))
             throw UserException(ErrorCode.EMPTY_TOKEN)
         return try{
-            userService.getUserIdByToken(token.removePrefix("Bearer "))
+            ObjectId(jwtTokenProvider.getUserId(token.removePrefix("Bearer ")))
         } catch (signatureException: SignatureException){
             throw UserException(ErrorCode.INVALID_TOKEN)
         } catch (malformedJwtException: MalformedJwtException){
@@ -113,8 +113,8 @@ class UserConnectorImpl(
     override fun reissueAccessToken(refreshToken: String): LoginRes {
         return try{
             LoginRes(
-                userService.createJwtAccessToken(
-                    this.extractUserIdByToken(refreshToken)
+                jwtTokenProvider.getAccessToken(
+                    this.extractUserIdByToken(refreshToken).toString()
                 ),
                 refreshToken = refreshToken
             )

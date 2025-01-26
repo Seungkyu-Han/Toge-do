@@ -9,36 +9,14 @@ import vp.togedo.repository.UserRepository
 import vp.togedo.enums.OauthEnum
 import vp.togedo.model.documents.user.Oauth
 import vp.togedo.model.documents.user.UserDocument
-import vp.togedo.security.config.JwtTokenProvider
 import vp.togedo.service.UserService
 import vp.togedo.util.error.errorCode.ErrorCode
 import vp.togedo.util.error.exception.UserException
 
 @Service
 class UserServiceImpl(
-    private val jwtTokenProvider: JwtTokenProvider,
     private val userRepository: UserRepository
 ): UserService {
-
-    /**
-     * 유저의 objectId를 사용하여 access token 생성
-     * @param id 유저의 objectId
-     * @return 2시간 유효의 access token
-     */
-    override fun createJwtAccessToken(id: ObjectId): String {
-        val userId = id.toHexString()
-        return jwtTokenProvider.getAccessToken(userId)
-    }
-
-    /**
-     * 유저의 objectId를 사용하여 refresh token 생성
-     * @param id 유저의 objectId
-     * @return 7일 유효의 refresh token
-     */
-    override fun createJwtRefreshToken(id: ObjectId): String {
-        val userId = id.toHexString()
-        return jwtTokenProvider.getRefreshToken(userId)
-    }
 
     /**
      * Oauth로부터 받은 정보로 사용자를 조회
@@ -137,16 +115,6 @@ class UserServiceImpl(
                 }
                 userRepository.save(it)
             }
-    }
-
-    /**
-     * Token에서 UserId를 추출
-     * @param token 해당 서비스에서 발급받은 토큰
-     * @return 해당 유저의 ObjectId
-     * @throws IllegalArgumentException ObjectId로 바꿀 수 없을 때 발생
-     */
-    override fun getUserIdByToken(token: String): ObjectId {
-        return ObjectId(jwtTokenProvider.getUserId(token))
     }
 
     /**
