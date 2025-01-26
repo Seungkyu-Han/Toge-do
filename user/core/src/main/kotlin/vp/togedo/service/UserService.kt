@@ -14,7 +14,7 @@ interface UserService {
      * @param kakaoId kakao oauth id
      * @param googleId google oauth id
      * @return 해당 사용자의 user document
-     * @exception UserException 해당 사용자가 존재하지 않는 경우
+     * @throws UserException 해당 사용자가 존재하지 않는 경우
      */
     fun getUserInfoByOauth(
         oauthEnum: OauthEnum,
@@ -38,8 +38,20 @@ interface UserService {
         email: String? = null,
         profileImageUrl: String? = null): Mono<UserDocument>
 
+    /**
+     * 사용자의 object id로 사용자를 검색
+     * @param id 사용자의 object id
+     * @return 해당 사용자의 document
+     * @throws UserException 해당 사용자가 존재하지 않는 경우
+     */
     fun findUser(id: ObjectId): Mono<UserDocument>
 
+    /**
+     * 사용자의 object id로 사용자를 검색
+     * @param email 사용자의 email
+     * @return 해당 사용자의 document
+     * @throws UserException 해당 사용자가 존재하지 않는 경우
+     */
     fun findUserByEmail(email: String): Mono<UserDocument>
 
     fun saveUser(userDocument: UserDocument): Mono<UserDocument>
