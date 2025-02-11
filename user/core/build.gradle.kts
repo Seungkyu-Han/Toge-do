@@ -39,6 +39,9 @@ dependencies {
 
     //REFLECT
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    //OBJECT POOL
+    implementation("org.apache.commons:commons-pool2:2.12.1")
 }
 
 tasks.test {
