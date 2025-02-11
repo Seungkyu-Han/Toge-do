@@ -57,7 +57,10 @@ class UserConnectorImpl(
                 userService.getUserInfoByOauth(
                     oauthEnum = OauthEnum.KAKAO,
                     kakaoId = v2UserMe.id
-                ).onErrorResume {
+                ).map{
+                    userInfo ->
+                    userInfo.id
+                }.onErrorResume {
                     if(it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND_BY_OAUTH) {
                         userService.createUser(
                             oauthEnum = OauthEnum.KAKAO,
@@ -65,7 +68,12 @@ class UserConnectorImpl(
                             name = v2UserMe.kakaoAccount?.name,
                             email = v2UserMe.kakaoAccount?.email,
                             profileImageUrl = v2UserMe.kakaoAccount?.profile?.profileImageUrl
-                        )
+                        ).map{
+                            createdUser ->
+                            val id = createdUser.id
+                            userService.returnUserDocument(createdUser)
+                            id
+                        }
                     }else{
                         throw UserException(ErrorCode.LOGIN_UNEXPECTED_ERROR)
                     }
@@ -73,8 +81,8 @@ class UserConnectorImpl(
             }
             .map {
                 LoginRes(
-                    accessToken = jwtTokenProvider.getAccessToken(it.id.toString()),
-                    refreshToken = jwtTokenProvider.getRefreshToken(it.id.toString())
+                    accessToken = jwtTokenProvider.getAccessToken(it.toString()),
+                    refreshToken = jwtTokenProvider.getRefreshToken(it.toString())
                 )
             }
 
@@ -88,7 +96,10 @@ class UserConnectorImpl(
                 userService.getUserInfoByOauth(
                     oauthEnum = OauthEnum.GOOGLE,
                     googleId = googleUserInfo.id
-                ).onErrorResume {
+                ).map{
+                    userInfo ->
+                    userInfo.id
+                }.onErrorResume {
                         if(it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND_BY_OAUTH) {
                             userService.createUser(
                                 oauthEnum = OauthEnum.GOOGLE,
@@ -96,7 +107,12 @@ class UserConnectorImpl(
                                 name = googleUserInfo.name,
                                 email = googleUserInfo.email,
                                 profileImageUrl = googleUserInfo.picture
-                            )
+                            ).map{
+                                    createdUser ->
+                                val id = createdUser.id
+                                userService.returnUserDocument(createdUser)
+                                id
+                            }
                         }else{
                             throw UserException(ErrorCode.LOGIN_UNEXPECTED_ERROR)
                         }
@@ -104,8 +120,8 @@ class UserConnectorImpl(
             }
             .map {
                 LoginRes(
-                    accessToken = jwtTokenProvider.getAccessToken(it.id.toString()),
-                    refreshToken = jwtTokenProvider.getRefreshToken(it.id.toString())
+                    accessToken = jwtTokenProvider.getAccessToken(it.toString()),
+                    refreshToken = jwtTokenProvider.getRefreshToken(it.toString())
                 )
             }
 

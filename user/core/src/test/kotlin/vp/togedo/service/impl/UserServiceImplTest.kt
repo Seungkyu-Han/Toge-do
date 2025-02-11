@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.*
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import vp.togedo.config.pool.UserPoolComponent
 import vp.togedo.enums.OauthEnum
 import vp.togedo.model.documents.user.Oauth
 import vp.togedo.model.documents.user.UserDocument
@@ -22,17 +24,20 @@ import java.util.*
 
 
 @ExtendWith(SpringExtension::class)
-@ContextConfiguration(classes = [UserServiceImpl::class])
+@ContextConfiguration(classes = [UserServiceImpl::class, UserPoolComponent::class])
 class UserServiceImplTest{
 
     @MockBean
     private lateinit var userRepository: UserRepository
 
+    @SpyBean
+    private lateinit var userPoolComponent: UserPoolComponent
+
     private lateinit var userService: UserServiceImpl
 
     @BeforeEach
     fun setUp() {
-        userService = UserServiceImpl(userRepository)
+        userService = UserServiceImpl(userRepository, userPoolComponent)
     }
 
     @Nested

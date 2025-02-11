@@ -78,5 +78,11 @@ interface UserService {
         isImageUpdate: Boolean,
         profileImageUrl: String?): Mono<UserDocument>
 
+    /**
+     * Object Pool에서 가져온 객체를 반환
+     * @param userDocument borrow한 객체
+     */
+    fun returnUserDocument(userDocument: UserDocument)
+
     fun saveUser(userDocument: UserDocument): Mono<UserDocument>
 }
