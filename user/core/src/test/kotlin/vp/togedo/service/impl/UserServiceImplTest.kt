@@ -91,7 +91,7 @@ class UserServiceImplTest{
 
         @Test
         @DisplayName("kakao oauth로 존재하지 않는 사용자를 검색")
-        fun findUserByNotExistKakaoOauthReturnSuccess(){
+        fun findUserByNotExistKakaoOauthReturnException(){
             //given
             val kakaoId = 1L
 
@@ -112,7 +112,7 @@ class UserServiceImplTest{
 
         @Test
         @DisplayName("google oauth로 존재하지 않는 사용자를 검색")
-        fun findUserByNotExistGoogleOauthReturnSuccess(){
+        fun findUserByNotExistGoogleOauthReturnException(){
             //given
             val googleId = UUID.randomUUID().toString()
 
@@ -129,6 +129,152 @@ class UserServiceImplTest{
 
             //then
             verify(userRepository, times(1)).findByOauth_GoogleId(googleId)
+        }
+    }
+
+    @Nested
+    inner class CreateUser{
+
+        @Test
+        @DisplayName("존재하지 않는 유저를 kakao oauth를 통해 생성")
+        fun createNewKakaoUserReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(
+                    kakaoId = 1L
+                ),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                profileImageUrl = UUID.randomUUID().toString()
+            )
+
+            `when`(userRepository.findByEmail(user.email!!))
+                .thenReturn(Mono.empty())
+
+            `when`(userRepository.save(any()))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.createUser(
+                oauthEnum = OauthEnum.KAKAO,
+                kakaoId = user.oauth.kakaoId,
+                email = user.email,
+                googleId = null,
+                name = user.name,
+                profileImageUrl = user.profileImageUrl
+            )).expectNext(user).verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findByEmail(user.email!!)
+            verify(userRepository, times(1)).save(any())
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저를 google oauth를 통해 생성")
+        fun createNewGoogleUserReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(
+                    googleId = UUID.randomUUID().toString(),
+                ),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                profileImageUrl = UUID.randomUUID().toString()
+            )
+
+            `when`(userRepository.findByEmail(user.email!!))
+                .thenReturn(Mono.empty())
+
+            `when`(userRepository.save(any()))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.createUser(
+                oauthEnum = OauthEnum.GOOGLE,
+                googleId = user.oauth.googleId,
+                email = user.email,
+                name = user.name,
+                profileImageUrl = user.profileImageUrl
+            )).expectNext(user).verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findByEmail(user.email!!)
+            verify(userRepository, times(1)).save(any())
+        }
+
+        @Test
+        @DisplayName("존재하는 유저를 kakao oauth를 통해 생성")
+        fun createExistKakaoUserReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(
+                    googleId = UUID.randomUUID().toString(),
+                ),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                profileImageUrl = UUID.randomUUID().toString()
+            )
+            val kakaoId = 1L
+
+            `when`(userRepository.findByEmail(user.email!!))
+                .thenReturn(Mono.just(user))
+
+            `when`(userRepository.save(user))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.createUser(
+                oauthEnum = OauthEnum.KAKAO,
+                kakaoId = kakaoId,
+                email = user.email,
+                name = user.name,
+                profileImageUrl = user.profileImageUrl
+            )).expectNextMatches{
+                it.oauth.kakaoId == kakaoId &&
+                        it.oauth.googleId == user.oauth.googleId
+            }.verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findByEmail(user.email!!)
+            verify(userRepository, times(1)).save(user)
+        }
+
+
+        @Test
+        @DisplayName("존재하는 유저를 google oauth를 통해 생성")
+        fun createExistGoogleUserReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(
+                    kakaoId = 1L
+                ),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                profileImageUrl = UUID.randomUUID().toString()
+            )
+            val googleId = UUID.randomUUID().toString()
+
+            `when`(userRepository.findByEmail(user.email!!))
+                .thenReturn(Mono.just(user))
+
+            `when`(userRepository.save(user))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.createUser(
+                oauthEnum = OauthEnum.GOOGLE,
+                googleId = googleId,
+                email = user.email,
+                name = user.name,
+                profileImageUrl = user.profileImageUrl
+            )).expectNextMatches{
+                it.oauth.kakaoId == user.oauth.kakaoId &&
+                        it.oauth.googleId == googleId
+            }.verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findByEmail(user.email!!)
+            verify(userRepository, times(1)).save(user)
         }
     }
 
