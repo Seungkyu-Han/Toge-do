@@ -14,6 +14,7 @@ import vp.togedo.dto.user.UserInfoResDto
 import vp.togedo.enums.OauthEnum
 import vp.togedo.model.documents.user.UserDocument
 import vp.togedo.redis.service.DeviceTokenService
+import vp.togedo.security.config.JwtTokenProvider
 import vp.togedo.service.GoogleService
 import vp.togedo.service.KakaoService
 import vp.togedo.service.S3Service
@@ -27,14 +28,15 @@ class UserConnectorImpl(
     private val kakaoService: KakaoService,
     private val googleService: GoogleService,
     private val s3Service: S3Service,
-    private val deviceTokenService: DeviceTokenService
+    private val deviceTokenService: DeviceTokenService,
+    private val jwtTokenProvider: JwtTokenProvider
 ): UserConnector {
 
     override fun extractUserIdByToken(token: String?): ObjectId{
         if(token == null || !token.startsWith("Bearer "))
             throw UserException(ErrorCode.EMPTY_TOKEN)
         return try{
-            userService.getUserIdByToken(token.removePrefix("Bearer "))
+            ObjectId(jwtTokenProvider.getUserId(token.removePrefix("Bearer ")))
         } catch (signatureException: SignatureException){
             throw UserException(ErrorCode.INVALID_TOKEN)
         } catch (malformedJwtException: MalformedJwtException){
@@ -71,8 +73,8 @@ class UserConnectorImpl(
             }
             .map {
                 LoginRes(
-                    accessToken = userService.createJwtAccessToken(it.id),
-                    refreshToken = userService.createJwtRefreshToken(it.id)
+                    accessToken = jwtTokenProvider.getAccessToken(it.id.toString()),
+                    refreshToken = jwtTokenProvider.getRefreshToken(it.id.toString())
                 )
             }
 
@@ -102,8 +104,8 @@ class UserConnectorImpl(
             }
             .map {
                 LoginRes(
-                    accessToken = userService.createJwtAccessToken(it.id),
-                    refreshToken = userService.createJwtRefreshToken(it.id)
+                    accessToken = jwtTokenProvider.getAccessToken(it.id.toString()),
+                    refreshToken = jwtTokenProvider.getRefreshToken(it.id.toString())
                 )
             }
 
@@ -111,8 +113,8 @@ class UserConnectorImpl(
     override fun reissueAccessToken(refreshToken: String): LoginRes {
         return try{
             LoginRes(
-                userService.createJwtAccessToken(
-                    this.extractUserIdByToken(refreshToken)
+                jwtTokenProvider.getAccessToken(
+                    this.extractUserIdByToken(refreshToken).toString()
                 ),
                 refreshToken = refreshToken
             )
