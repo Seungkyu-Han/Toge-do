@@ -451,4 +451,107 @@ class UserServiceImplTest{
         }
     }
 
+    @Nested
+    inner class UpdateUser{
+
+        @Test
+        @DisplayName("존재하는 유저를 프로필 이미지까지 수정")
+        fun updateUserWithProfileImageReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                profileImageUrl = UUID.randomUUID().toString()
+            )
+
+            val newName = UUID.randomUUID().toString()
+            val newEmail = UUID.randomUUID().toString()
+            val newProfileImageUrl = UUID.randomUUID().toString()
+
+            `when`(userRepository.findById(user.id))
+                .thenReturn(Mono.just(user))
+
+            `when`(userRepository.save(user))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.updateUser(
+                id = user.id,
+                name = newName,
+                email = newEmail,
+                isImageUpdate = true,
+                profileImageUrl = newProfileImageUrl
+            )).expectNextMatches {
+                it.name == newName &&
+                        it.email == newEmail &&
+                        it.profileImageUrl == newProfileImageUrl
+            }.verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findById(user.id)
+            verify(userRepository, times(1)).save(user)
+        }
+
+        @Test
+        @DisplayName("존재하는 유저를 프로필 이미지 제외하고 수정")
+        fun updateUserNotProfileImageReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                profileImageUrl = UUID.randomUUID().toString()
+            )
+
+            val newName = UUID.randomUUID().toString()
+            val newEmail = UUID.randomUUID().toString()
+
+            `when`(userRepository.findById(user.id))
+                .thenReturn(Mono.just(user))
+
+            `when`(userRepository.save(user))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.updateUser(
+                id = user.id,
+                name = newName,
+                email = newEmail,
+                isImageUpdate = false,
+                profileImageUrl = null
+            )).expectNextMatches {
+                it.name == newName &&
+                        it.email == newEmail &&
+                        it.profileImageUrl == user.profileImageUrl
+            }.verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findById(user.id)
+            verify(userRepository, times(1)).save(user)
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저를 수정")
+        fun updateUserNotExistReturnException(){
+            //given
+            val userId = ObjectId.get()
+            `when`(userRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(userService.updateUser(id = userId,
+                name = UUID.randomUUID().toString(),
+                email = UUID.randomUUID().toString(),
+                isImageUpdate = false,
+                profileImageUrl = null))
+                .expectErrorMatches {
+                    it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND
+                }.verify()
+
+            //then
+            verify(userRepository, times(1)).findById(userId)
+        }
+    }
+
 }
