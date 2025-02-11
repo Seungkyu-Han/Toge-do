@@ -57,7 +57,7 @@ interface UserService {
     /**
      * 사용자의 알림 설정을 변경
      * @param id 변경할 사용자의 object id
-     * @param deviceToken 사용자의 device token
+     * @param deviceToken 사용자의 device token(알림을 해제하는 경우 null)
      * @return 해당 사용자의 document
      */
     fun updateUserNotification(id: ObjectId, deviceToken: String?): Mono<UserDocument>
