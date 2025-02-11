@@ -1,12 +1,14 @@
 package vp.togedo.service.impl
 
+import org.apache.commons.pool2.impl.GenericObjectPool
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
+import vp.togedo.config.pool.UserPoolComponent
 import vp.togedo.repository.UserRepository
 import vp.togedo.enums.OauthEnum
-import vp.togedo.model.documents.user.Oauth
 import vp.togedo.model.documents.user.UserDocument
 import vp.togedo.service.UserService
 import vp.togedo.util.error.errorCode.ErrorCode
@@ -14,8 +16,14 @@ import vp.togedo.util.error.exception.UserException
 
 @Service
 class UserServiceImpl(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userPoolComponent: UserPoolComponent
 ): UserService {
+
+    private val userPool = GenericObjectPool(userPoolComponent, GenericObjectPoolConfig<UserDocument>().apply{
+        maxTotal = 10
+        minIdle = 5
+    })
 
     override fun getUserInfoByOauth(
         oauthEnum: OauthEnum,
@@ -44,23 +52,18 @@ class UserServiceImpl(
         email: String?,
         profileImageUrl: String?): Mono<UserDocument>{
 
-        val userDocument = Mono.defer {
-            Mono.just(
-                UserDocument(
-                    oauth = Oauth(
-                        kakaoId = kakaoId,
-                        googleId = googleId
-                    ),
-                    name = name ?: "사용자${(100..999).random()}",
-                    email = email,
-                    profileImageUrl = profileImageUrl
-                )
-            )
-        }
+
+        val userDocument = userPool.borrowObject()
+
+        userDocument.id = ObjectId.get()
+        userDocument.name = name ?: "사용자${(100..999).random()}"
+        userDocument.email = email
+        userDocument.profileImageUrl = profileImageUrl
+
 
         return if (email != null){
             return userRepository.findByEmail(email)
-                .switchIfEmpty(
+                .defaultIfEmpty(
                     userDocument
                 )
                 .flatMap{
@@ -70,9 +73,7 @@ class UserServiceImpl(
                 }
         }
         else{
-            userDocument.flatMap {
-                userRepository.save(it)
-            }
+            userRepository.save(userDocument)
         }
     }
 
@@ -121,6 +122,10 @@ class UserServiceImpl(
                     userDocument.profileImageUrl = profileImageUrl
                 userRepository.save(userDocument)
             }
+    }
+
+    override fun returnUserDocument(userDocument: UserDocument) {
+        userPool.returnObject(userDocument)
     }
 
     override fun saveUser(userDocument: UserDocument): Mono<UserDocument> {

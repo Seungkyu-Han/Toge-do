@@ -27,6 +27,10 @@ spring:
 
 server:
   port: 12041
+  tomcat:
+    threads:
+      max: 20
+      min-spare: 10
 
 springdoc:
   api-docs:

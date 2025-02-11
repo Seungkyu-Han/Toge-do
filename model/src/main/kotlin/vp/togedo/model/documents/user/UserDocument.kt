@@ -9,10 +9,10 @@ import vp.togedo.model.exception.user.*
 @Document(collection = "users")
 data class UserDocument(
     @Id
-    val id: ObjectId = ObjectId.get(),
+    var id: ObjectId = ObjectId.get(),
 
     @Indexed(unique = true)
-    val oauth: Oauth,
+    var oauth: Oauth,
 
     @Indexed(unique = true)
     var email: String? = null,
