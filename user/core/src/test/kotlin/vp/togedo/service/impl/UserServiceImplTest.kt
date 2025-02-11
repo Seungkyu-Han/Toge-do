@@ -373,4 +373,82 @@ class UserServiceImplTest{
         }
     }
 
+    @Nested
+    inner class UpdateUserNotification{
+        @Test
+        @DisplayName("알림을 설정하는 경우")
+        fun updateUserNotificationToSetReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+            )
+
+            `when`(userRepository.findById(user.id))
+                .thenReturn(Mono.just(user))
+
+            `when`(userRepository.save(user))
+                .thenReturn(Mono.just(user))
+
+            val deviceToken = UUID.randomUUID().toString()
+
+            //when
+            StepVerifier.create(userService.updateUserNotification(user.id, deviceToken))
+                .expectNextMatches {
+                    it.deviceToken == deviceToken
+                }.verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findById(user.id)
+            verify(userRepository, times(1)).save(user)
+        }
+
+        @Test
+        @DisplayName("알림을 해제하는 경우")
+        fun updateUserNotificationToUnsetReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                deviceToken = UUID.randomUUID().toString()
+            )
+
+            `when`(userRepository.findById(user.id))
+                .thenReturn(Mono.just(user))
+
+            `when`(userRepository.save(user))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.updateUserNotification(user.id, null))
+                .expectNextMatches {
+                    it.deviceToken == null
+                }.verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findById(user.id)
+            verify(userRepository, times(1)).save(user)
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저를 조회하는 경우")
+        fun updateUserNotificationNotExistUserReturnException(){
+            //given
+            val userId = ObjectId.get()
+            `when`(userRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(userService.updateUserNotification(userId, UUID.randomUUID().toString()))
+                .expectErrorMatches {
+                    it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND
+                }.verify()
+
+            //then
+            verify(userRepository, times(1)).findById(userId)
+        }
+    }
+
 }

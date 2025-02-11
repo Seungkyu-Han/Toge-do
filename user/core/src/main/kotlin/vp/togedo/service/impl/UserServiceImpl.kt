@@ -92,6 +92,9 @@ class UserServiceImpl(
 
     override fun updateUserNotification(id: ObjectId, deviceToken: String?): Mono<UserDocument> {
         return userRepository.findById(id)
+            .switchIfEmpty(
+                Mono.error(UserException(ErrorCode.USER_NOT_FOUND))
+            )
             .flatMap{
                 userDocument ->
                 userDocument.deviceToken = deviceToken
