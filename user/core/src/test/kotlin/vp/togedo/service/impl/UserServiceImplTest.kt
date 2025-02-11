@@ -1,5 +1,6 @@
 package vp.togedo.service.impl
 
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -275,6 +276,100 @@ class UserServiceImplTest{
             //then
             verify(userRepository, times(1)).findByEmail(user.email!!)
             verify(userRepository, times(1)).save(user)
+        }
+    }
+
+    @Nested
+    inner class FindUser{
+
+        @Test
+        @DisplayName("존재하는 유저를 검색")
+        fun findExistUserReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(
+                    kakaoId = 1L
+                ),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                profileImageUrl = UUID.randomUUID().toString()
+            )
+
+            `when`(userRepository.findById(user.id))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.findUser(user.id))
+                .expectNext(user).verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findById(user.id)
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저를 검색")
+        fun findNotExistUserReturnException(){
+            //given
+            val userId = ObjectId.get()
+
+            `when`(userRepository.findById(userId))
+                .thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(userService.findUser(userId))
+                .expectErrorMatches {
+                    it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND
+                }.verify()
+
+            //then
+            verify(userRepository, times(1)).findById(userId)
+        }
+    }
+
+    @Nested
+    inner class FindUserByEmail{
+
+        @Test
+        @DisplayName("존재하는 유저를 검색")
+        fun findExistUserByEmailReturnSuccess(){
+            //given
+            val user = UserDocument(
+                oauth = Oauth(
+                    kakaoId = 1L
+                ),
+                email = UUID.randomUUID().toString(),
+                name = UUID.randomUUID().toString(),
+                profileImageUrl = UUID.randomUUID().toString()
+            )
+
+            `when`(userRepository.findByEmail(user.email!!))
+                .thenReturn(Mono.just(user))
+
+            //when
+            StepVerifier.create(userService.findUserByEmail(user.email!!))
+                .expectNext(user).verifyComplete()
+
+            //then
+            verify(userRepository, times(1)).findByEmail(user.email!!)
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 유저를 검색")
+        fun findNotExistUserByEmailReturnException(){
+            //given
+            val userEmail = UUID.randomUUID().toString()
+
+            `when`(userRepository.findByEmail(userEmail))
+                .thenReturn(Mono.empty())
+
+            //when
+            StepVerifier.create(userService.findUserByEmail(userEmail))
+                .expectErrorMatches {
+                    it is UserException && it.errorCode == ErrorCode.USER_NOT_FOUND
+                }.verify()
+
+            //then
+            verify(userRepository, times(1)).findByEmail(userEmail)
         }
     }
 
